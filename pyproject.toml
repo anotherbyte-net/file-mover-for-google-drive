@@ -1,0 +1,148 @@
+[build-system]
+requires = [
+    "setuptools>=67.0.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "file-mover-for-google-drive"
+description = "Helps move files between Google Drive accounts."
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business",
+    "Topic :: Utilities",
+]
+dynamic = [
+    "version",
+    "dependencies",
+    "optional-dependencies",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/anotherbyte-net/file-mover-for-google-drive"
+"Changelog" = "https://github.com/anotherbyte-net/file-mover-for-google-drive/blob/main/CHANGELOG.md"
+"Source" = "https://github.com/anotherbyte-net/file-mover-for-google-drive"
+"Tracker" = "https://github.com/anotherbyte-net/file-mover-for-google-drive/issues"
+
+[project.scripts]
+file-mover-for-google-drive = 'file_mover_for_google_drive.cli:main'
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+# include and exclude accept strings representing glob patterns.
+include = [
+    "file_mover_for_google_drive*",
+]
+
+[tool.setuptools.dynamic]
+version = { file = [
+    "VERSION",
+] }
+dependencies = { file = [
+    "requirements.txt",
+] }
+
+[tool.setuptools.dynamic.optional-dependencies]
+dev = { file = [
+    "requirements-dev.txt",
+] }
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra --quiet"
+pythonpath = [
+    "src",
+]
+testpaths = [
+    "tests",
+]
+
+[tool.coverage.run]
+# "Specifying the source option enables coverage.py to report on unexecuted files,
+# since it can search the source tree for files that haven’t been measured at all."
+source = [
+    'src',
+]
+omit = [
+    '*/site-packages/*',
+    'tests/*',
+]
+
+[tool.coverage.report]
+skip_empty = true
+
+[tool.coverage.html]
+directory = "coverage-html"
+
+[tool.isort]
+profile = "black"
+src_paths = [
+    "src",
+]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py310,py311
+
+[testenv]
+#recreate = true
+deps =
+    -r requirements.txt
+    -r requirements-dev.txt
+allowlist_externals =
+    echo
+commands =
+    echo "::group::Show app help"
+    file-mover-for-google-drive --version
+    file-mover-for-google-drive --help
+    echo "::endgroup::"
+    echo "::group::Outdated deps"
+    -pip list --outdated
+    echo "::endgroup::"
+    echo "::group::Test coverage"
+    python -X dev -m coverage run -m pytest --doctest-modules
+    echo "::endgroup::"
+    echo "::group::Coverage report"
+    -python -X dev -m coverage report
+    echo "::endgroup::"
+    echo "::group::Linter - mypy"
+    -python -X dev -m mypy src
+    echo "::endgroup::"
+    echo "::group::Linter - black"
+    -python -X dev -m black --check src
+    echo "::endgroup::"
+    echo "::group::Linter - pylint"
+    -python -X dev -m pylint src
+    echo "::endgroup::"
+    echo "::group::Linter - pydocstyle"
+    -python -X dev -m pydocstyle src
+    echo "::endgroup::"
+    echo "::group::Linter - flake8"
+    -python -X dev -m flake8 src --count --show-source --statistics --exit-zero
+    echo "::endgroup::"
+    echo "::group::Build"
+    python -m build --sdist --wheel --outdir dist/ .
+    echo "::endgroup::"
+"""
+
+[tool.pydocstyle]
+convention = 'google'
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true

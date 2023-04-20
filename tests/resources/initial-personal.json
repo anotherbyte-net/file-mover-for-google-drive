@@ -1,0 +1,398 @@
+[
+  {
+    "kind": "drive#file",
+    "id": "personal-top-folder",
+    "name": "Name for personal-top-folder",
+    "mimeType": "application/vnd.google-apps.folder",
+    "description": "Description for personal-top-folder",
+    "parents": [
+      "entry-id-not-available"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/personal-top-folder",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "personal-top-folder-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      },
+      {
+        "kind": "drive#permission",
+        "id": "personal-top-folder-other1",
+        "type": "user",
+        "emailAddress": "other-user1@example.com",
+        "role": "writer",
+        "displayName": "Personal User 1"
+      }
+    ],
+    "originalFilename": "",
+    "sha256Checksum": "",
+    "size": 0,
+    "quotaBytesUsed": 0
+  },
+  {
+    "kind": "drive#file",
+    "id": "folder_1_a",
+    "name": "Name for folder_1_a",
+    "mimeType": "application/vnd.google-apps.folder",
+    "description": "Description for folder_1_a",
+    "parents": [
+      "personal-top-folder"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/folder_1_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "folder_1_a-writer",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "writer",
+        "displayName": "Personal User"
+      },
+      {
+        "kind": "drive#permission",
+        "id": "folder_1_a-other-user1-owner",
+        "type": "user",
+        "emailAddress": "other-user1@example.com",
+        "role": "owner",
+        "displayName": "Personal User 1"
+      },
+      {
+        "kind": "drive#permission",
+        "id": "folder_1_a-other-user2-reader",
+        "type": "user",
+        "emailAddress": "other-user2@example.com",
+        "role": "reader",
+        "displayName": "Personal User 2"
+      }
+    ],
+    "originalFilename": "",
+    "sha256Checksum": "",
+    "size": 0,
+    "quotaBytesUsed": 0
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_1_a",
+    "name": "Name for file_1_a",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_1_a",
+    "parents": [
+      "folder_1_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_1_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_1_a-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_1_a.docx",
+    "sha256Checksum": "checksum-file_1_a",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "folder_2_a",
+    "name": "Name for folder_2_a",
+    "mimeType": "application/vnd.google-apps.folder",
+    "description": "Description for folder_2_a",
+    "parents": [
+      "folder_1_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/folder_2_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "folder_2_a-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "",
+    "sha256Checksum": "",
+    "size": 0,
+    "quotaBytesUsed": 0
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_2_a",
+    "name": "Name for file_2_a",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_2_a",
+    "parents": [
+      "folder_2_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_2_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_2_a-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_2_a.docx",
+    "sha256Checksum": "checksum-file_2_a",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_2_b",
+    "name": "Name for file_2_b",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_2_b",
+    "parents": [
+      "folder_2_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_2_b",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_2_b-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_2_b.docx",
+    "sha256Checksum": "checksum-file_2_b",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_2_c",
+    "name": "Name for file_2_c",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_2_c",
+    "parents": [
+      "folder_2_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_2_c",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_2_c-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_2_c.docx",
+    "sha256Checksum": "checksum-file_2_c",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "folder_3_a",
+    "name": "Name for folder_3_a",
+    "mimeType": "application/vnd.google-apps.folder",
+    "description": "Description for folder_3_a",
+    "parents": [
+      "folder_2_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/folder_3_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "folder_3_a-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "",
+    "sha256Checksum": "",
+    "size": 0,
+    "quotaBytesUsed": 0
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_3_a_a",
+    "name": "Name for file_3_a_a",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_3_a_a",
+    "parents": [
+      "folder_3_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_3_a_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_3_a_a-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_3_a_a.docx",
+    "sha256Checksum": "checksum-file_3_a_a",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_2_a_b",
+    "name": "Name for file_2_a_b",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_2_a_b",
+    "parents": [
+      "folder_3_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_2_a_b",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_2_a_b-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_2_a_b.docx",
+    "sha256Checksum": "checksum-file_2_a_b",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "folder_3_b",
+    "name": "Name for folder_3_b",
+    "mimeType": "application/vnd.google-apps.folder",
+    "description": "Description for folder_3_b",
+    "parents": [
+      "folder_2_a"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/folder_3_b",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "folder_3_b-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "",
+    "sha256Checksum": "",
+    "size": 0,
+    "quotaBytesUsed": 0
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_3_b_a",
+    "name": "Copy of Name for file_3_b_a",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_3_b_a",
+    "parents": [
+      "folder_3_b"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_3_b_a",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_3_b_a-owner",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "owner",
+        "displayName": "Personal User"
+      }
+    ],
+    "originalFilename": "file_3_b_a.docx",
+    "sha256Checksum": "checksum-file_3_b_a",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  },
+  {
+    "kind": "drive#file",
+    "id": "file_3_b_b",
+    "name": "Name for file_3_b_b",
+    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Description for file_3_b_b",
+    "parents": [
+      "folder_3_b"
+    ],
+    "properties": {},
+    "webViewLink": "https://example.com/entry/file_3_b_b",
+    "createdTime": "2023-03-30T20:33:30.756800+10:00",
+    "modifiedTime": "2023-03-30T20:33:30.756800+10:00",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "file_3_b_b-reader",
+        "type": "user",
+        "emailAddress": "personal-user@example.com",
+        "role": "reader",
+        "displayName": "Personal User"
+      },
+      {
+        "kind": "drive#permission",
+        "id": "file_3_b_b-owner",
+        "type": "user",
+        "emailAddress": "other-user1@example.com",
+        "role": "owner",
+        "displayName": "Personal User 1"
+      }
+    ],
+    "originalFilename": "file_3_b_b.docx",
+    "sha256Checksum": "checksum-file_3_b_b",
+    "size": 123456789,
+    "quotaBytesUsed": 123456789
+  }
+]
