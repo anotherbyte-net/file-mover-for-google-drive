@@ -1,3 +1,4 @@
+"""The report classes."""
 import abc
 import csv
 import dataclasses
@@ -12,18 +13,40 @@ logger = logging.getLogger(__name__)
 
 
 @dataclasses.dataclass
-class BaseReport:
+class BaseReport(abc.ABC):
+    """The abstract base report data class."""
+
     @classmethod
-    def report_name(cls):
+    @abc.abstractmethod
+    def report_name(cls) -> str:
+        """Get the report name.
+
+        Returns:
+            The report name.
+        """
         raise NotImplementedError()
 
     @classmethod
-    def fields(cls):
+    @abc.abstractmethod
+    def fields(cls) -> list[str]:
+        """Get the report fields.
+
+        Returns:
+            The report fields.
+        """
         raise NotImplementedError()
 
 
 class ReportCsv:
+    """A CSV file report."""
+
     def __init__(self, top_dir: pathlib.Path, report: type[BaseReport]):
+        """Create a new csv Report instance.
+
+        Args:
+            top_dir: The directory for the csv files.
+            report: The type of report to create.
+        """
         self._top_dir = top_dir
         self._report = report
 
@@ -34,10 +57,21 @@ class ReportCsv:
 
     @property
     def path(self):
+        """Get the file path.
+
+        Returns:
+            The file path.
+        """
         return self._file_path
 
-    def start(self):
-        """Start the report file."""
+    def start(self) -> None:
+        """Start the report file.
+
+        This sets up the resources to write to the report file.
+
+        Returns:
+            None
+        """
 
         name = self._report.report_name()
         fields = self._report.fields()
@@ -50,23 +84,46 @@ class ReportCsv:
         report_file.parent.mkdir(exist_ok=True, parents=True)
 
         self._file_path = report_file
-        self._file_handle = open(report_file, "wt", newline="")
+        self._file_handle = open(
+            report_file, "wt", newline="", encoding="utf-8"
+        )  # noqa: R1732
         self._writer = csv.DictWriter(self._file_handle, fields)
         self._writer.writeheader()
 
-    def write_item(self, item: dict):
-        """Write an item for the report."""
+    def write_item(self, item: dict) -> None:
+        """Write an item to the report file.
+
+        Args:
+            item: The item to write.
+
+        Returns:
+            None
+        """
         if self._writer:
             self._writer.writerow(item)
         else:
             raise ValueError("Csv writer is not ready.")
 
     def read(self, name: str) -> typing.Iterable[BaseReport]:
+        """Read the report file.
+
+        Args:
+            name: The name of the report file to read.
+
+        Returns:
+            The contents of the report file.
+        """
         # TODO: read file in self._top_dir with name using self._report.
         raise NotImplementedError()
 
-    def finish(self):
-        """Finish the report and close the file."""
+    def finish(self) -> None:
+        """Finish the report and close the file.
+
+        This ensures the resources to write the file are closed.
+
+        Returns:
+            None
+        """
 
         if self._file_handle:
             self._file_handle.close()
@@ -75,17 +132,33 @@ class ReportCsv:
         if self._writer:
             self._writer = None
 
-    def __enter__(self):
+    def __enter__(self) -> "ReportCsv":
+        """Enter the runtime context
+
+        Returns:
+
+        """
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # noqa: U100
+        """Exit the runtime context.
+
+        Args:
+            exc_type: The exception type.
+            exc_val: The exception value.
+            exc_tb: The exception traceback.
+
+        Returns:
+            True to suppress any exception.
+        """
         self.finish()
-        return False
 
 
 @dataclasses.dataclass
 class BaseEntryReport(abc.ABC):
+    """The abstract base for entry reports."""
+
     entry_name: str
     """name of the file or folder"""
     entry_path: str
@@ -96,7 +169,7 @@ class BaseEntryReport(abc.ABC):
     """either 'business' or 'personal'"""
     collection_name: str
     """
-    either the shared drive name for a business account or 
+    either the shared drive name for a business account or
     'My Drive' for a personal drive
     """
     collection_id: str
@@ -109,6 +182,8 @@ class BaseEntryReport(abc.ABC):
 
 @dataclasses.dataclass
 class EntryReport(BaseReport, BaseEntryReport):
+    """An item in an entry report."""
+
     checksum: str
     """content uniqueness value for 'binary' / non-Google files"""
     quota_bytes: typing.Optional[int]
@@ -145,6 +220,8 @@ class EntryReport(BaseReport, BaseEntryReport):
 
 @dataclasses.dataclass
 class PermissionReport(BaseReport, BaseEntryReport):
+    """An item in a permission report."""
+
     user_name: str
     """user's name"""
     user_email: str
@@ -213,7 +290,7 @@ class PlanReport(BaseReport):
     """either 'business' or 'personal'"""
     begin_collection_name: typing.Optional[str]
     """
-    either the shared drive name for a business account or 
+    either the shared drive name for a business account or
     'My Drive' for a personal drive
     """
     begin_collection_id: typing.Optional[str]
@@ -233,7 +310,7 @@ class PlanReport(BaseReport):
     """either 'business' or 'personal'"""
     end_collection_name: typing.Optional[str]
     """
-    either the shared drive name for a business account or 
+    either the shared drive name for a business account or
     'My Drive' for a personal drive
     """
     end_collection_id: typing.Optional[str]
@@ -249,7 +326,15 @@ class PlanReport(BaseReport):
 
     @classmethod
     def from_path(cls, path: pathlib.Path):
-        with open(path, "rt") as f:
+        """Read report items from the given path.
+
+        Args:
+            path: Load report items from this path.
+
+        Returns:
+            The report items.
+        """
+        with open(path, "rt", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 yield PlanReport(**row)
@@ -269,7 +354,8 @@ class PlanReport(BaseReport):
 @dataclasses.dataclass
 class OutcomeReport(PlanReport):
     result_name: str
-    """'succeeded' or 'failed' or 'skipped' (past tense, the plan has been executed to produce the outcome)"""
+    """Either 'succeeded' or 'failed' or 'skipped' (past tense, the plan has been
+    executed to produce the outcome)"""
 
     @classmethod
     def report_name(cls):

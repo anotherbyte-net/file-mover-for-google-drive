@@ -4,18 +4,30 @@ import dataclasses
 import logging
 import typing
 
-from file_mover_for_google_drive.common import manage, models, interact, utils, report
+from file_mover_for_google_drive.common import (
+    manage,
+    models,
+    interact,
+    utils,
+    report,
+    client,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class Plan(manage.BaseManage):
-    """Build a plan for making changes to two Google Drive accounts, one personal and one business."""
+    """
+    Build a plan for making changes to two Google Drive accounts,
+    one personal and one business.
+    """
 
-    def __init__(self, config: models.Config, client=None):
+    def __init__(
+        self, config: models.Config, gd_client: client.GoogleDriveAnyClientType = None
+    ) -> None:
         """Create a new Plan instance."""
 
-        super().__init__(config, client)
+        super().__init__(config, gd_client)
         self._bus_folders_path_create: list[str] = []
 
     def run(self) -> bool:
@@ -43,18 +55,19 @@ class Plan(manage.BaseManage):
 
         self._bus_folders_path_create = []
 
-        log_batch_size = 40
-
         logger.info(
-            f"Plan modifications for source '{per_col_name}' in {per_col_type} '{per_col_id}'."
+            "Plan modifications for source '%s' in %s '%s'.",
+            per_col_name,
+            per_col_type,
+            per_col_id,
         )
         logger.info(
-            f"Plan modifications for target '{bus_col_name}' in {bus_col_type} '{bus_col_id}'."
+            "Plan modifications for target '%s' in %s '%s'.",
+            bus_col_name,
+            bus_col_type,
+            bus_col_id,
         )
-        logger.info(f"Starting with folder '{per_top_folder_id}'.")
-
-        # allow cancelling without issues
-        graceful_exit = utils.GracefulExit()
+        logger.info("Starting with folder '%s'.", per_top_folder_id)
 
         # reports
         rpt_entries = report.ReportCsv(entries_dir, report.EntryReport)
@@ -63,9 +76,9 @@ class Plan(manage.BaseManage):
 
         # build
         with rpt_entries, rpt_permissions, rpt_plans:
-            logger.info(f"Writing entries report '{rpt_entries.path.name}'.")
-            logger.info(f"Writing permissions report '{rpt_permissions.path.name}'.")
-            logger.info(f"Writing plans report '{rpt_plans.path.name}'.")
+            logger.info("Writing entries report '%s'.", rpt_entries.path.name)
+            logger.info("Writing permissions report '%s'.", rpt_permissions.path.name)
+            logger.info("Writing plans report '%s'.", rpt_plans.path.name)
 
             logger.info("Starting.")
 
@@ -92,20 +105,21 @@ class Plan(manage.BaseManage):
                     per_container_cache, rpt_entries, rpt_permissions, rpt_plans, entry
                 )
 
-                if index > 0 and index % log_batch_size == 0:
-                    logger.info(f"Processed {index + 1} entries.")
-
-                if graceful_exit.should_exit():
-                    logger.warning("Stopping early.")
+                if self._iteration_check(index):
                     break
 
         logger.info("Finished.")
 
-        return False if graceful_exit.should_exit() else True
+        return not self._graceful_exit.should_exit()
 
     def _process_one(
-        self, container_cache, rpt_entries, rpt_permissions, rpt_plans, entry
-    ):
+        self,
+        container_cache: utils.GoogleDriveEntryCache,
+        rpt_entries: report.ReportCsv,
+        rpt_permissions: report.ReportCsv,
+        rpt_plans: report.ReportCsv,
+        entry: models.GoogleDriveEntry,
+    ) -> None:
         """Process one entry."""
 
         container_cache.add(entry)
@@ -131,7 +145,8 @@ class Plan(manage.BaseManage):
         # Note: See the readme for the changes to be made.
 
         # As a summary: Tidy permissions and ownership in the personal account to
-        # prepare for moving files and folders to a business account by transferring ownership.
+        # prepare for moving files and folders
+        # to a business account by transferring ownership.
 
         per_container = self._personal_container
         bus_container = self._business_container
@@ -163,7 +178,7 @@ class Plan(manage.BaseManage):
                 "Do not change the top-level folder in the personal account %s.",
                 str(entry),
             )
-            return []
+            return None
 
         # copy unowned items first
         if not per_is_owned:
@@ -213,7 +228,8 @@ class Plan(manage.BaseManage):
                         item_action="copy-file",
                         item_type=entry.entry_type,
                         entry_id=entry.entry_id,
-                        description="copy file to create a new file owned by the current user",
+                        description="copy file to create a new "
+                        "file owned by the current user",
                         permission_id=None,
                         begin_user_name=None,
                         begin_user_email=None,
@@ -237,10 +253,8 @@ class Plan(manage.BaseManage):
                     "There is already a copy of the not owned %s '%s' (%s) in '%s'.",
                     entry.entry_type,
                     entry.name,
-                    parent_path_str,
                     entry.entry_id,
-                    entry_paired.entry_id if entry_paired else "",
-                    copy_id,
+                    parent_path_str,
                 )
 
         # rename
@@ -344,7 +358,8 @@ class Plan(manage.BaseManage):
             )
 
         # transfer ownership of owned files to business account
-        # check if not-owned entries have a property indicating the copy has been transferred
+        # check if not-owned entries have a property
+        # indicating the copy has been transferred
         if not per_is_owned and not entry.is_dir:
             # check if the copy of this not-owned entry has already been transferred
             new_account_id = entry.custom_property(config.custom_prop_new_account_key)
@@ -355,7 +370,8 @@ class Plan(manage.BaseManage):
                     item_type=entry.entry_type,
                     entry_id=copy_entry_id,
                     permission_id=None,
-                    description="transfer ownership of copied file from personal to business account",
+                    description="transfer ownership of copied file "
+                    "from personal to business account",
                     begin_user_name=None,
                     begin_user_email=None,
                     begin_user_access=None,

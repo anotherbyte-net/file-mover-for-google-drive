@@ -7,32 +7,59 @@ import sys
 import typing
 
 from file_mover_for_google_drive.actions import show, plan, apply
-from file_mover_for_google_drive.common import models, utils, manage
+from file_mover_for_google_drive.common import models, utils, manage, client
 
-log_level = logging.INFO
+LOG_LEVEL = logging.INFO
 logging.basicConfig(
-    level=log_level,
+    level=LOG_LEVEL,
     format="%(asctime)s [%(levelname)-8s] [%(name)s] %(message)s",
 )
-logging.getLogger("googleapiclient.discovery_cache").setLevel(log_level)
-logging.getLogger("googleapiclient.discovery").setLevel(log_level)
+logging.getLogger("googleapiclient.discovery_cache").setLevel(LOG_LEVEL)
+logging.getLogger("googleapiclient.discovery").setLevel(LOG_LEVEL)
 
 
-def run_cli(args, client=None) -> int:
-    """Run the cli."""
+def run_cli(
+    args: argparse.Namespace, gd_client: client.GoogleDriveAnyClientType = None
+) -> int:
+    """Run the cli.
 
-    def _get_arg(args1, name: str):
-        """Get the property with name from args1."""
+    Args:
+        args: The parsed arguments.
+        gd_client: The Google Drive client.
+
+    Returns:
+        Program exit code.
+    """
+
+    def _get_arg(args1: argparse.Namespace, name: str) -> typing.Optional[typing.Any]:
+        """Get the property with name from args1.
+
+        Args:
+            args1: The parsed arguments.
+            name: The property name.
+
+        Returns:
+            The property value or None if not found.
+        """
 
         return getattr(args1, name) if hasattr(args, name) else None
 
-    def _get_path(args1, name) -> typing.Optional[pathlib.Path]:
-        """Get the path property with name from args1."""
+    def _get_path(
+        args1: argparse.Namespace, name: str
+    ) -> typing.Optional[pathlib.Path]:
+        """Get the path property with name from args1.
+
+        Args:
+            args1: The parsed arguments.
+            name: The property name.
+
+        Returns:
+            The value as a path or None if not found.
+        """
 
         value = _get_arg(args1, name)
         return pathlib.Path(value) if value else None
 
-    account = _get_arg(args, "account")
     config_file = _get_path(args, "config_file")
     plan_file = _get_path(args, "plan-file") or _get_path(args, "plan_file")
     subparser_name = _get_arg(args, "subparser_name")
@@ -45,11 +72,18 @@ def run_cli(args, client=None) -> int:
     manage_item: manage.BaseManage
 
     if subparser_name == "show":
-        manage_item = show.Show(account, config, client)
+        account = _get_arg(args, "account")
+        if not account or not isinstance(account, str):
+            raise ValueError(f"Invalid account value '{account}'.")
+
+        manage_item = show.Show(account, config, gd_client)
+
     elif subparser_name == "plan":
-        manage_item = plan.Plan(config, client)
+        manage_item = plan.Plan(config, gd_client)
+
     elif subparser_name == "apply":
-        manage_item = apply.Apply(plan_file, config, client)
+        manage_item = apply.Apply(plan_file, config, gd_client)
+
     else:
         raise ValueError(f"Unknown activity '{subparser_name}'.")
 
@@ -58,8 +92,19 @@ def run_cli(args, client=None) -> int:
     return 0 if result else 1
 
 
-def main(args=None, client=None) -> int:
-    """The program entry point."""
+def main(
+    args: typing.Optional[list[str]] = None,
+    gd_client: client.GoogleDriveAnyClientType = None,
+) -> int:
+    """The program entry point.
+
+    Args:
+        args: The raw program arguments.
+        gd_client: A Google Drive client.
+
+    Returns:
+        Program exit code.
+    """
 
     if args is None:
         args = sys.argv[1:]
@@ -120,14 +165,24 @@ def main(args=None, client=None) -> int:
         sys.exit(1)
 
     # execute
-    exit_code = parsed_args.func(parsed_args, client)
+    exit_code = parsed_args.func(parsed_args, gd_client)
+
+    if not isinstance(exit_code, int):
+        raise ValueError(f"Invalid exit code '{exit_code}'.")
 
     # return exit code
     return exit_code
 
 
-def _add_config_file_arg(parser):
-    """Add the config argument."""
+def _add_config_file_arg(parser: argparse.ArgumentParser) -> None:
+    """Add the config argument.
+
+    Args:
+        parser: The argument parser.
+
+    Returns:
+        None
+    """
 
     parser.add_argument(
         "--config-file",

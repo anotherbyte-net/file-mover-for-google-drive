@@ -1,3 +1,4 @@
+"""The data models."""
 import dataclasses
 import json
 import logging
@@ -9,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 @dataclasses.dataclass
 class Config:
+    """The program configuration."""
+
     auth_credentials_file: pathlib.Path
     auth_token_file: pathlib.Path
 
@@ -34,13 +37,13 @@ class Config:
     num_retries: int = 3
 
     @property
-    def custom_prop_original_key(self):
+    def custom_prop_original_key(self) -> str:
         """The key name for a custom property put on a copied (owned) entry,
         which contains the file id of the original entry."""
         return "CustomOriginalFileId"
 
     @property
-    def custom_prop_copy_key(self):
+    def custom_prop_copy_key(self) -> str:
         """
         The key name for a custom property put on an original (not owned) entry,
         which contains the file id of the copied entry.
@@ -48,7 +51,7 @@ class Config:
         return "CustomCopyFileId"
 
     @property
-    def custom_prop_prev_account_key(self):
+    def custom_prop_prev_account_key(self) -> str:
         """
         The key name for a custom property put on an owned entry,
         which contains the account id of the previous account
@@ -57,7 +60,7 @@ class Config:
         return "CustomPreviousAccountId"
 
     @property
-    def custom_prop_new_account_key(self):
+    def custom_prop_new_account_key(self) -> str:
         """The key name for a custom property put on a not-owned entry,
         which contains the account id of the account
         that now contains the copied (owned) file."""
@@ -92,12 +95,12 @@ class Config:
                 logger.error("The %s must be set, but was not.", name)
                 is_valid = False
 
-        return True if is_valid is None else False
+        return is_valid is None
 
     @classmethod
     def load(cls, path: pathlib.Path) -> "Config":
-        with open(path, "rt") as f:
-            raw = json.load(f)
+        with open(path, "rt", encoding="utf-8") as handle:
+            raw = json.load(handle)
             config = Config(
                 auth_credentials_file=pathlib.Path(raw.get("auth_credentials_file")),
                 auth_token_file=pathlib.Path(raw.get("auth_token_file")),
@@ -109,19 +112,23 @@ class Config:
                     "action_personal_account_file_names_remove_prefix_copy_of"
                 ),
                 action_permissions_remove_users=raw.get(
-                    "action_personal_account_permissions_remove_if_not_owner_and_not_current_user"
+                    "action_personal_account_permissions_"
+                    "remove_if_not_owner_and_not_current_user"
                 ),
                 action_permissions_remove_anyone=raw.get(
-                    "action_personal_account_permissions_remove_access_for_anyone_with_link"
+                    "action_personal_account_permissions_"
+                    "remove_access_for_anyone_with_link"
                 ),
                 action_copy_unowned=raw.get(
-                    "action_personal_account_copy_unowned_files_and_folders"
+                    "action_personal_account_copy_unowned_" "files_and_folders"
                 ),
                 action_move_to_owned_folder=raw.get(
-                    "action_personal_account_move_files_and_folders_from_unowned_folder_to_owned_folder"
+                    "action_personal_account_move_files_and_folders_"
+                    "from_unowned_folder_to_owned_folder"
                 ),
                 action_transfer_ownership=raw.get(
-                    "action_transfer_ownership_from_personal_account_to_business_account"
+                    "action_transfer_ownership_"
+                    "from_personal_account_to_business_account"
                 ),
                 personal_account_top_folder_id=raw.get(
                     "personal_account_top_folder_id"
@@ -147,12 +154,21 @@ class Config:
             "report_permissions_dir": str(self.report_permissions_dir),
             "report_plans_dir": str(self.report_plans_dir),
             "report_outcomes_dir": str(self.report_outcomes_dir),
-            "action_personal_account_file_names_remove_prefix_copy_of": self.action_remove_prefix_copy_of,
-            "action_personal_account_permissions_remove_if_not_owner_and_not_current_user": self.action_permissions_remove_users,
-            "action_personal_account_copy_unowned_files_and_folders": self.action_copy_unowned,
-            "action_personal_account_permissions_remove_access_for_anyone_with_link": self.action_permissions_remove_anyone,
-            "action_personal_account_move_files_and_folders_from_unowned_folder_to_owned_folder": self.action_move_to_owned_folder,
-            "action_transfer_ownership_from_personal_account_to_business_account": self.action_transfer_ownership,
+            "action_personal_account_"
+            "file_names_remove_prefix_copy_of": self.action_remove_prefix_copy_of,
+            "action_personal_account_"
+            "permissions_remove_if_not_"
+            "owner_and_not_current_user": self.action_permissions_remove_users,
+            "action_personal_account_"
+            "copy_unowned_files_and_folders": self.action_copy_unowned,
+            "action_personal_account_"
+            "permissions_remove_access_"
+            "for_anyone_with_link": self.action_permissions_remove_anyone,
+            "action_personal_account_"
+            "move_files_and_folders_from_"
+            "unowned_folder_to_owned_folder": self.action_move_to_owned_folder,
+            "action_transfer_ownership_"
+            "from_personal_account_to_business_account": self.action_transfer_ownership,
             "personal_account_top_folder_id": self.personal_account_top_folder_id,
             "personal_account_email": self.personal_account_email,
             "business_account_top_folder_id": self.business_account_top_folder_id,
@@ -165,52 +181,58 @@ class Config:
 
 
 class GoogleDrivePermission:
-    def __init__(self, entry: dict):
+    """A Google Drive permission that specifies access to an entry."""
+
+    def __init__(self, entry: dict[str, typing.Any]):
         self._raw = entry
 
     @property
-    def entry_id(self):
+    def entry_id(self) -> str:
         # e.g. '11823143700967846661', 'anyoneWithLink'
-        return self._raw.get("id")
+        entry_id = self._raw.get("id", "")
+        if not entry_id or not entry_id.strip():
+            raise ValueError("Permission must include 'id'.")
+        return str(entry_id)
 
     @property
-    def entry_type(self):
+    def entry_type(self) -> typing.Optional[str]:
         # e.g. 'user', 'anyone'
         return self._raw.get("type")
 
     @property
-    def user_email(self):
+    def user_email(self) -> typing.Optional[str]:
         return self._raw.get("emailAddress") if self.entry_type == "user" else None
 
     @property
-    def user_name(self):
+    def user_name(self) -> typing.Optional[str]:
         return self._raw.get("displayName") if self.entry_type == "user" else None
 
     @property
-    def domain(self):
+    def domain(self) -> typing.Optional[str]:
         return self._raw.get("domain") if self.entry_type == "domain" else None
 
     @property
-    def role(self):
+    def role(self) -> typing.Optional[str]:
         # e.g. 'writer', 'owner'
         return self._raw.get("role")
 
     @classmethod
     def get_display(
         cls,
-        perm_type: str,
-        role: str,
+        perm_type: typing.Optional[str],
+        role: typing.Optional[str],
         name: typing.Optional[str] = None,
         email: typing.Optional[str] = None,
-    ):
+    ) -> str:
         if perm_type == "user":
             return f"{name} <{email}> ({role})"
-        elif perm_type == "anyone":
-            return f"AnyoneWithLink ({role})"
-        else:
-            raise ValueError(f"Unknown type '{perm_type}'.")
 
-    def __str__(self):
+        if perm_type == "anyone":
+            return f"AnyoneWithLink ({role})"
+
+        raise ValueError(f"Unknown type '{perm_type}'.")
+
+    def __str__(self) -> str:
         return self.get_display(
             self.entry_type, self.role, self.user_name, self.user_email
         )
@@ -220,9 +242,11 @@ class GoogleDrivePermission:
 
 
 class GoogleDriveEntry:
+    """A Google Drive file or folder."""
+
     def __init__(
         self,
-        entry: dict,
+        entry: dict[str, typing.Any],
         collection_type: str,
         collection_name: str,
         collection_id: str,
@@ -235,134 +259,149 @@ class GoogleDriveEntry:
         self._shared_drive_permissions: list[GoogleDrivePermission] = []
 
     @property
-    def entry_id(self):
-        return self._raw.get("id")
+    def entry_id(self) -> str:
+        entry_id = self._raw.get("id", "")
+        if not entry_id or not entry_id.strip():
+            raise ValueError("Permission must include 'id'.")
+        return str(entry_id)
 
     @property
-    def view_link(self):
+    def view_link(self) -> typing.Optional[str]:
         return self._raw.get("webViewLink")
 
     @property
-    def name(self):
+    def name(self) -> typing.Optional[str]:
         return self._raw.get("name")
 
     @property
-    def description(self):
+    def description(self) -> typing.Optional[str]:
         return self._raw.get("description")
 
     @property
-    def mime_type(self):
+    def mime_type(self) -> typing.Optional[str]:
         return self._raw.get("mimeType")
 
     @property
-    def name_original(self):
+    def name_original(self) -> typing.Optional[str]:
         return self._raw.get("originalFilename")
 
     @property
-    def is_dir(self):
+    def is_dir(self) -> bool:
         return self.mime_type == GoogleDriveEntry.mime_type_dir()
 
     @property
-    def entry_type(self):
+    def entry_type(self) -> str:
         return "folder" if self.is_dir else "file"
 
     @property
-    def parent_id(self):
-        ids = self._raw.get("parents", [])
+    def parent_id(self) -> str:
+        ids: list[str] = self._raw.get("parents", [])
         if len(ids) == 1:
             return ids[0]
         raise ValueError(f"Unexpected value for 'parents': '{ids}'.")
 
     @property
-    def permissions(self):
+    def permissions(self) -> list[GoogleDrivePermission]:
         my_drive = [GoogleDrivePermission(i) for i in self._raw.get("permissions", [])]
         shared_drive = self._shared_drive_permissions
         return [*my_drive, *shared_drive]
 
     @property
-    def permission_owner_user(self):
+    def permission_owner_user(self) -> GoogleDrivePermission:
         owners = []
-        for p in self.permissions:
-            if p.role != "owner":
+        for permission in self.permissions:
+            if permission.role != "owner":
                 continue
-            if p.entry_type != "user":
+            if permission.entry_type != "user":
                 continue
-            owners.append(p)
+            owners.append(permission)
+
         if len(owners) < 1:
             raise ValueError(
-                f"Found no owner for {str(self)} with {self.str_permissions}."
-            )
-        elif len(owners) == 1:
-            return owners[0]
-        else:
-            raise ValueError(
-                f"Found more than one owner for {str(self)} with {self.str_permissions}."
+                f"Found no owner for {str(self)} " f"with {self.str_permissions}."
             )
 
+        if len(owners) == 1:
+            return owners[0]
+
+        raise ValueError(
+            f"Found more than one owner for {str(self)} "
+            f"with {self.str_permissions}."
+        )
+
     @property
-    def collection_type(self):
+    def collection_type(self) -> str:
         return self._collection_type
 
     @property
-    def collection_name(self):
+    def collection_name(self) -> str:
         return self._collection_name
 
     @property
-    def collection_id(self):
+    def collection_id(self) -> str:
+        """
+        Get the collection id
+        (the email for 'My Drive', the domain for 'Shared Drive').
+
+        Returns:
+            The collection id.
+        """
         return self._collection_id
 
     @property
-    def permissions_str(self):
+    def permissions_str(self) -> str:
         return "; ".join(sorted(str(p) for p in self.permissions))
 
     @property
-    def checksum_sha256(self):
+    def checksum_sha256(self) -> typing.Optional[str]:
         return self._raw.get("sha256Checksum")
 
     @property
-    def size_bytes(self):
+    def size_bytes(self) -> int:
         """
         The size of the file's content in bytes.
-        This field is populated for files with binary content stored in Google Drive and for Docs Editors files;
+        This field is populated for files with binary content
+        stored in Google Drive and for Docs Editors files;
         it is not populated for shortcuts or folders.
         """
         return self._raw.get("size", 0)
 
     @property
-    def quota_bytes(self):
+    def quota_bytes(self) -> int:
         """
         The number of storage quota bytes used by the file.
-        This includes the head revision as well as previous revisions with keepForever enabled.
+        This includes the head revision as well as
+        previous revisions with keepForever enabled.
         """
         return self._raw.get("quotaBytesUsed", 0)
 
     @property
-    def custom_properties(self):
+    def custom_properties(self) -> dict[str, typing.Any]:
         return self._raw.get("properties", {})
 
     @property
-    def date_created(self):
+    def date_created(self) -> typing.Optional[str]:
         return self._raw.get("createdTime")
 
     @property
-    def date_modified(self):
+    def date_modified(self) -> typing.Optional[str]:
         return self._raw.get("modifiedTime")
 
     @property
-    def str_permissions(self):
+    def str_permissions(self) -> str:
         permissions = self.permissions_str
         return f"{len(self.permissions)} permissions [{permissions}]"
 
     @property
-    def has_augmented_permissions(self):
+    def has_augmented_permissions(self) -> bool:
         return self._raw.get("hasAugmentedPermissions", False)
 
     @property
-    def get_raw(self):
+    def get_raw(self) -> dict[str, typing.Any]:
         return self._raw
 
     @classmethod
-    def mime_type_dir(cls):
+    def mime_type_dir(cls) -> str:
         return "application/vnd.google-apps.folder"
 
     @classmethod
@@ -389,18 +428,34 @@ class GoogleDriveEntry:
 
     @classmethod
     def build_path_str(cls, entry_path: list["GoogleDriveEntry"]) -> str:
-        return "/".join([entry.name for entry in entry_path])
+        return "/".join([entry.name for entry in entry_path if entry.name])
 
-    def custom_property(self, key):
+    def custom_property(self, key: str) -> typing.Optional[typing.Any]:
+        """Get the value for a property key.
+
+        Args:
+            key: The property key.
+
+        Returns:
+            The property value or None.
+        """
         return self._raw.get("properties", {}).get(key, None)
 
-    def is_owned_by(self, email: str):
+    def is_owned_by(self, email: str) -> bool:
+        """Check if this entry is owned by the user with the given email.
+
+        Args:
+            email: The user email address.
+
+        Returns:
+            True if the user with the given email address owns this entry.
+        """
         permission_owner_user = self.permission_owner_user
         if not permission_owner_user:
             raise ValueError()
         return permission_owner_user.user_email == email
 
-    def set_shared_drive_permissions(self, items: list[GoogleDrivePermission]):
+    def set_shared_drive_permissions(self, items: list[GoogleDrivePermission]) -> None:
         self._shared_drive_permissions = items
 
     def __str__(self) -> str:

@@ -1,11 +1,12 @@
 import re
 import logging
+import typing
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request  # noqa: I900
+from google.oauth2.credentials import Credentials  # noqa: I900
 from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
+from googleapiclient.discovery import build  # noqa: I900
+from googleapiclient.errors import HttpError  # noqa: I900
 
 from file_mover_for_google_drive.common import models
 
@@ -16,6 +17,7 @@ class GoogleDriveClient:
     """A client that provides access to Google Drive."""
 
     def __init__(self, config: models.Config):
+        """Create a new Google Drive Client instance."""
         self._config = config
 
         self._client = None
@@ -28,7 +30,6 @@ class GoogleDriveClient:
 
     def _authorise(self):
         """Authorise access to the Google Drive API."""
-
         creds = None
 
         # The file token.json stores the user's access and refresh tokens, and is
@@ -60,7 +61,6 @@ class GoogleDriveClient:
 
     def client(self):
         """Get the client."""
-
         if self._client:
             logger.debug("Using existing client.")
             return self._client
@@ -68,7 +68,8 @@ class GoogleDriveClient:
         creds = self._authorise()
 
         try:
-            # NOTE: Tried to use the MemoryCache, but the cache does not seem to be used?
+            # NOTE: Tried to use the MemoryCache,
+            # but the cache does not seem to be used?
             # https://github.com/googleapis/google-api-python-client/issues/325#issuecomment-274349841
             build_args = ["drive", "v3"]
             params = {"cache_discovery": False, "credentials": creds}
@@ -86,10 +87,12 @@ class LocalInMemoryClient:
     """A client that stores files and folders in-memory for testing."""
 
     def __init__(self, raw: dict):
+        """Create a new Local in-memory client."""
         self._raw = raw
         self._client = LocalInMemoryStore(self._raw)
 
     def client(self):
+        """Get the client instance."""
         return self._client
 
 
@@ -111,7 +114,7 @@ class LocalInMemoryOperationStore:
 
 
 class LocalInMemoryPermissionsStore:
-    def __init__(self, client):
+    def __init__(self, client: "LocalInMemoryStore"):
         self._client = client
 
     def create(self, *args, **kwargs):
@@ -145,7 +148,9 @@ class LocalInMemoryFilesStore:
         kwargs_list = sorted(kwargs.keys())
         client = self._client
 
-        entry_id: str = kwargs.get("fileId")
+        entry_id: str = kwargs.get("fileId", "")
+        if not entry_id:
+            raise ValueError("Must provide file id.")
 
         if not args_list and kwargs_list == ["fields", "fileId", "num_retries"]:
             return client._get(entry_id)
@@ -169,16 +174,16 @@ class LocalInMemoryFilesStore:
             r"value='(?P<value>.*?)' } and trashed=false$",
         )
 
-        corpora = kwargs.get("corpora", "")
-        spaces = kwargs.get("spaces", "")
+        # corpora = kwargs.get("corpora", "")
+        # spaces = kwargs.get("spaces", "")
         q = kwargs.get("q", "")
-        fields = kwargs.get("fields", "")
-        supports_all_drives = kwargs.get("supportsAllDrives")
-        include_items_from_all_drives = kwargs.get("includeItemsFromAllDrives")
-        page_size = kwargs.get("pageSize")
-        page_token = kwargs.get("pageToken")
-        order_by = kwargs.get("orderBy")
-        num_retries = kwargs.get("num_retries")
+        # fields = kwargs.get("fields", "")
+        # supports_all_drives = kwargs.get("supportsAllDrives")
+        # include_items_from_all_drives = kwargs.get("includeItemsFromAllDrives")
+        # page_size = kwargs.get("pageSize")
+        # page_token = kwargs.get("pageToken")
+        # order_by = kwargs.get("orderBy")
+        # num_retries = kwargs.get("num_retries")
 
         match_children = q_children.match(q)
         match_properties = q_properties.match(q)
@@ -230,18 +235,20 @@ class LocalInMemoryFilesStore:
         return LocalInMemoryOperationStore(self._update, *args, **kwargs)
 
     def _update(self, *args, **kwargs):
-        args_list = list(args)
-        kwargs_list = list(kwargs.keys())
+        # args_list = list(args)
+        # kwargs_list = list(kwargs.keys())
         client = self._client
 
         body = kwargs.get("body", {})
-        properties = body.get("properties", {})
+        # properties = body.get("properties", {})
         custom_copy_file_id = body.get("CustomCopyFileId")
         remove_parents = kwargs.get("removeParents", "").split(",")
         add_parents = kwargs.get("addParents", "").split(",")
-        supports_team_drives = kwargs.get("supportsTeamDrives")
-        supports_all_drives = kwargs.get("supportsAllDrives")
-        file_id: str = kwargs.get("fileId")
+        # supports_team_drives = kwargs.get("supportsTeamDrives")
+        # supports_all_drives = kwargs.get("supportsAllDrives")
+        file_id: str = kwargs.get("fileId", "")
+        if not file_id:
+            raise ValueError("Must provide file id.")
 
         if body and remove_parents and add_parents:
             entry = client._get(file_id)
@@ -249,23 +256,24 @@ class LocalInMemoryFilesStore:
                 raise ValueError(str(args) + str(kwargs))
             if custom_copy_file_id:
                 entry["properties"]["CustomCopyFileId"] = custom_copy_file_id
+
             if entry.get("parents") != remove_parents:
                 raise ValueError(str(args) + str(kwargs))
-            else:
-                entry["parents"] = [
-                    p for p in entry["parents"] + add_parents if p not in remove_parents
-                ]
+
+            entry["parents"] = [
+                p for p in entry["parents"] + add_parents if p not in remove_parents
+            ]
             return entry
 
         raise ValueError(str(args) + str(kwargs))
 
-    def list_next(self, *args, **kwargs):
+    def list_next(self, *args, **kwargs):  # noqa: U100
         """For the local tests, list_next always acts as if there is no more items."""
         return None
         # return LocalInMemoryOperationStore(self._list_next, *args, **kwargs)
 
     def _list_next(self, *args, **kwargs):
-        args_list = list(args)
+        # args_list = list(args)
         kwargs_list = list(kwargs.keys())
 
         if (
@@ -320,3 +328,8 @@ class LocalInMemoryStore:
 
     def _update_structure(self, raw):
         self._store = raw
+
+
+GoogleDriveAnyClientType = typing.Optional[
+    typing.Union[GoogleDriveClient, LocalInMemoryClient]
+]

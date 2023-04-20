@@ -1,3 +1,5 @@
+"""The Google Drive API interaction classes."""
+
 import itertools
 import logging
 import typing
@@ -11,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleDriveApi:
-    """
-    Provides access to the Google Drive API v3.
+    """Provides access to the Google Drive API v3.
     Uses a client to make requests using the API.
     """
 
@@ -43,24 +44,73 @@ class GoogleDriveApi:
     permission_pending_owner = "pendingOwner"
 
     def __init__(self, config: models.Config, client):
+        """
+        Create a new Google Drive API instance.
+
+        Args:
+            config: The program configuration.
+            client: The Google Drive client.
+        """
         self._config = config
         self._client = client
 
     @property
     def config(self):
+        """
+        Get the program configuration.
+
+        Returns:
+            The program configuration.
+        """
         return self._config
 
     @property
     def client(self):
+        """
+        Get the Google Drive client.
+
+        Returns:
+            The Google Drive client.
+        """
         return self._client.client()
 
     def files_get(self, *args, **kwargs) -> HttpRequest:
+        """
+        Create a file get operation.
+
+        Args:
+            *args: The placed arguments.
+            **kwargs: The named arguments.
+
+        Returns:
+            A file get operation.
+        """
         return self.client.files().get(*args, **kwargs)
 
     def files_list(self, *args, **kwargs) -> HttpRequest:
+        """
+        Create a file list operation.
+
+        Args:
+            *args: The placed arguments.
+            **kwargs: The named arguments.
+
+        Returns:
+            A file list operation.
+        """
         return self.client.files().list(*args, **kwargs)
 
     def files_create(self, *args, **kwargs) -> HttpRequest:
+        """
+        Create a file create operation.
+
+        Args:
+            *args: The placed arguments.
+            **kwargs: The named arguments.
+
+        Returns:
+            A file create operation.
+        """
         return self.client.files().create(*args, **kwargs)
 
     def files_copy(self, *args, **kwargs):
@@ -78,14 +128,28 @@ class GoogleDriveApi:
     def permissions_list(self, *args, **kwargs) -> HttpRequest:
         return self.client.permissions().list(*args, **kwargs)
 
-    def execute_single(self, operation):
-        """Execute an operation that returns a single result."""
+    def execute_single(self, request):
+        """Execute an operation that returns a single result.
 
-        result = operation.execute(num_retries=self._config.num_retries)
+        Args:
+            request: The request to execute.
+
+        Returns:
+            The result of the operation.
+        """
+
+        result = request.execute(num_retries=self._config.num_retries)
         return result
 
     def execute_files_list(self, request):
-        """Execute an operation that returns a list of files."""
+        """Execute an operation that returns a list of files.
+
+        Args:
+            request: The request to execute.
+
+        Returns:
+            An iterable of zero, one, or more file items.
+        """
 
         page_count = 0
         while request is not None:
@@ -107,7 +171,14 @@ class GoogleDriveApi:
             request = self.client.files().list_next(request, response)
 
     def execute_permissions_list(self, request):
-        """Execute an operation that returns a list of permissions."""
+        """Execute an operation that returns a list of permissions.
+
+        Args:
+            request: The request to execute.
+
+        Returns:
+            An iterable of zero, one, or more permission items.
+        """
 
         page_count = 0
         while request is not None:
@@ -130,20 +201,30 @@ class GoogleDriveApi:
 
     def execute_batch(
         self,
-        operations: list,
+        requests: list,
         callback: typing.Callable[[str, typing.Any, typing.Optional[HttpError]], None],
     ):
-        """Execute a batch of operations."""
+        """Execute a batch of operations.
+
+        Args:
+            requests: The requests to execute as a batch.
+            callback: The callback for the result of each request.
+
+        Returns:
+            None
+        """
 
         # https://developers.google.com/drive/api/guides/performance#batch-requests
         # https://developers.google.com/drive/api/guides/manage-sharing#change-multiple-permissions
 
         # Batch requests with more than 100 calls may result in an error.
-        # There is an 8000-character limit on the length of the URL for each inner request.
-        # Currently, Google Drive does not support batch operations for media, either for upload or download.
+        # There is an 8000-character limit on the length
+        # of the URL for each inner request.
+        # Currently, Google Drive does not support batch operations for media,
+        # either for upload or download.
         operations_per_batch = 99
         for index, operations_group in enumerate(
-            self._batched(operations, operations_per_batch)
+            self._batched(requests, operations_per_batch)
         ):
             batch = self.client.new_batch_http_request(callback=callback)
             for operation in operations_group:
@@ -162,7 +243,16 @@ class GoogleDriveApi:
                 )
 
     def _batched(self, iterable, count=1, fill_value=None):
-        """Collect data into fixed-length chunks or blocks"""
+        """Collect data into fixed-length chunks or blocks.
+
+        Args:
+            iterable: The iterables to break into batches.
+            count: The number of items per batch.
+            fill_value: The value to fill shorter batches.
+
+        Returns:
+            An iterable of batches.
+        """
 
         # e.g. _batched('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
         # https://docs.python.org/3.5/library/itertools.html#itertools-recipes
@@ -170,6 +260,14 @@ class GoogleDriveApi:
         return itertools.zip_longest(*args, fillvalue=fill_value)
 
     def _request_display(self, request):
+        """Build the display text for a request.
+
+        Args:
+            request: The request to display.
+
+        Returns:
+            The text representing the request.
+        """
         if isinstance(request, HttpRequest):
             return (
                 f"[{request.__class__.__name__}] {request.method}: {request.methodId}"
@@ -195,6 +293,15 @@ class GoogleDriveContainer:
         collection_id: str,
         collection_top_id: str,
     ):
+        """Create a new Google Drive container instance.
+
+        Args:
+            google_drive_api: A Google Drive Api instance.
+            collection_type: The collection type ('user' or 'domain').
+            collection_name: The collection name ('My Drive' or the shared drive name).
+            collection_id: The collection id ('My Drive' email or shared drive domain)
+            collection_top_id: The collection top folder id.
+        """
         self._api = google_drive_api
         self._collection_type = collection_type
         self._collection_name = collection_name
@@ -209,6 +316,13 @@ class GoogleDriveContainer:
 
     @property
     def collection_type(self):
+        """
+        Get the collection type
+        (either 'user' for 'My Drive' or 'domain' for 'Shared Drive').
+
+        Returns:
+            The collection type.
+        """
         return self._collection_type
 
     @property
@@ -305,7 +419,10 @@ class GoogleDriveContainer:
         return operation
 
     def get_entries_by_property(self, key: str, value: str) -> HttpRequest:
-        """Iterate over entries that have a property matching the given key and value."""
+        """
+        Iterate over entries that have a property
+        matching the given key and value.
+        """
 
         queries = [
             f"properties has {{ key='{key}' and value='{value}' }}",
@@ -418,7 +535,8 @@ class GoogleDriveContainer:
             "fields": self._entry_fields,
             "body": {
                 "properties": {
-                    self.api.config.custom_prop_transfer_key: entry.parent_id
+                    # TODO
+                    self.api.config.custom_prop_prev_account_key: None
                 }
             },
             "removeParents": entry.parent_id,
@@ -434,9 +552,19 @@ class GoogleDriveContainer:
     def get_permissions(self, entry_id: str) -> HttpRequest:
         """Get the permissions for a file or folder or shared drive."""
 
+        permission_props = [
+            "id",
+            "type",
+            "emailAddress",
+            "domain",
+            "role",
+            "displayName",
+            "permissionDetails",
+        ]
+
         params = {
             "fileId": entry_id,
-            "fields": "nextPageToken,permissions(id,type,emailAddress,domain,role,displayName,permissionDetails)",
+            "fields": f"nextPageToken,permissions({','.join(permission_props)})",
             "useDomainAdminAccess": False,
         }
 
@@ -465,7 +593,8 @@ class GoogleDriveActions:
     ) -> typing.Generator[models.GoogleDriveEntry, typing.Any, None]:
         """
         Get all descendants of the given folder.
-        In other words, get the files in the folder, then the files in each sub-folder, recursively.
+        In other words, get the files in the folder,
+        then the files in each sub-folder, recursively.
         """
 
         container = self._container
@@ -494,8 +623,8 @@ class GoogleDriveActions:
 
             if entry.entry_id != folder_id and entry.is_dir:
                 # provide the children of folders in folder_id
-                for entry in self.get_descendants(entry.entry_id):
-                    yield entry
+                for entry_desc in self.get_descendants(entry.entry_id):
+                    yield entry_desc
 
     def get_entry(self, entry_id: str) -> models.GoogleDriveEntry:
         """Get the details of a file or folder."""
@@ -543,11 +672,13 @@ class GoogleDriveActions:
         entry_is_owned = entry.is_owned_by(personal_account_email)
 
         if entry_is_owned:
-            # if the entry is owned (might be a copy), see if there is an original that is not owned
+            # if the entry is owned (might be a copy),
+            # see if there is an original that is not owned
             key = config.custom_prop_copy_key
 
         else:
-            # if the entry is not owned (the original), see if there is a copy that is owned
+            # if the entry is not owned (the original),
+            # see if there is a copy that is owned
             key = config.custom_prop_original_key
 
         value = entry.entry_id
@@ -608,13 +739,16 @@ class GoogleDriveActions:
 #     # name: string - The name of the file.
 #     # This is not necessarily unique within a folder.
 #     # Note that for immutable items such as the top level folders of shared drives,
-#     # My Drive root folder, and Application Data folder the name is constant.- writable
+#     # My Drive root folder, and Application Data folder the name is constant.
+#     - writable
 #
 #     # NOTE: Tried to update originalFilename, but that does not seem to be saved.
 #     #       The old originalFilename is always returned after updating.
 #
-#     # originalFilename: string - The original filename of the uploaded content if available,
-#     # or else the original value of the name field. This is only available for files with
+#     # originalFilename: string - The original filename of the uploaded content
+#     if available,
+#     # or else the original value of the name field. This is only available for
+#     files with
 #     # binary content in Google Drive. - writable
 #
 #     body = {}
@@ -643,7 +777,8 @@ class GoogleDriveActions:
 #     new_parent_id: str,
 # ):
 #     # NOTE: Ownership transfer from a personal to a business account is possible!
-#     # NOTE: This bug does not seem to be related: https://issuetracker.google.com/issues/228791253
+#     # NOTE: This bug does not seem to be related:
+#     https://issuetracker.google.com/issues/228791253
 #
 #     fields = ",".join(["id"])
 #     service = self.client()
@@ -664,7 +799,8 @@ class GoogleDriveActions:
 #         )
 #
 #     elif not permission_id and new_type == self.type_domain:
-#         # transfer to a business account where the new owner does not have a permission
+#         # transfer to a business account where
+#         the new owner does not have a permission
 #         operation = service.permissions().create(
 #             fileId=file_id,
 #             body={
@@ -693,7 +829,8 @@ class GoogleDriveActions:
 #         )
 #
 #     elif not permission_id and new_type == self.type_user:
-#         # transfer to a personal account where the new owner does not have a permission
+#         # transfer to a personal account
+#         where the new owner does not have a permission
 #         operation = service.permissions().create(
 #             fileId=file_id,
 #             body={

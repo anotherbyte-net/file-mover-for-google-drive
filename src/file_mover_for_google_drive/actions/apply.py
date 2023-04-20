@@ -5,7 +5,14 @@ import logging
 import pathlib
 import typing
 
-from file_mover_for_google_drive.common import manage, models, interact, utils, report
+from file_mover_for_google_drive.common import (
+    manage,
+    models,
+    interact,
+    utils,
+    report,
+    client,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +24,24 @@ class Apply(manage.BaseManage):
         self,
         plan_path: typing.Optional[pathlib.Path],
         config: models.Config,
-        client=None,
-    ):
+        gd_client: client.GoogleDriveAnyClientType = None,
+    ) -> None:
         """Create a new Apply instance."""
 
-        super().__init__(config, client)
-        self._plan_path = plan_path
+        super().__init__(config, gd_client)
 
         if not plan_path:
             raise ValueError("Must provide plan path.")
 
+        self._plan_path = plan_path
+
     def run(self) -> bool:
-        """Run the 'apply' action."""
+        """
+        Run the 'apply' action.
+
+        Returns:
+            The outcome of the action.
+        """
 
         config = self._config
 
@@ -43,7 +56,7 @@ class Apply(manage.BaseManage):
 
         # business
         bus_container = self._business_container
-        bus_actions = interact.GoogleDriveActions(bus_container)
+        # bus_actions = interact.GoogleDriveActions(bus_container)
         bus_top_folder_id = config.business_account_top_folder_id
         bus_cache = utils.GoogleDriveEntryCache(bus_top_folder_id)
         bus_col_type = bus_container.collection_type
@@ -55,23 +68,20 @@ class Apply(manage.BaseManage):
         perms_dir = config.report_permissions_dir
         outcomes_dir = config.report_outcomes_dir
 
-        log_batch_size = 40
-
         logger.info(
-            f"Apply modifications for '%s' in %s '%s'.",
+            "Apply modifications for '%s' in %s '%s'.",
             per_col_name,
             per_col_type,
             per_col_id,
         )
-        logger.info(f"Starting with folder '{per_top_folder_id}'.")
-
+        logger.info("Starting with folder '%s'.", per_top_folder_id)
         logger.info(
-            f"Move files and folders to '{bus_col_name}' in {bus_col_type} '{bus_col_id}'."
+            "Move files and folders to '%s' in %s '%s'.",
+            bus_col_name,
+            bus_col_type,
+            bus_col_id,
         )
-        logger.info(f"Moving into top folder '{bus_top_folder_id}'.")
-
-        # allow cancelling without issues
-        graceful_exit = utils.GracefulExit()
+        logger.info("Moving into top folder '%s'.", bus_top_folder_id)
 
         # reports
         rpt_entries = report.ReportCsv(entries_dir, report.EntryReport)
@@ -82,10 +92,10 @@ class Apply(manage.BaseManage):
 
         # read plans and execute
         with rpt_entries, rpt_permissions, rpt_outcomes:
-            logger.info(f"Reading plans report '{self._plan_path.name}'.")
-            logger.info(f"Writing entries report '{rpt_entries.path.name}'.")
-            logger.info(f"Writing permissions report '{rpt_permissions.path.name}'.")
-            logger.info(f"Writing outcomes report '{rpt_outcomes.path.name}'.")
+            logger.info("Reading plans report '%s'.", self._plan_path.name)
+            logger.info("Writing entries report '%s'.", rpt_entries.path.name)
+            logger.info("Writing permissions report '%s'.", rpt_permissions.path.name)
+            logger.info("Writing outcomes report '%s'.", rpt_outcomes.path.name)
 
             logger.info("Starting.")
 
@@ -119,18 +129,14 @@ class Apply(manage.BaseManage):
                     entry,
                 )
 
-                if index > 0 and index % log_batch_size == 0:
-                    logger.info(f"Processed {index + 1} entries.")
-
-                if graceful_exit.should_exit():
-                    logger.warning("Stopping early.")
+                if self._iteration_check(index):
                     break
 
             logger.info("Processed total of %s entries.", entry_count)
 
         logger.info("Finished.")
 
-        return False if graceful_exit.should_exit() else True
+        return not self._graceful_exit.should_exit()
 
     def _process_one(
         self,
@@ -141,9 +147,21 @@ class Apply(manage.BaseManage):
         rpt_outcomes: report.ReportCsv,
         plans: list[report.PlanReport],
         entry: models.GoogleDriveEntry,
-    ):
-        """Process one entry."""
+    ) -> None:
+        """Process one entry.
 
+        Args:
+            per_cache: The personal data cache.
+            bus_cache: The business data cache.
+            rpt_entries: The entries report.
+            rpt_permissions: The permissions report.
+            rpt_outcomes: The outcomes report.
+            plans: The plans to process.
+            entry: Apply the plans to this entry.
+
+        Returns:
+            None
+        """
         per_cache.add(entry)
 
         entry_path = per_cache.path(entry.entry_id)
@@ -188,7 +206,7 @@ class Apply(manage.BaseManage):
         bus_cache: utils.GoogleDriveEntryCache,
         plan: report.PlanReport,
         entry_path: list[models.GoogleDriveEntry],
-    ):
+    ) -> typing.Iterable[report.OutcomeReport]:
         """Execute the actions to apply the plan item."""
 
         # entry = entry_path[-1]
@@ -218,8 +236,8 @@ class Apply(manage.BaseManage):
         # end_user_name = plan.end_user_name
         # end_user_email = plan.end_user_email
         # end_user_access = plan.end_user_access
-        end_entry_name = plan.end_entry_name
-        end_entry_path = plan.end_entry_path
+        # end_entry_name = plan.end_entry_name
+        # end_entry_path = plan.end_entry_path
         end_collection_type = plan.end_collection_type
         # end_collection_name = plan.end_collection_name
         # end_collection_id = plan.end_collection_id

@@ -593,6 +593,7 @@ def test_plan(tmp_path, caplog, capsys, build_config):
             "Can not transfer ownership of folder in personal account folder 'Name for "
             "folder_3_b' (id folder_3_b).",
         ),
+        (20, "Processed 10 entries."),
         (
             10,
             "Getting page 1 of results using '[LocalInMemoryOperationStore] _list: "
