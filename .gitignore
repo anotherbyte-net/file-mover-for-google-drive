@@ -130,3 +130,6 @@ dmypy.json
 
 # IntelliJ
 .idea/
+
+# local resources
+tests/resources/*-response.json

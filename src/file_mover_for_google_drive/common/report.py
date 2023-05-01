@@ -37,10 +37,13 @@ class BaseReport(abc.ABC):
         raise NotImplementedError()
 
 
+TypeReport = typing.TypeVar("TypeReport", bound="BaseReport", covariant=True)
+
+
 class ReportCsv:
     """A CSV file report."""
 
-    def __init__(self, top_dir: pathlib.Path, report: type[BaseReport]):
+    def __init__(self, top_dir: pathlib.Path, report: type[TypeReport]):
         """Create a new csv Report instance.
 
         Args:
@@ -84,9 +87,7 @@ class ReportCsv:
         report_file.parent.mkdir(exist_ok=True, parents=True)
 
         self._file_path = report_file
-        self._file_handle = open(
-            report_file, "wt", newline="", encoding="utf-8"
-        )  # noqa: R1732
+        self._file_handle = open(report_file, "wt", newline="", encoding="utf-8")
         self._writer = csv.DictWriter(self._file_handle, fields)
         self._writer.writeheader()
 
@@ -104,7 +105,7 @@ class ReportCsv:
         else:
             raise ValueError("Csv writer is not ready.")
 
-    def read(self, name: str) -> typing.Iterable[BaseReport]:
+    def read(self, name: str) -> typing.Iterable[TypeReport]:
         """Read the report file.
 
         Args:
@@ -113,8 +114,13 @@ class ReportCsv:
         Returns:
             The contents of the report file.
         """
-        # TODO: read file in self._top_dir with name using self._report.
-        raise NotImplementedError()
+        report_file = (self._top_dir / name).with_suffix(".csv")
+        if not report_file.exists():
+            raise ValueError(f"Plan file does not exist '{report_file}'.")
+        with open(report_file, "rt", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                yield self._report(**row)
 
     def finish(self) -> None:
         """Finish the report and close the file.
@@ -136,12 +142,12 @@ class ReportCsv:
         """Enter the runtime context
 
         Returns:
-
+            The ReportCSV instance.
         """
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # noqa: U100
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Exit the runtime context.
 
         Args:
@@ -162,18 +168,20 @@ class BaseEntryReport(abc.ABC):
     entry_name: str
     """name of the file or folder"""
     entry_path: str
-    """path from top of collection to the entry"""
+    """path from top of the drive to the entry"""
     entry_type: str
     """either 'file' or 'folder' ('permission' is not a possible value)"""
-    collection_type: str
-    """either 'business' or 'personal'"""
-    collection_name: str
-    """
-    either the shared drive name for a business account or
-    'My Drive' for a personal drive
-    """
-    collection_id: str
-    """either the shared drive domain or the email for the current user"""
+    account_type: str
+    """The type of account.
+    One of 'personal', 'business'."""
+    drive_id: str
+    """The drive id.
+    'My Drive' for personal accounts.
+    The Shared Drive id for business accounts."""
+    account_id: str
+    """The account identifier.
+    The email address for personal accounts.
+    The domain name for business accounts."""
     link: str
     """Google Drive link to the file or folder the permission is applied to"""
     entry_id: str
@@ -207,9 +215,9 @@ class EntryReport(BaseReport, BaseEntryReport):
             "entry_name": entry.name,
             "entry_path": parent_path_str,
             "entry_type": entry.entry_type,
-            "collection_type": entry.collection_type,
-            "collection_name": entry.collection_name,
-            "collection_id": entry.collection_id,
+            "account_type": entry.account.account_type.name,
+            "drive_id": entry.account.drive_id,
+            "account_id": entry.account.account_id,
             "link": entry.view_link,
             "checksum": entry.checksum_sha256,
             "quota_bytes": entry.quota_bytes,
@@ -245,17 +253,17 @@ class PermissionReport(BaseReport, BaseEntryReport):
         entry = entry_path[-1]
         parent_path_str = entry.build_path_str(entry_path[:-1])
 
-        for perm in entry.permissions:
+        for perm in entry.permissions_all:
             yield {
-                "user_name": perm.user_name,
+                "user_name": perm.display_name,
                 "user_email": perm.user_email,
-                "user_access": perm.role,
+                "user_access": perm.role.name,
                 "entry_name": entry.name,
                 "entry_path": parent_path_str,
                 "entry_type": entry.entry_type,
-                "collection_type": entry.collection_type,
-                "collection_name": entry.collection_name,
-                "collection_id": entry.collection_id,
+                "account_type": entry.account.account_type.name,
+                "drive_id": entry.account.drive_id,
+                "account_id": entry.account.account_id,
                 "link": entry.view_link,
                 "entry_id": entry.entry_id,
                 "permission_id": perm.entry_id,
@@ -265,7 +273,7 @@ class PermissionReport(BaseReport, BaseEntryReport):
 @dataclasses.dataclass
 class PlanReport(BaseReport):
     item_action: str
-    """'create', 'update', 'delete', 'copy', 'transfer' (don't record 'retrieve')"""
+    """'create', 'update', 'delete', 'copy' (don't record 'retrieve')"""
     item_type: str
     """either 'file' or 'folder' or 'permission' (a permission is not an 'entry')"""
     entry_id: typing.Optional[str]
@@ -276,6 +284,18 @@ class PlanReport(BaseReport):
     """for the plan: free-text details of the planned change;
      for the outcome: details of success, failure, skipping"""
 
+    account_type: str
+    """The type of account.
+    One of 'personal', 'business'."""
+    drive_id: str
+    """The drive id.
+    'My Drive' for personal accounts.
+    The Shared Drive id for business accounts."""
+    account_id: str
+    """The account identifier.
+    The email address for personal accounts.
+    The domain name for business accounts."""
+
     begin_user_name: typing.Optional[str]
     """user's name"""
     begin_user_email: typing.Optional[str]
@@ -285,16 +305,7 @@ class PlanReport(BaseReport):
     begin_entry_name: typing.Optional[str]
     """name of the file or folder"""
     begin_entry_path: typing.Optional[str]
-    """path from top of collection to the entry"""
-    begin_collection_type: typing.Optional[str]
-    """either 'business' or 'personal'"""
-    begin_collection_name: typing.Optional[str]
-    """
-    either the shared drive name for a business account or
-    'My Drive' for a personal drive
-    """
-    begin_collection_id: typing.Optional[str]
-    """either the shared drive domain or the email for the current user"""
+    """path from top folder to the entry"""
 
     end_user_name: typing.Optional[str]
     """user's name"""
@@ -305,16 +316,7 @@ class PlanReport(BaseReport):
     end_entry_name: typing.Optional[str]
     """name of the file or folder"""
     end_entry_path: typing.Optional[str]
-    """path from top of collection to the entry"""
-    end_collection_type: typing.Optional[str]
-    """either 'business' or 'personal'"""
-    end_collection_name: typing.Optional[str]
-    """
-    either the shared drive name for a business account or
-    'My Drive' for a personal drive
-    """
-    end_collection_id: typing.Optional[str]
-    """either the shared drive domain or the email for the current user"""
+    """path from top folder to the entry"""
 
     @classmethod
     def report_name(cls):
@@ -324,25 +326,10 @@ class PlanReport(BaseReport):
     def fields(cls):
         return [f.name for f in dataclasses.fields(cls)]
 
-    @classmethod
-    def from_path(cls, path: pathlib.Path):
-        """Read report items from the given path.
-
-        Args:
-            path: Load report items from this path.
-
-        Returns:
-            The report items.
-        """
-        with open(path, "rt", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                yield PlanReport(**row)
-
     def __str__(self):
         descr = self.description
-        entry_name = self.end_entry_name or self.begin_entry_name
-        entry_path = self.end_entry_path or self.begin_entry_path
+        entry_name = self.begin_entry_name or self.end_entry_name
+        entry_path = self.begin_entry_path or self.end_entry_path
         items = [
             f'"{descr}"',
             f"for entry '{entry_name}'" if entry_name else None,

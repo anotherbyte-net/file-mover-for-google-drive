@@ -1,5 +1,5 @@
 """Utility functions."""
-
+import pathlib
 import signal
 import logging
 import typing
@@ -47,6 +47,14 @@ def get_version() -> typing.Optional[str]:
     return None
 
 
+def get_test_resources() -> pathlib.Path:
+    package = get_name_under()
+    sub_path = "../../tests/resources"
+    full_path = resources.files(package).joinpath(sub_path)
+    with resources.as_file(full_path) as file_path:
+        return file_path
+
+
 class GracefulExit:
     """Capture Ctrl + C (default KeyboardInterrupt)
     via SIGINT and allow graceful exit."""
@@ -60,7 +68,7 @@ class GracefulExit:
         signal.signal(signal.SIGINT, self.change_state)
 
     def change_state(
-        self, signum: int, frame: typing.Optional[types.FrameType]  # noqa: U100
+        self, signum: int, frame: typing.Optional[types.FrameType]
     ) -> None:
         """When a SIGINT occurs, indicate that the program should exit.
 

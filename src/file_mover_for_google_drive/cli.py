@@ -9,23 +9,21 @@ import typing
 from file_mover_for_google_drive.actions import show, plan, apply
 from file_mover_for_google_drive.common import models, utils, manage, client
 
-LOG_LEVEL = logging.INFO
+
 logging.basicConfig(
-    level=LOG_LEVEL,
-    format="%(asctime)s [%(levelname)-8s] [%(name)s] %(message)s",
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)-8s] %(message)s",
 )
-logging.getLogger("googleapiclient.discovery_cache").setLevel(LOG_LEVEL)
-logging.getLogger("googleapiclient.discovery").setLevel(LOG_LEVEL)
+logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.INFO)
+logging.getLogger("googleapiclient.discovery").setLevel(logging.INFO)
 
 
-def run_cli(
-    args: argparse.Namespace, gd_client: client.GoogleDriveAnyClientType = None
-) -> int:
+def run_cli(args: argparse.Namespace, gd_client: client.GoogleApiClient = None) -> int:
     """Run the cli.
 
     Args:
         args: The parsed arguments.
-        gd_client: The Google Drive client.
+        gd_client: The Google Drive client. Used for testing.
 
     Returns:
         Program exit code.
@@ -61,28 +59,24 @@ def run_cli(
         return pathlib.Path(value) if value else None
 
     config_file = _get_path(args, "config_file")
-    plan_file = _get_path(args, "plan-file") or _get_path(args, "plan_file")
+    plan_name = _get_arg(args, "plan-name") or _get_arg(args, "plan_name")
     subparser_name = _get_arg(args, "subparser_name")
 
     if not config_file:
         raise ValueError("Must provide config file.")
 
-    config = models.Config.load(config_file)
+    config = models.ConfigProgram.load_file(config_file)
 
     manage_item: manage.BaseManage
 
     if subparser_name == "show":
-        account = _get_arg(args, "account")
-        if not account or not isinstance(account, str):
-            raise ValueError(f"Invalid account value '{account}'.")
-
-        manage_item = show.Show(account, config, gd_client)
+        manage_item = show.Show(config, gd_client)
 
     elif subparser_name == "plan":
         manage_item = plan.Plan(config, gd_client)
 
     elif subparser_name == "apply":
-        manage_item = apply.Apply(plan_file, config, gd_client)
+        manage_item = apply.Apply(plan_name, config, gd_client)
 
     else:
         raise ValueError(f"Unknown activity '{subparser_name}'.")
@@ -94,13 +88,13 @@ def run_cli(
 
 def main(
     args: typing.Optional[list[str]] = None,
-    gd_client: client.GoogleDriveAnyClientType = None,
+    gd_client: client.GoogleApiClient = None,
 ) -> int:
     """The program entry point.
 
     Args:
         args: The raw program arguments.
-        gd_client: A Google Drive client.
+        gd_client: A Google Drive client. Used for testing.
 
     Returns:
         Program exit code.
@@ -128,11 +122,6 @@ def main(
         help="Show the files, folders, and permissions in a Google Drive.",
     )
     _add_config_file_arg(parser_show)
-    parser_show.add_argument(
-        "account",
-        choices=["personal", "business"],
-        help="Chose either the personal or business accounts from the config file.",
-    )
     parser_show.set_defaults(func=run_cli)
 
     # create the parser for the "plan" command
@@ -152,8 +141,8 @@ def main(
     )
     _add_config_file_arg(parser_apply)
     parser_apply.add_argument(
-        "plan-file",
-        help="The path to the plan file to apply.",
+        "plan-name",
+        help="The name of the plan file to apply (without the .csv extension).",
     )
     parser_apply.set_defaults(func=run_cli)
 

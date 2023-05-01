@@ -34,7 +34,7 @@ options:
         assert stderr == ""
         assert caplog.record_tuples == []
 
-    if main_args == []:
+    if not main_args:
         assert stdout == ""
         equal_ignore_whitespace(stderr, prog_help)
         assert caplog.record_tuples == []

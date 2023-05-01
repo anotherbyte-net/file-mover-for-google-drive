@@ -1,13 +1,14 @@
 """The Google Drive API interaction classes."""
 
 import itertools
+import json
 import logging
 import typing
+import datetime
 
-from googleapiclient.errors import HttpError
-from googleapiclient.http import HttpRequest
+from googleapiclient import discovery, errors, http
 
-from file_mover_for_google_drive.common import models
+from file_mover_for_google_drive.common import models, client, utils
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class GoogleDriveApi:
     Uses a client to make requests using the API.
     """
 
+    # Refs:
     # https://developers.google.com/drive/api/quickstart/python
     # https://googleapis.github.io/google-api-python-client/docs/dyn/drive_v3.html
     # https://developers.google.com/drive/api/v3/reference
@@ -24,38 +26,19 @@ class GoogleDriveApi:
     # NOTE: Usage limit is 20,000 requests in 100 seconds (200 requests per second).
     # https://developers.google.com/drive/api/guides/limits
 
-    collection_type_user = "user"
-    collection_type_domain = "domain"
-    collection_name_my_drive = "My Drive"
-
-    role_owner = "owner"
-    role_editor = "writer"
-    role_commenter = "commenter"
-    role_viewer = "reader"
-
-    # user & group require 'emailAddress' to be set
-    # domain requires 'domain' to be set
-    permission_user = "user"
-    permission_group = "group"
-    permission_domain = "domain"
-    permission_anyone = "anyone"
-
-    # only for 'user' type and not in shared drive
-    permission_pending_owner = "pendingOwner"
-
-    def __init__(self, config: models.Config, client):
+    def __init__(self, config: models.ConfigProgram, gd_client: client.GoogleApiClient):
         """
         Create a new Google Drive API instance.
 
         Args:
             config: The program configuration.
-            client: The Google Drive client.
+            gd_client: The Google Drive client.
         """
         self._config = config
-        self._client = client
+        self._client = gd_client
 
     @property
-    def config(self):
+    def config(self) -> models.ConfigProgram:
         """
         Get the program configuration.
 
@@ -65,16 +48,18 @@ class GoogleDriveApi:
         return self._config
 
     @property
-    def client(self):
+    def client(self) -> discovery.Resource:
         """
         Get the Google Drive client.
 
         Returns:
             The Google Drive client.
         """
+        if not self._client:
+            raise ValueError("No client available.")
         return self._client.client()
 
-    def files_get(self, *args, **kwargs) -> HttpRequest:
+    def files_get(self, *args: tuple[typing.Any], **kwargs) -> http.HttpRequest:
         """
         Create a file get operation.
 
@@ -87,7 +72,7 @@ class GoogleDriveApi:
         """
         return self.client.files().get(*args, **kwargs)
 
-    def files_list(self, *args, **kwargs) -> HttpRequest:
+    def files_list(self, *args: tuple[typing.Any], **kwargs) -> http.HttpRequest:
         """
         Create a file list operation.
 
@@ -100,7 +85,7 @@ class GoogleDriveApi:
         """
         return self.client.files().list(*args, **kwargs)
 
-    def files_create(self, *args, **kwargs) -> HttpRequest:
+    def files_create(self, *args: tuple[typing.Any], **kwargs) -> http.HttpRequest:
         """
         Create a file create operation.
 
@@ -113,35 +98,40 @@ class GoogleDriveApi:
         """
         return self.client.files().create(*args, **kwargs)
 
-    def files_copy(self, *args, **kwargs):
+    def files_copy(self, *args: tuple[typing.Any], **kwargs):
         return self.client.files().copy(*args, **kwargs)
 
-    def files_update(self, *args, **kwargs) -> HttpRequest:
+    def files_update(self, *args: tuple[typing.Any], **kwargs) -> http.HttpRequest:
         return self.client.files().update(*args, **kwargs)
 
-    def permissions_delete(self, *args, **kwargs) -> HttpRequest:
+    def permissions_delete(
+        self, *args: tuple[typing.Any], **kwargs
+    ) -> http.HttpRequest:
         return self.client.permissions().delete(*args, **kwargs)
 
-    def permissions_update(self, *args, **kwargs) -> HttpRequest:
+    def permissions_update(
+        self, *args: tuple[typing.Any], **kwargs
+    ) -> http.HttpRequest:
         return self.client.permissions().update(*args, **kwargs)
 
-    def permissions_list(self, *args, **kwargs) -> HttpRequest:
+    def permissions_list(self, *args: tuple[typing.Any], **kwargs) -> http.HttpRequest:
         return self.client.permissions().list(*args, **kwargs)
 
-    def execute_single(self, request):
-        """Execute an operation that returns a single result.
+    def execute_single(self, request: http.HttpRequest) -> typing.Mapping:
+        """Execute an operation that returns a single response.
 
         Args:
             request: The request to execute.
 
         Returns:
-            The result of the operation.
+            The response of the operation.
         """
 
-        result = request.execute(num_retries=self._config.num_retries)
-        return result
+        return self._do_execute(request)
 
-    def execute_files_list(self, request):
+    def execute_files_list(
+        self, request: http.HttpRequest
+    ) -> typing.Iterable[typing.Mapping]:
         """Execute an operation that returns a list of files.
 
         Args:
@@ -154,23 +144,31 @@ class GoogleDriveApi:
         page_count = 0
         while request is not None:
             page_count += 1
+
+            response = self._do_execute(request)
+
+            if not response:
+                raise ValueError(
+                    f"Expected a response for request '{self._request_display(request)}'."
+                )
+
+            response_items = response.get("files", [])
+
             logger.debug(
-                "Getting page %s of results using '%s'.",
+                "Processing page %s with %s items from '%s'.",
                 page_count,
+                len(response_items),
                 self._request_display(request),
             )
 
-            response = request.execute(num_retries=self._config.num_retries)
-
-            if not response:
-                raise ValueError("Expected a response.")
-
-            for entry_data in response.get("files", []):
+            for entry_data in response_items:
                 yield entry_data
 
             request = self.client.files().list_next(request, response)
 
-    def execute_permissions_list(self, request):
+    def execute_permissions_list(
+        self, request: http.HttpRequest
+    ) -> typing.Iterable[typing.Mapping]:
         """Execute an operation that returns a list of permissions.
 
         Args:
@@ -183,27 +181,35 @@ class GoogleDriveApi:
         page_count = 0
         while request is not None:
             page_count += 1
+
+            response = self._do_execute(request)
+
+            if not response:
+                raise ValueError(
+                    f"Expected a response for request '{self._request_display(request)}'."
+                )
+
+            response_items = response.get("permissions", [])
+
             logger.debug(
-                "Getting page %s of results using '%s'.",
+                "Processing page %s with %s items from '%s'.",
                 page_count,
+                len(response_items),
                 self._request_display(request),
             )
 
-            response = request.execute(num_retries=self._config.num_retries)
-
-            if not response:
-                raise ValueError("Expected a response.")
-
-            for permission_data in response.get("permissions", []):
+            for permission_data in response_items:
                 yield permission_data
 
             request = self.client.permissions().list_next(request, response)
 
     def execute_batch(
         self,
-        requests: list,
-        callback: typing.Callable[[str, typing.Any, typing.Optional[HttpError]], None],
-    ):
+        requests: list[http.HttpRequest],
+        callback: typing.Callable[
+            [str, typing.Any, typing.Optional[http.HttpError]], None
+        ],
+    ) -> None:
         """Execute a batch of operations.
 
         Args:
@@ -222,7 +228,7 @@ class GoogleDriveApi:
         # of the URL for each inner request.
         # Currently, Google Drive does not support batch operations for media,
         # either for upload or download.
-        operations_per_batch = 99
+        operations_per_batch = 100
         for index, operations_group in enumerate(
             self._batched(requests, operations_per_batch)
         ):
@@ -235,14 +241,56 @@ class GoogleDriveApi:
                 logger.debug(
                     "Sending batch %s with %s operations.", index + 1, len(batch)
                 )
-                batch.execute(num_retries=self._config.num_retries)
+                self._do_execute(batch)
                 logger.debug("Sent batch %s.", index + 1)
-            except HttpError as error:
+            except http.HttpError as error:
                 logger.error(
                     "An error occurred in batch %s: %s", index + 1, error, exc_info=True
                 )
 
-    def _batched(self, iterable, count=1, fill_value=None):
+    def _do_execute(self, request) -> typing.Mapping:
+        """Send a request and obtain the response.
+
+        Args:
+            request: The request to send.
+
+        Returns:
+            The response.
+        """
+        response = request.execute(num_retries=self._config.num_retries)
+        self._write_response(request, response)
+
+        return response
+
+    def _write_response(self, request, response) -> None:
+        file_date_str = datetime.datetime.now().isoformat(
+            sep="-", timespec="microseconds"
+        )
+        file_date_str = file_date_str.replace(":", "-")
+
+        dir_path = utils.get_test_resources()
+
+        write_path = dir_path / f"{file_date_str}-response.json"
+
+        data = {
+            "request": {
+                "method": request.method,
+                "body": request.body,
+                "methodId": request.methodId,
+                "uri": request.uri,
+            },
+            "response": response,
+        }
+
+        with open(write_path, "wt", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+
+    def _batched(
+        self,
+        iterable: typing.Iterable[http.HttpRequest],
+        count: int = 1,
+        fill_value: typing.Any = None,
+    ) -> typing.Iterable[typing.Iterable[http.HttpRequest]]:
         """Collect data into fixed-length chunks or blocks.
 
         Args:
@@ -259,7 +307,7 @@ class GoogleDriveApi:
         args = [iter(iterable)] * count
         return itertools.zip_longest(*args, fillvalue=fill_value)
 
-    def _request_display(self, request):
+    def _request_display(self, request: http.HttpRequest) -> str:
         """Build the display text for a request.
 
         Args:
@@ -268,7 +316,7 @@ class GoogleDriveApi:
         Returns:
             The text representing the request.
         """
-        if isinstance(request, HttpRequest):
+        if isinstance(request, http.HttpRequest):
             return (
                 f"[{request.__class__.__name__}] {request.method}: {request.methodId}"
             )
@@ -279,63 +327,24 @@ class GoogleDriveContainer:
     """
     Allows for useful interactions
     with a particular Google Drive 'My Drive' or 'Shared Drive'.
-    Builds requests that can be executed using the Google Drive API.
+    Builds requests that can be executed using a Google Drive Actions instance.
     """
 
-    name_prefix_copy_of = "Copy of "
-    name_prefix_copy_of_len = len(name_prefix_copy_of)
-
-    def __init__(
-        self,
-        google_drive_api: GoogleDriveApi,
-        collection_type: str,
-        collection_name: str,
-        collection_id: str,
-        collection_top_id: str,
-    ):
+    def __init__(self, google_drive_api: GoogleDriveApi, account: models.ConfigAccount):
         """Create a new Google Drive container instance.
 
         Args:
             google_drive_api: A Google Drive Api instance.
-            collection_type: The collection type ('user' or 'domain').
-            collection_name: The collection name ('My Drive' or the shared drive name).
-            collection_id: The collection id ('My Drive' email or shared drive domain)
-            collection_top_id: The collection top folder id.
+            account: The Google Drive account
         """
         self._api = google_drive_api
-        self._collection_type = collection_type
-        self._collection_name = collection_name
-        self._collection_id = collection_id
-        self._collection_top_id = collection_top_id
+        self._account = account
 
         self._entry_fields = models.GoogleDriveEntry.required_properties()
 
     @property
     def api(self):
         return self._api
-
-    @property
-    def collection_type(self):
-        """
-        Get the collection type
-        (either 'user' for 'My Drive' or 'domain' for 'Shared Drive').
-
-        Returns:
-            The collection type.
-        """
-        return self._collection_type
-
-    @property
-    def collection_name(self):
-        return self._collection_name
-
-    @property
-    def collection_id(self):
-        return self._collection_id
-
-    @property
-    def collection_top_id(self):
-        return self._collection_top_id
 
     def _files_list_params(self, query: str):
         fields = f"nextPageToken,files({self._entry_fields})"
@@ -347,19 +356,23 @@ class GoogleDriveContainer:
             "orderBy": "folder,name",
         }
 
-        if self._collection_type == self._api.collection_type_user:
+        account_type = self._account.account_type
+        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        account_type_business = models.GoogleDriveAccountTypeOptions.business
+
+        if account_type == account_type_personal:
             params["corpora"] = "user"
             params["includeItemsFromAllDrives"] = False
             params["supportsAllDrives"] = False
 
-        elif self._collection_type == self._api.collection_type_domain:
+        elif account_type == account_type_business:
             params["corpora"] = "drive"
-            params["driveId"] = self._collection_top_id
+            params["driveId"] = self._account.drive_id
             params["includeItemsFromAllDrives"] = True
             params["supportsAllDrives"] = True
 
         else:
-            raise ValueError(f"Unknown collection type '{self._collection_type}'.")
+            raise ValueError(f"Unknown account type '{account_type}'.")
 
         return params
 
@@ -367,12 +380,12 @@ class GoogleDriveContainer:
         self,
         original_entry: models.GoogleDriveEntry,
         new_entry: models.GoogleDriveEntry,
-    ) -> HttpRequest:
+    ) -> http.HttpRequest:
         """Add a property to the original entry to record the id of the new entry."""
 
         entry_id = original_entry.entry_id
         body = {
-            "properties": {self.api.config.custom_prop_copy_key: new_entry.entry_id}
+            "properties": {self._api.config.custom_prop_copy_key: new_entry.entry_id}
         }
         fields = self._entry_fields
         operation = self._api.files_update(fileId=entry_id, body=body, fields=fields)
@@ -380,7 +393,7 @@ class GoogleDriveContainer:
 
     def create_folder(
         self, entry: models.GoogleDriveEntry, new_parent_id: str
-    ) -> HttpRequest:
+    ) -> http.HttpRequest:
         """
         Create a new folder that is a copy of an existing folder,
         without the original folder's contents.
@@ -397,14 +410,14 @@ class GoogleDriveContainer:
             "name": entry.name,
             "parents": [new_parent_id],
             "mimeType": models.GoogleDriveEntry.mime_type_dir(),
-            "properties": {self.api.config.custom_prop_original_key: entry.entry_id},
+            "properties": {self._api.config.custom_prop_original_key: entry.entry_id},
         }
         fields = self._entry_fields
 
         operation = self._api.files_create(body=body, fields=fields)
         return operation
 
-    def get_entry(self, entry_id: str) -> HttpRequest:
+    def get_entry(self, entry_id: str) -> http.HttpRequest:
         """Get an entry by id."""
 
         params: dict[str, typing.Any] = {
@@ -412,29 +425,29 @@ class GoogleDriveContainer:
             "fields": self._entry_fields,
         }
 
-        if self._collection_type == self._api.collection_type_domain:
+        account_type = self._account.account_type
+        account_type_business = models.GoogleDriveAccountTypeOptions.business
+
+        if account_type == account_type_business:
             params["supportsAllDrives"] = True
 
         operation = self._api.files_get(**params)
         return operation
 
-    def get_entries_by_property(self, key: str, value: str) -> HttpRequest:
+    def get_entries_by_property(self, key: str, value: str) -> http.HttpRequest:
         """
         Iterate over entries that have a property
         matching the given key and value.
         """
 
-        queries = [
-            f"properties has {{ key='{key}' and value='{value}' }}",
-            "trashed=false",
-        ]
-        query = " and ".join(queries)
+        kv_str = f"key='{key}' and value='{value}'"
+        query = f"properties has {{ {kv_str} }} and trashed=false"
         params = self._files_list_params(query)
 
         operation = self._api.files_list(**params)
         return operation
 
-    def get_children(self, folder_id: str) -> HttpRequest:
+    def get_children(self, folder_id: str) -> http.HttpRequest:
         """Get the child entries of the given folder with the given id."""
 
         # NOTE: It looks like it is not possible to filter using a folder id?
@@ -448,15 +461,21 @@ class GoogleDriveContainer:
         operation = self._api.files_list(**params)
         return operation
 
-    def delete_permissions(self, entry: models.GoogleDriveEntry) -> list[HttpRequest]:
+    def delete_permissions(
+        self, entry: models.GoogleDriveEntry
+    ) -> list[http.HttpRequest]:
         """Delete permissions for entry that are not the owner or current user."""
 
+        permission_user = models.GoogleDrivePermissionTypeOptions.user
+        permission_anyone = models.GoogleDrivePermissionTypeOptions.anyone
+        role_owner = models.GoogleDrivePermissionRoleOptions.owner.value
+
         operations = []
-        for permission in entry.permissions:
-            is_owner = permission.role == self._api.role_owner
-            is_anyone = permission.entry_type == self._api.permission_anyone
-            is_user = permission.entry_type == self._api.permission_user
-            is_current_user = permission.user_email == self._collection_id
+        for permission in entry.permissions_all:
+            is_owner = permission.role == role_owner
+            is_anyone = permission.entry_type == permission_anyone
+            is_user = permission.entry_type == permission_user
+            is_current_user = permission.user_email == self._account.account_id
 
             if is_owner or (is_user and is_current_user):
                 logger.debug('Keep permission: "%s".', str(permission))
@@ -474,7 +493,7 @@ class GoogleDriveContainer:
 
     def rename_entry(
         self, entry: models.GoogleDriveEntry, new_name: str
-    ) -> HttpRequest:
+    ) -> http.HttpRequest:
         """Rename the file or folder."""
 
         if not new_name:
@@ -489,11 +508,13 @@ class GoogleDriveContainer:
         operation = self._api.files_update(fileId=entry_id, body=body, fields=fields)
         return operation
 
-    def copy_file(self, entry: models.GoogleDriveEntry, parent_id: str) -> HttpRequest:
+    def copy_file(
+        self, entry: models.GoogleDriveEntry, parent_id: str
+    ) -> http.HttpRequest:
         """
         Copy a file that is not owned to
         create a copy that is owned by the current user.
-        Must be copied within a personal collection (i.e. My Drive).
+        Must be copied within a personal account (i.e. My Drive).
         """
 
         entry_id = entry.entry_id
@@ -503,14 +524,16 @@ class GoogleDriveContainer:
             "description": entry.description,
             "name": entry.name,
             "parents": [parent_id],
-            "properties": {self.api.config.custom_prop_original_key: entry.entry_id},
+            "properties": {self._api.config.custom_prop_original_key: entry.entry_id},
             "mimeType": entry.mime_type,
         }
         fields = self._entry_fields
         operation = self._api.files_copy(fileId=entry_id, body=body, fields=fields)
         return operation
 
-    def move_file(self, entry: models.GoogleDriveEntry, parent_id: str) -> HttpRequest:
+    def move_file(
+        self, entry: models.GoogleDriveEntry, parent_id: str
+    ) -> http.HttpRequest:
         """
         Move the file from one folder to another folder within the one account.
         """
@@ -525,31 +548,7 @@ class GoogleDriveContainer:
         )
         return operation
 
-    def update_owner(
-        self, entry: models.GoogleDriveEntry, new_parent_id: str
-    ) -> HttpRequest:
-        """Transfer ownership from a personal account to a business account."""
-
-        params = {
-            "fileId": entry.entry_id,
-            "fields": self._entry_fields,
-            "body": {
-                "properties": {
-                    # TODO
-                    self.api.config.custom_prop_prev_account_key: None
-                }
-            },
-            "removeParents": entry.parent_id,
-            "addParents": new_parent_id,
-        }
-
-        if self._collection_type == self._api.collection_type_domain:
-            params["supportsAllDrives"] = True
-
-        operation = self._api.files_update(**params)
-        return operation
-
-    def get_permissions(self, entry_id: str) -> HttpRequest:
+    def get_permissions(self, entry_id: str) -> http.HttpRequest:
         """Get the permissions for a file or folder or shared drive."""
 
         permission_props = [
@@ -568,7 +567,8 @@ class GoogleDriveContainer:
             "useDomainAdminAccess": False,
         }
 
-        if self._collection_type == self._api.collection_type_domain:
+        account_type_business = models.GoogleDriveAccountTypeOptions.business
+        if self._account.account_type == account_type_business:
             params["supportsAllDrives"] = True
 
         operation = self._api.permissions_list(**params)
@@ -585,7 +585,7 @@ class GoogleDriveActions:
         self._container = container
 
     @property
-    def container(self):
+    def container(self) -> GoogleDriveContainer:
         return self._container
 
     def get_descendants(
@@ -600,25 +600,10 @@ class GoogleDriveActions:
         container = self._container
         api = container.api
 
-        col_type = container.collection_type
-        col_name = container.collection_name
-        col_id = container.collection_id
-
         request = container.get_children(folder_id)
         for entry_data in api.execute_files_list(request):
             # provide the children of folder_id
-            entry = models.GoogleDriveEntry(entry_data, col_type, col_name, col_id)
-
-            # add permissions from shared drive
-            if entry.collection_type == api.collection_type_domain:
-                request = container.get_permissions(entry.entry_id)
-                entry_shared_permissions = []
-                for permission_data in api.execute_permissions_list(request):
-                    entry_shared_permissions.append(
-                        models.GoogleDrivePermission(permission_data)
-                    )
-                entry.set_shared_drive_permissions(entry_shared_permissions)
-
+            entry = self._get_entry(entry_data)
             yield entry
 
             if entry.entry_id != folder_id and entry.is_dir:
@@ -632,307 +617,90 @@ class GoogleDriveActions:
         container = self.container
         api = container.api
 
-        col_type = container.collection_type
-        col_name = container.collection_name
-        col_id = container.collection_id
-
         request = container.get_entry(entry_id)
         entry_data = api.execute_single(request)
-        entry = models.GoogleDriveEntry(entry_data, col_type, col_name, col_id)
-
-        # add permissions from shared drive
-        if entry.collection_type == api.collection_type_domain:
-            request = container.get_permissions(entry.entry_id)
-            entry_shared_permissions = []
-            for permission_data in api.execute_permissions_list(request):
-                entry_shared_permissions.append(
-                    models.GoogleDrivePermission(permission_data)
-                )
-            entry.set_shared_drive_permissions(entry_shared_permissions)
+        entry = self._get_entry(entry_data)
 
         return entry
 
-    def get_pair(
+    def get_pair_copy_entry(
         self, entry: models.GoogleDriveEntry
     ) -> typing.Optional[models.GoogleDriveEntry]:
         """
         For an original (un-owned), get a copy if it exists.
         For a copy (owned) file, get the original.
+
+        Works in personal accounts only.
         """
 
         container = self._container
         api = container.api
         config = api.config
+        account = config.account
 
-        col_type = container.collection_type
-        col_name = container.collection_name
-        col_id = container.collection_id
+        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        if account.account_type != account_type_personal:
+            raise ValueError(
+                f"Entry pairs only work in '{account_type_personal}' accounts, "
+                f"not '{account.account_type}'."
+            )
 
-        personal_account_email = config.personal_account_email
-        entry_is_owned = entry.is_owned_by(personal_account_email)
+        account_id = account.account_id
+        entry_is_owned = entry.is_owned_by(account_id)
 
         if entry_is_owned:
             # if the entry is owned (might be a copy),
             # see if there is an original that is not owned
-            key = config.custom_prop_copy_key
+            prop_key = config.custom_prop_copy_key
 
         else:
             # if the entry is not owned (the original),
             # see if there is a copy that is owned
-            key = config.custom_prop_original_key
+            prop_key = config.custom_prop_original_key
 
-        value = entry.entry_id
+        if not prop_key:
+            return None
 
-        request = container.get_entries_by_property(key, value)
+        prop_value = entry.entry_id
+
+        request = container.get_entries_by_property(prop_key, prop_value)
 
         entries = []
         for entry_data in api.execute_files_list(request):
-            entry = models.GoogleDriveEntry(entry_data, col_type, col_name, col_id)
-
-            # add permissions from shared drive
-            if entry.collection_type == api.collection_type_domain:
-                request = container.get_permissions(entry.entry_id)
-                entry_shared_permissions = []
-                for permission_data in api.execute_permissions_list(request):
-                    entry_shared_permissions.append(
-                        models.GoogleDrivePermission(permission_data)
-                    )
-                entry.set_shared_drive_permissions(entry_shared_permissions)
-
-            entries.append(entry)
+            entry_item = self._get_entry(entry_data)
+            entries.append(entry_item)
 
         entry_count = len(entries)
         if entry_count > 1:
-            raise ValueError(f"More than one match for property '{key}={value}'.")
+            raise ValueError(
+                f"More than one match for property '{prop_key}={prop_value}'."
+            )
         elif entry_count == 1:
             return entries[0]
         else:
             return None
 
+    def _get_entry(self, entry_data: typing.Mapping):
+        container = self._container
+        api = container.api
+        config = api.config
+        account = config.account
 
-#
-#
+        entry_id = entry_data.get("id")
 
-#
-# def permission_remove(self, entry_id: str, permission_id: str):
-#     """Remove a permission from an entry."""
-#
-#     operation = (
-#         self.client()
-#         .permissions()
-#         .delete(
-#             fileId=entry_id,
-#             permissionId=permission_id,
-#         )
-#     )
-#
-#     self.cache_remove(entry_id)
-#     return operation
-#
-# def file_rename(self, entry_id: str, new_name: typing.Optional[str] = None):
-#     """Rename an entry."""
-#
-#     if not new_name:
-#         logger.warning(f"No new names given for file id '{entry_id}'.")
-#         return None
-#
-#     # name: string - The name of the file.
-#     # This is not necessarily unique within a folder.
-#     # Note that for immutable items such as the top level folders of shared drives,
-#     # My Drive root folder, and Application Data folder the name is constant.
-#     - writable
-#
-#     # NOTE: Tried to update originalFilename, but that does not seem to be saved.
-#     #       The old originalFilename is always returned after updating.
-#
-#     # originalFilename: string - The original filename of the uploaded content
-#     if available,
-#     # or else the original value of the name field. This is only available for
-#     files with
-#     # binary content in Google Drive. - writable
-#
-#     body = {}
-#     if new_name:
-#         body["name"] = new_name
-#
-#     operation = (
-#         self.client()
-#         .files()
-#         .update(
-#             fileId=entry_id,
-#             body=body,
-#             fields=self._entry_fields,
-#         )
-#     )
-#
-#     self.cache_remove(entry_id)
-#     return operation
-#
-# def permission_transfer(
-#     self,
-#     file_id: str,
-#     permission_id: typing.Optional[str],
-#     new_type: str,
-#     new_owner: str,
-#     new_parent_id: str,
-# ):
-#     # NOTE: Ownership transfer from a personal to a business account is possible!
-#     # NOTE: This bug does not seem to be related:
-#     https://issuetracker.google.com/issues/228791253
-#
-#     fields = ",".join(["id"])
-#     service = self.client()
-#
-#     # build the new permission
-#     if permission_id and new_type == self.type_domain:
-#         # transfer to a business account where the new owner already has a permission
-#         operation = service.permissions().update(
-#             fileId=file_id,
-#             body={
-#                 "type": self.type_domain,
-#                 "role": "owner",
-#                 "domain": new_owner,
-#                 "parents": [new_parent_id],
-#             },
-#             transferOwnership=True,
-#             fields=fields,
-#         )
-#
-#     elif not permission_id and new_type == self.type_domain:
-#         # transfer to a business account where
-#         the new owner does not have a permission
-#         operation = service.permissions().create(
-#             fileId=file_id,
-#             body={
-#                 "type": self.type_domain,
-#                 "role": "owner",
-#                 "domain": new_owner,
-#                 "parents": [new_parent_id],
-#             },
-#             transferOwnership=True,
-#             fields=fields,
-#         )
-#
-#     elif permission_id and new_type == self.type_user:
-#         # transfer to a personal account where the new owner already has a permission
-#         operation = service.permissions().update(
-#             fileId=file_id,
-#             body={
-#                 "type": self.type_user,
-#                 "role": "owner",
-#                 "emailAddress": new_owner,
-#                 "pendingOwner": True,
-#                 "parents": [new_parent_id],
-#             },
-#             transferOwnership=True,
-#             fields=fields,
-#         )
-#
-#     elif not permission_id and new_type == self.type_user:
-#         # transfer to a personal account
-#         where the new owner does not have a permission
-#         operation = service.permissions().create(
-#             fileId=file_id,
-#             body={
-#                 "type": self.type_user,
-#                 "role": "owner",
-#                 "emailAddress": new_owner,
-#                 "pendingOwner": True,
-#                 "parents": [new_parent_id],
-#             },
-#             transferOwnership=True,
-#             fields=fields,
-#         )
-#
-#     else:
-#         raise ValueError(
-#             "Unknown combination for "
-#             f"permission id '{permission_id}' type '{new_type}'."
-#         )
-#
-#     self.cache_remove(file_id)
-#     return operation
-#
-# def create_folder(
-#     self,
-#     entry: models.GoogleDriveEntry,
-#     parent_id: str,
-#     body_params: dict,
-#     **kwargs,
-# ):
-#     """
-#     Create a new folder with the same name as entry (which much be a folder).
-#     Add a custom property to the copy and the original.
-#     Include as much metadata as possible.
-#     """
-#
-#     if not entry.is_dir:
-#         raise ValueError(f"Cannot create folder for {str(entry)}.")
-#
-#     name = entry.name
-#
-#     operation = (
-#         self.client()
-#         .files()
-#         .create(
-#             **kwargs,
-#             body={
-#                 **body_params,
-#                 "createdTime": entry.date_created,
-#                 "modifiedTime": entry.date_modified,
-#                 "name": name,
-#                 "parents": [parent_id],
-#                 "mimeType": models.GoogleDriveEntry.mime_type_dir(),
-#             },
-#             fields=self._entry_fields,
-#         )
-#     )
-#     return operation
-#
-# def copy_file(
-#     self,
-#     entry: models.GoogleDriveEntry,
-#     parent: models.GoogleDriveEntry,
-#     custom_properties: dict,
-# ):
-#     """Copy a file that is not owned to the same folder, with the same name."""
-#
-#     if entry.is_dir:
-#         raise ValueError(f"Cannot copy {str(entry)}.")
-#
-#     name = entry.name
-#
-#     operation = (
-#         self.client()
-#         .files()
-#         .copy(
-#             fileId=entry.entry_id,
-#             body={
-#                 "createdTime": entry.date_created,
-#                 "modifiedTime": entry.date_modified,
-#                 "description": entry.description,
-#                 "name": name,
-#                 "parents": [parent.entry_id],
-#                 "properties": custom_properties,
-#                 "mimeType": entry.mime_type,
-#             },
-#             fields=self._entry_fields,
-#         )
-#     )
-#     return operation
-#
-# def update_entry(self, entry: models.GoogleDriveEntry, **kwargs):
-#     """Update any aspect of an entry."""
-#
-#     operation = (
-#         self.client()
-#         .files()
-#         .update(
-#             **kwargs,
-#             fileId=entry.entry_id,
-#             fields=self._entry_fields,
-#         )
-#     )
-#     self.cache_remove(entry.entry_id)
-#     return operation
-#
+        # get the full permissions list for the entry
+        request = container.get_permissions(entry_id)
+        permissions_list = []
+        for permission_data in api.execute_permissions_list(request):
+            permissions_list.append(
+                models.GoogleDrivePermission.load_data(permission_data)
+            )
+
+        # create the entry object
+        params = {
+            **entry_data,
+            "fileMoverExtraAccount": account,
+            "fileMoverExtraPermissions": permissions_list,
+        }
+        entry = models.GoogleDriveEntry.load_data(params)
+        return entry

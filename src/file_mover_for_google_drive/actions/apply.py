@@ -2,17 +2,9 @@
 
 import dataclasses
 import logging
-import pathlib
 import typing
 
-from file_mover_for_google_drive.common import (
-    manage,
-    models,
-    interact,
-    utils,
-    report,
-    client,
-)
+from file_mover_for_google_drive.common import manage, models, report, client
 
 logger = logging.getLogger(__name__)
 
@@ -22,18 +14,18 @@ class Apply(manage.BaseManage):
 
     def __init__(
         self,
-        plan_path: typing.Optional[pathlib.Path],
-        config: models.Config,
-        gd_client: client.GoogleDriveAnyClientType = None,
+        plan_name: typing.Optional[str],
+        config: models.ConfigProgram,
+        gd_client: client.GoogleApiClient = None,
     ) -> None:
         """Create a new Apply instance."""
 
         super().__init__(config, gd_client)
 
-        if not plan_path:
+        if not plan_name:
             raise ValueError("Must provide plan path.")
 
-        self._plan_path = plan_path
+        self._plan_name = plan_name
 
     def run(self) -> bool:
         """
@@ -44,84 +36,61 @@ class Apply(manage.BaseManage):
         """
 
         config = self._config
+        container = self._container
+        actions = self._actions
+        cache = self._cache
 
-        # personal
-        per_container = self._personal_container
-        per_actions = interact.GoogleDriveActions(per_container)
-        per_top_folder_id = config.personal_account_top_folder_id
-        per_cache = utils.GoogleDriveEntryCache(per_top_folder_id)
-        per_col_type = per_container.collection_type
-        per_col_name = per_container.collection_name
-        per_col_id = per_container.collection_id
-
-        # business
-        bus_container = self._business_container
-        # bus_actions = interact.GoogleDriveActions(bus_container)
-        bus_top_folder_id = config.business_account_top_folder_id
-        bus_cache = utils.GoogleDriveEntryCache(bus_top_folder_id)
-        bus_col_type = bus_container.collection_type
-        bus_col_name = bus_container.collection_name
-        bus_col_id = bus_container.collection_id
+        top_folder_id = config.account.top_folder_id
+        account = config.account
 
         # report dirs
-        entries_dir = config.report_entries_dir
-        perms_dir = config.report_permissions_dir
-        outcomes_dir = config.report_outcomes_dir
+        entries_dir = config.reports.entries_dir
+        perms_dir = config.reports.permissions_dir
+        plans_dir = config.reports.plans_dir
+        outcomes_dir = config.reports.outcomes_dir
 
         logger.info(
-            "Apply modifications for '%s' in %s '%s'.",
-            per_col_name,
-            per_col_type,
-            per_col_id,
+            "Apply modifications for %s account '%s'.",
+            account.account_type.name,
+            account.account_id,
         )
-        logger.info("Starting with folder '%s'.", per_top_folder_id)
-        logger.info(
-            "Move files and folders to '%s' in %s '%s'.",
-            bus_col_name,
-            bus_col_type,
-            bus_col_id,
-        )
-        logger.info("Moving into top folder '%s'.", bus_top_folder_id)
 
         # reports
         rpt_entries = report.ReportCsv(entries_dir, report.EntryReport)
         rpt_permissions = report.ReportCsv(perms_dir, report.PermissionReport)
+        rpt_plans = report.ReportCsv(plans_dir, report.PlanReport)
         rpt_outcomes = report.ReportCsv(outcomes_dir, report.OutcomeReport)
 
-        plans = list(report.PlanReport.from_path(self._plan_path))
+        plans: list[report.PlanReport] = list(rpt_plans.read(self._plan_name))
 
         # read plans and execute
         with rpt_entries, rpt_permissions, rpt_outcomes:
-            logger.info("Reading plans report '%s'.", self._plan_path.name)
+            logger.info("Reading plans report '%s'.", self._plan_name)
             logger.info("Writing entries report '%s'.", rpt_entries.path.name)
             logger.info("Writing permissions report '%s'.", rpt_permissions.path.name)
             logger.info("Writing outcomes report '%s'.", rpt_outcomes.path.name)
 
-            logger.info("Starting.")
-
             entry_count = 0
 
             # top entry
-            per_top_entry = per_actions.get_entry(per_top_folder_id)
+            top_entry = actions.get_entry(top_folder_id)
             entry_count += 1
             self._process_one(
-                per_cache,
-                bus_cache,
                 rpt_entries,
                 rpt_permissions,
                 rpt_outcomes,
                 plans,
-                per_top_entry,
+                top_entry,
             )
 
+            logger.info("Starting folder is '%s'.", top_entry.name)
+
             # descendants
-            descendants = per_actions.get_descendants(per_top_folder_id)
+            descendants = actions.get_descendants(top_folder_id)
             for index, entry in enumerate(descendants):
                 entry_count += 1
 
                 self._process_one(
-                    per_cache,
-                    bus_cache,
                     rpt_entries,
                     rpt_permissions,
                     rpt_outcomes,
@@ -140,8 +109,6 @@ class Apply(manage.BaseManage):
 
     def _process_one(
         self,
-        per_cache: utils.GoogleDriveEntryCache,
-        bus_cache: utils.GoogleDriveEntryCache,
         rpt_entries: report.ReportCsv,
         rpt_permissions: report.ReportCsv,
         rpt_outcomes: report.ReportCsv,
@@ -151,8 +118,6 @@ class Apply(manage.BaseManage):
         """Process one entry.
 
         Args:
-            per_cache: The personal data cache.
-            bus_cache: The business data cache.
             rpt_entries: The entries report.
             rpt_permissions: The permissions report.
             rpt_outcomes: The outcomes report.
@@ -162,9 +127,17 @@ class Apply(manage.BaseManage):
         Returns:
             None
         """
-        per_cache.add(entry)
+        config = self._config
+        container = self._container
+        actions = self._actions
+        cache = self._cache
 
-        entry_path = per_cache.path(entry.entry_id)
+        top_folder_id = config.account.top_folder_id
+        account = config.account
+
+        cache.add(entry)
+
+        entry_path = cache.path(entry.entry_id)
 
         for row in report.EntryReport.from_entry_path(entry_path):
             rpt_entries.write_item(row)
@@ -172,18 +145,24 @@ class Apply(manage.BaseManage):
         for row in report.PermissionReport.from_entry_path(entry_path):
             rpt_permissions.write_item(row)
 
-        for rpt_item in self._apply_plans(per_cache, bus_cache, plans, entry_path):
+        for rpt_item in self._apply_plans(plans, entry_path):
             row = dataclasses.asdict(rpt_item)
             rpt_outcomes.write_item(row)
 
     def _apply_plans(
         self,
-        per_cache: utils.GoogleDriveEntryCache,
-        bus_cache: utils.GoogleDriveEntryCache,
         plans: list[report.PlanReport],
         entry_path: list[models.GoogleDriveEntry],
     ) -> typing.Iterable[report.OutcomeReport]:
         """Apply plan items to enact planned changes."""
+
+        config = self._config
+        container = self._container
+        actions = self._actions
+        cache = self._cache
+
+        top_folder_id = config.account.top_folder_id
+        account = config.account
 
         entry = entry_path[-1]
         parent_path_str = entry.build_path_str(entry_path[:-1])
@@ -197,26 +176,26 @@ class Apply(manage.BaseManage):
                 continue
             if plan.end_entry_path and plan.end_entry_path != parent_path_str:
                 continue
-            for item in self._apply_plan(per_cache, bus_cache, plan, entry_path):
+            for item in self._apply_plan(plan, entry_path):
                 yield item
 
     def _apply_plan(
         self,
-        per_cache: utils.GoogleDriveEntryCache,
-        bus_cache: utils.GoogleDriveEntryCache,
         plan: report.PlanReport,
         entry_path: list[models.GoogleDriveEntry],
     ) -> typing.Iterable[report.OutcomeReport]:
         """Execute the actions to apply the plan item."""
 
+        config = self._config
+        container = self._container
+        actions = self._actions
+        cache = self._cache
+
+        top_folder_id = config.account.top_folder_id
+        account = config.account
+
         # entry = entry_path[-1]
         # parent_path_str = entry.build_path_str(entry_path[:-1])
-
-        per_container = self._personal_container
-        # per_actions = interact.GoogleDriveActions(per_container)
-
-        bus_container = self._business_container
-        # bus_actions = interact.GoogleDriveActions(bus_container)
 
         # properties
         item_action = plan.item_action
@@ -229,25 +208,14 @@ class Apply(manage.BaseManage):
         # begin_user_access = plan.begin_user_access
         # begin_entry_name = plan.begin_entry_name
         # begin_entry_path = plan.begin_entry_path
-        # begin_collection_type = plan.begin_collection_type
-        # begin_collection_name = plan.begin_collection_name
-        # begin_collection_id = plan.begin_collection_id
 
         # end_user_name = plan.end_user_name
         # end_user_email = plan.end_user_email
         # end_user_access = plan.end_user_access
         # end_entry_name = plan.end_entry_name
         # end_entry_path = plan.end_entry_path
-        end_collection_type = plan.end_collection_type
-        # end_collection_name = plan.end_collection_name
-        # end_collection_id = plan.end_collection_id
 
         params = dataclasses.asdict(plan)
-
-        # per_begin = begin_collection_type == per_container.collection_type
-        # bus_begin = begin_collection_type == bus_container.collection_type
-        per_end = end_collection_type == per_container.collection_type
-        bus_end = end_collection_type == bus_container.collection_type
 
         # apply plan
         if item_action == "create":
@@ -271,10 +239,6 @@ class Apply(manage.BaseManage):
 
         elif item_action == "delete":
             # delete a permission
-            yield report.OutcomeReport(result_name="skipped", **params)
-
-        elif item_action == "transfer":
-            # transfer ownership of a file
             yield report.OutcomeReport(result_name="skipped", **params)
 
         else:

@@ -4,14 +4,7 @@ import dataclasses
 import logging
 import typing
 
-from file_mover_for_google_drive.common import (
-    manage,
-    models,
-    interact,
-    utils,
-    report,
-    client,
-)
+from file_mover_for_google_drive.common import manage, models, report, client
 
 logger = logging.getLogger(__name__)
 
@@ -23,51 +16,27 @@ class Plan(manage.BaseManage):
     """
 
     def __init__(
-        self, config: models.Config, gd_client: client.GoogleDriveAnyClientType = None
+        self, config: models.ConfigProgram, gd_client: client.GoogleApiClient = None
     ) -> None:
         """Create a new Plan instance."""
 
         super().__init__(config, gd_client)
-        self._bus_folders_path_create: list[str] = []
 
     def run(self) -> bool:
         """Run the 'apply' action."""
-        per_container = self._personal_container
-        bus_container = self._business_container
-
         config = self._config
-        per_actions = interact.GoogleDriveActions(per_container)
 
-        per_top_folder_id = config.personal_account_top_folder_id
-        per_container_cache = utils.GoogleDriveEntryCache(per_top_folder_id)
+        account = config.account
 
-        per_col_type = per_container.collection_type
-        per_col_name = per_container.collection_name
-        per_col_id = per_container.collection_id
-
-        bus_col_type = bus_container.collection_type
-        bus_col_name = bus_container.collection_name
-        bus_col_id = bus_container.collection_id
-
-        entries_dir = config.report_entries_dir
-        perms_dir = config.report_permissions_dir
-        plans_dir = config.report_plans_dir
-
-        self._bus_folders_path_create = []
+        entries_dir = config.reports.entries_dir
+        perms_dir = config.reports.permissions_dir
+        plans_dir = config.reports.plans_dir
 
         logger.info(
-            "Plan modifications for source '%s' in %s '%s'.",
-            per_col_name,
-            per_col_type,
-            per_col_id,
+            "Plan modifications for %s account '%s'.",
+            account.account_type.name,
+            account.account_id,
         )
-        logger.info(
-            "Plan modifications for target '%s' in %s '%s'.",
-            bus_col_name,
-            bus_col_type,
-            bus_col_id,
-        )
-        logger.info("Starting with folder '%s'.", per_top_folder_id)
 
         # reports
         rpt_entries = report.ReportCsv(entries_dir, report.EntryReport)
@@ -80,51 +49,28 @@ class Plan(manage.BaseManage):
             logger.info("Writing permissions report '%s'.", rpt_permissions.path.name)
             logger.info("Writing plans report '%s'.", rpt_plans.path.name)
 
-            logger.info("Starting.")
-
-            entry_count = 0
-
-            # top entry
-            per_top_entry = per_actions.get_entry(per_top_folder_id)
-            entry_count += 1
-            self._process_one(
-                per_container_cache,
-                rpt_entries,
-                rpt_permissions,
-                rpt_plans,
-                per_top_entry,
+            result = self._iterate_entries(
+                self._process_one,
+                rpt_entries=rpt_entries,
+                rpt_permissions=rpt_permissions,
+                rpt_plans=rpt_plans,
             )
-
-            # descendants
-            for index, entry in enumerate(
-                per_actions.get_descendants(per_top_folder_id)
-            ):
-                entry_count += 1
-
-                self._process_one(
-                    per_container_cache, rpt_entries, rpt_permissions, rpt_plans, entry
-                )
-
-                if self._iteration_check(index):
-                    break
-
-        logger.info("Finished.")
-
-        return not self._graceful_exit.should_exit()
+            return result
 
     def _process_one(
         self,
-        container_cache: utils.GoogleDriveEntryCache,
+        entry: models.GoogleDriveEntry,
         rpt_entries: report.ReportCsv,
         rpt_permissions: report.ReportCsv,
         rpt_plans: report.ReportCsv,
-        entry: models.GoogleDriveEntry,
     ) -> None:
         """Process one entry."""
 
-        container_cache.add(entry)
+        cache = self._cache
+        cache.add(entry)
 
-        entry_path = container_cache.path(entry.entry_id)
+        entry_path = cache.path(entry.entry_id)
+        logger.info("Processing %s.", str(entry))
 
         for row in report.EntryReport.from_entry_path(entry_path):
             rpt_entries.write_item(row)
@@ -132,292 +78,263 @@ class Plan(manage.BaseManage):
         for row in report.PermissionReport.from_entry_path(entry_path):
             rpt_permissions.write_item(row)
 
-        for rpt_item in self._gather_changes(entry_path):
-            logger.info("Added plan to %s.", str(rpt_item))
+        for rpt_item in self._build_plans(entry_path):
+            logger.info("Added plan %s.", str(rpt_item))
             row = dataclasses.asdict(rpt_item)
             rpt_plans.write_item(row)
 
-    def _gather_changes(
+    def _build_plans(
         self, entry_path: list[models.GoogleDriveEntry]
     ) -> typing.Iterable[report.PlanReport]:
         """Build plan items to represent the changes to make."""
 
-        # Note: See the readme for the changes to be made.
-
-        # As a summary: Tidy permissions and ownership in the personal account to
-        # prepare for moving files and folders
-        # to a business account by transferring ownership.
-
-        per_container = self._personal_container
-        bus_container = self._business_container
-
         config = self._config
-        api = self._api
 
-        per_actions = interact.GoogleDriveActions(per_container)
-
-        per_top_folder_id = config.personal_account_top_folder_id
-        per_account_email = config.personal_account_email
-
-        per_col_type = per_container.collection_type
-        per_col_name = per_container.collection_name
-        per_col_id = per_container.collection_id
-
-        bus_col_type = bus_container.collection_type
-        bus_col_name = bus_container.collection_name
-        bus_col_id = bus_container.collection_id
+        top_folder_id = config.account.top_folder_id
+        account = config.account
+        account_id = account.account_id
 
         entry = entry_path[-1]
         parent_path_str = entry.build_path_str(entry_path[:-1])
-        per_is_owned = entry.is_owned_by(per_account_email)
+
+        if entry.entry_id == top_folder_id:
+            logger.debug("Will not change the top-level folder '%s'.", entry.name)
+            return None
+
+        for plan_item in self._build_plan_unowned(entry, parent_path_str):
+            if plan_item:
+                yield plan_item
+
+        for plan_item in self._build_plan_rename(entry, parent_path_str):
+            if plan_item:
+                yield plan_item
+
+        for plan_item in self._build_plan_permissions(entry, parent_path_str):
+            if plan_item:
+                yield plan_item
+
+    def _build_plan_unowned(
+        self, entry: models.GoogleDriveEntry, parent_path_str: str
+    ) -> typing.Iterable[report.PlanReport]:
+        """Create owned copies of files and folders."""
+
+        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        role_owner = models.GoogleDrivePermissionRoleOptions.owner
+
+        container = self._container
+        config = self._config
+        actions = self._actions
+
+        key_original = config.custom_prop_original_key
+        key_copy = config.custom_prop_copy_key
+
+        account = config.account
+        account_id = account.account_id
+        account_type = account.account_type
+
+        if account_type != account_type_personal:
+            raise ValueError(
+                "File and folder ownership cannot be changed in a business "
+                "account by copying. copied changes are only. Use the Google Drive "
+                "website to change permissions in a business account."
+            )
+
+        is_owned = entry.is_owned_by(account_id)
+        if is_owned:
+            logging.debug("Will never copy an owned file or folder.")
+            return None
+
+        # only assess unowned entries - files
+        if not entry.is_dir:
+            if not config.actions.create_owned_file_copy:
+                logger.debug(
+                    "Config prevented creating an owned copy of file '%s' at '%s'.",
+                    entry.name,
+                    parent_path_str,
+                )
+                return None
+
+            # check if there is already a copy of the file
+
+            # does this file have the property that indicates there is a copy?
+            prop_copy_entry_id = entry.properties_shared.get(key_copy)
+            if prop_copy_entry_id:
+                other_entry = actions.get_entry(prop_copy_entry_id)
+            else:
+                # is there another file that has a property that indicates that this
+                # file is it's original?
+                other_entry = actions.get_pair_copy_entry(entry)
+
+            # if there is not a copy of the file, then copy it
+            # otherwise, just log the existence of the copy.
+            if other_entry:
+                logging.debug(
+                    "Found existing copy of file '%s' at '%s'.",
+                    entry.name,
+                    parent_path_str,
+                )
+            else:
+                # create an owned copy of the unowned file
+                yield self._plan_builder.get_copy_file(
+                    entry=entry,
+                    user_email=account_id,
+                    user_access=role_owner,
+                    entry_path=parent_path_str,
+                )
+
+        # only assess unowned entries - folders
+        if entry.is_dir:
+            if not config.actions.create_owned_folder_and_move_contents:
+                logger.debug(
+                    "Config prevented creating an owned folder and moving contents for "
+                    "'%s' at '%s'.",
+                    entry.name,
+                    parent_path_str,
+                )
+                return None
+            # check if there is already another folder with the same parent and same
+            # name
+
+            # does this folder have the property that indicates there is a copy?
+            prop_copy_entry_id = entry.properties_shared.get(key_copy)
+            if prop_copy_entry_id:
+                other_entry = actions.get_entry(prop_copy_entry_id)
+            else:
+                # is there another folder that has a property that indicates that this
+                # folder is it's original?
+                other_entry = actions.get_pair_copy_entry(entry)
+
+            # if there is not another of the folder, then create one
+            # otherwise, just log the existence of the copy.
+            if other_entry:
+                logging.debug(
+                    "Found existing copy of folder '%s' at '%s'.",
+                    entry.name,
+                    parent_path_str,
+                )
+            else:
+                # create an owned copy of the unowned folder
+                yield self._plan_builder.get_create_folder(
+                    entry=entry,
+                    user_email=account_id,
+                    user_access=role_owner,
+                    entry_path=parent_path_str,
+                )
+
+            # TODO: move the contents of the unowned folder into the owned folder
+            a = 1
+
+    def _build_plan_rename(
+        self, entry: models.GoogleDriveEntry, parent_path_str: str
+    ) -> typing.Iterable[report.PlanReport]:
+        """Rename an owned file."""
+        actions = self._config.actions
+        is_rename = actions.entry_name_delete_prefix_copy_of is True
+
         entry_owner = entry.permission_owner_user
 
-        # if this entry is the personal top folder, don't make any changes
-        if entry.entry_id == per_top_folder_id:
+        if not entry_owner:
+            logger.debug("Will never rename unowned entries.")
+            return None
+
+        if entry.is_dir:
+            logger.debug("Will never rename folders.")
+            return None
+
+        prefix_copy = "Copy of ".casefold()
+        prefix_copy_len = len(prefix_copy)
+        compare_name = str(entry.name).casefold()
+        rename_index = 0
+        while compare_name[rename_index:].startswith(prefix_copy):
+            # there might be more than one instance of the prefix
+            rename_index += prefix_copy_len
+
+        if rename_index < 1:
+            logger.debug("No change to file name.")
+            return None
+
+        new_name = entry.name[rename_index:]
+
+        if not is_rename:
             logger.debug(
-                "Do not change the top-level folder in the personal account %s.",
-                str(entry),
+                "Config prevented renaming '%s' to '%s'.", entry.name, new_name
             )
             return None
 
-        # copy unowned items first
-        if not per_is_owned:
-            # check for existing copy
-            entry_paired = per_actions.get_pair(entry)
-            copy_id = entry.custom_property(config.custom_prop_copy_key)
+        logger.debug("Rename '%s' to '%s'.", entry.name, new_name)
+        yield self._plan_builder.get_rename_file(
+            new_name=new_name,
+            entry=entry,
+            permission=entry_owner,
+            entry_path=parent_path_str,
+        )
 
-            if entry_paired and copy_id and entry_paired.entry_id != copy_id:
-                raise ValueError(
-                    f"Copy id '{copy_id}' does not match "
-                    f"the pair id '{entry_paired.entry_id}' "
-                    f"for original {str(entry)}."
-                )
+    def _build_plan_permissions(
+        self, entry: models.GoogleDriveEntry, parent_path_str: str
+    ) -> typing.Iterable[report.PlanReport]:
+        """Remove permissions for an entry (owned and unowned), except current user
+        and owner."""
 
-            if not copy_id and not entry_paired:
-                if entry.is_dir:
-                    # if there is not an existing owned folder at this path,
-                    # create a new folder as a sibling of this not-owned folder
-                    yield report.PlanReport(
-                        item_action="create-folder",
-                        item_type=entry.entry_type,
-                        entry_id=entry.entry_id,
-                        permission_id=None,
-                        description="create an owned folder with same name",
-                        begin_user_name=None,
-                        begin_user_email=None,
-                        begin_user_access=None,
-                        begin_entry_name=None,
-                        begin_entry_path=None,
-                        begin_collection_type=None,
-                        begin_collection_name=None,
-                        begin_collection_id=None,
-                        end_user_name=None,
-                        end_user_email=per_account_email,
-                        end_user_access=api.role_owner,
-                        end_entry_name=entry.name,
-                        end_entry_path=parent_path_str,
-                        end_collection_type=per_col_type,
-                        end_collection_name=per_col_name,
-                        end_collection_id=per_col_id,
-                    )
+        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        role_owner = models.GoogleDrivePermissionRoleOptions.owner
+        permission_user = models.GoogleDrivePermissionTypeOptions.user
+        permission_anyone = models.GoogleDrivePermissionTypeOptions.anyone
 
-                else:
-                    # if there is not an existing owned file at this path,
-                    # copy the not-owned file
-                    yield report.PlanReport(
-                        item_action="copy-file",
-                        item_type=entry.entry_type,
-                        entry_id=entry.entry_id,
-                        description="copy file to create a new "
-                        "file owned by the current user",
-                        permission_id=None,
-                        begin_user_name=None,
-                        begin_user_email=None,
-                        begin_user_access=None,
-                        begin_entry_name=None,
-                        begin_entry_path=None,
-                        begin_collection_type=None,
-                        begin_collection_name=None,
-                        begin_collection_id=None,
-                        end_user_name=None,
-                        end_user_email=per_account_email,
-                        end_user_access=api.role_owner,
-                        end_entry_name=entry.name,
-                        end_entry_path=parent_path_str,
-                        end_collection_type=per_col_type,
-                        end_collection_name=per_col_name,
-                        end_collection_id=per_col_id,
-                    )
-            else:
-                logger.debug(
-                    "There is already a copy of the not owned %s '%s' (%s) in '%s'.",
-                    entry.entry_type,
-                    entry.name,
-                    entry.entry_id,
-                    parent_path_str,
-                )
+        account = self._config.account
+        actions = self._config.actions
 
-        # rename
-        prefix_copy = per_container.name_prefix_copy_of
-        prefix_copy_len = per_container.name_prefix_copy_of_len
-        if not entry.is_dir and entry.name and entry.name.startswith(prefix_copy):
-            new_name = entry.name[prefix_copy_len:]
-            yield report.PlanReport(
-                item_action="rename-file",
-                item_type=entry.entry_type,
-                entry_id=entry.entry_id,
-                permission_id=None,
-                description="remove 'copy of ' from file name",
-                begin_user_name=entry_owner.user_name,
-                begin_user_email=entry_owner.user_email,
-                begin_user_access=entry_owner.role,
-                begin_entry_name=entry.name,
-                begin_entry_path=parent_path_str,
-                begin_collection_type=per_col_type,
-                begin_collection_name=per_col_name,
-                begin_collection_id=per_col_id,
-                end_user_name=entry_owner.user_name,
-                end_user_email=entry_owner.user_email,
-                end_user_access=entry_owner.role,
-                end_entry_name=new_name,
-                end_entry_path=parent_path_str,
-                end_collection_type=per_col_type,
-                end_collection_name=per_col_name,
-                end_collection_id=per_col_id,
+        account_id = account.account_id
+        account_type = account.account_type
+
+        is_delete_link = actions.permissions_delete_link is True
+        is_delete_others = actions.permissions_delete_other_users is True
+
+        if account_type != account_type_personal:
+            raise ValueError(
+                "Permission changes are only implemented for personal "
+                f"accounts, not '{account_type}'. Use the Google Drive website to "
+                "change permissions in a business account."
             )
 
-        # fix permissions
-        for permission in entry.permissions:
-            is_owner = permission.role == self._api.role_owner
-            is_anyone = permission.entry_type == api.permission_anyone
-            is_user = permission.entry_type == api.permission_user
-            is_current_user = permission.user_email == per_account_email
+        for permission in entry.permissions_all:
+            is_owner = permission.role == role_owner
+            is_anyone = permission.entry_type == permission_anyone
+            is_user = permission.entry_type == permission_user
+            is_current_user = is_user and permission.user_email == account_id
+            is_user_not_current = is_user and not permission.user_email == account_id
 
-            if is_owner or (is_user and is_current_user):
+            if is_owner or is_current_user:
                 logger.debug("Keep permission %s.", str(permission))
+                continue
 
-            elif is_anyone or (is_user and not is_current_user):
-                yield report.PlanReport(
-                    item_action="delete-permission",
-                    item_type=entry.entry_type,
-                    entry_id=entry.entry_id,
-                    permission_id=permission.entry_id,
-                    description="delete permission for non-owner and not current user",
-                    begin_user_name=permission.user_name,
-                    begin_user_email=permission.user_email,
-                    begin_user_access=permission.role,
-                    begin_entry_name=entry.name,
-                    begin_entry_path=parent_path_str,
-                    begin_collection_type=per_col_type,
-                    begin_collection_name=per_col_name,
-                    begin_collection_id=per_col_id,
-                    end_user_name=None,
-                    end_user_email=None,
-                    end_user_access=None,
-                    end_entry_name=None,
-                    end_entry_path=None,
-                    end_collection_type=None,
-                    end_collection_name=None,
-                    end_collection_id=None,
+            elif is_anyone and is_delete_link:
+                logger.debug("Delete permission %s.", str(permission))
+                yield self._plan_builder.get_delete_permission(
+                    entry=entry,
+                    permission=permission,
+                    entry_path=parent_path_str,
                 )
+                continue
 
-            else:
-                raise ValueError(f"Unknown permission {str(permission)}.")
-
-        # create an equivalent folder in the business account (only once)
-        if entry.is_dir and parent_path_str not in self._bus_folders_path_create:
-            self._bus_folders_path_create.append(parent_path_str)
-            yield report.PlanReport(
-                item_action="create-folder",
-                item_type=entry.entry_type,
-                entry_id=None,
-                permission_id=None,
-                description="create same folder in business account",
-                begin_user_name=None,
-                begin_user_email=None,
-                begin_user_access=None,
-                begin_entry_name=None,
-                begin_entry_path=None,
-                begin_collection_type=None,
-                begin_collection_name=None,
-                begin_collection_id=None,
-                end_user_name=None,
-                end_user_email=None,
-                end_user_access=None,
-                end_entry_name=entry.name,
-                end_entry_path=parent_path_str,
-                end_collection_type=bus_col_type,
-                end_collection_name=bus_col_name,
-                end_collection_id=bus_col_id,
-            )
-
-        if entry.is_dir and parent_path_str in self._bus_folders_path_create:
-            logger.debug(
-                "Folder in business account already exists or will be created %s.",
-                str(entry),
-            )
-
-        # transfer ownership of owned files to business account
-        # check if not-owned entries have a property
-        # indicating the copy has been transferred
-        if not per_is_owned and not entry.is_dir:
-            # check if the copy of this not-owned entry has already been transferred
-            new_account_id = entry.custom_property(config.custom_prop_new_account_key)
-            copy_entry_id = entry.custom_property(config.custom_prop_copy_key)
-            if not new_account_id:
-                yield report.PlanReport(
-                    item_action="transfer-owner",
-                    item_type=entry.entry_type,
-                    entry_id=copy_entry_id,
-                    permission_id=None,
-                    description="transfer ownership of copied file "
-                    "from personal to business account",
-                    begin_user_name=None,
-                    begin_user_email=None,
-                    begin_user_access=None,
-                    begin_entry_name=entry.name,
-                    begin_entry_path=parent_path_str,
-                    begin_collection_type=per_col_type,
-                    begin_collection_name=per_col_name,
-                    begin_collection_id=per_col_id,
-                    end_user_name=None,
-                    end_user_email=None,
-                    end_user_access=None,
-                    end_entry_name=entry.name,
-                    end_entry_path=parent_path_str,
-                    end_collection_type=bus_col_type,
-                    end_collection_name=bus_col_name,
-                    end_collection_id=bus_col_id,
+            elif is_anyone and not is_delete_link:
+                logger.debug(
+                    "Config prevented deleting permission %s.", str(permission)
                 )
+                continue
 
-        # transfer any owned files
-        if per_is_owned and not entry.is_dir:
-            yield report.PlanReport(
-                item_action="transfer-ownership",
-                item_type=entry.entry_type,
-                entry_id=entry.entry_id,
-                permission_id=None,
-                description="transfer ownership from personal to business account",
-                begin_user_name=None,
-                begin_user_email=None,
-                begin_user_access=None,
-                begin_entry_name=entry.name,
-                begin_entry_path=parent_path_str,
-                begin_collection_type=per_col_type,
-                begin_collection_name=per_col_name,
-                begin_collection_id=per_col_id,
-                end_user_name=None,
-                end_user_email=None,
-                end_user_access=None,
-                end_entry_name=entry.name,
-                end_entry_path=parent_path_str,
-                end_collection_type=bus_col_type,
-                end_collection_name=bus_col_name,
-                end_collection_id=bus_col_id,
-            )
+            elif is_user_not_current and is_delete_others:
+                logger.debug("Delete permission %s.", str(permission))
+                yield self._plan_builder.get_delete_permission(
+                    entry=entry,
+                    permission=permission,
+                    entry_path=parent_path_str,
+                )
+                continue
 
-        if entry.is_dir:
-            logger.debug(
-                "Can not transfer ownership of folder in personal account %s.",
-                str(entry),
-            )
+            elif is_user_not_current and not is_delete_others:
+                logger.debug(
+                    "Config prevented deleting permission %s.", str(permission)
+                )
+                continue
+
+            raise ValueError(f"Unknown permission {str(permission)}.")
