@@ -11,7 +11,7 @@ from file_mover_for_google_drive.common import models, utils, manage, client
 
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)-8s] %(message)s",
 )
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.INFO)

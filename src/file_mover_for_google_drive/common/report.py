@@ -273,7 +273,7 @@ class PermissionReport(BaseReport, BaseEntryReport):
 @dataclasses.dataclass
 class PlanReport(BaseReport):
     item_action: str
-    """'create', 'update', 'delete', 'copy' (don't record 'retrieve')"""
+    """The short name of the planned action."""
     item_type: str
     """either 'file' or 'folder' or 'permission' (a permission is not an 'entry')"""
     entry_id: typing.Optional[str]
@@ -327,13 +327,18 @@ class PlanReport(BaseReport):
         return [f.name for f in dataclasses.fields(cls)]
 
     def __str__(self):
-        descr = self.description
         entry_name = self.begin_entry_name or self.end_entry_name
         entry_path = self.begin_entry_path or self.end_entry_path
+        user_name = self.begin_user_name or self.end_user_name
+        user_email = self.begin_user_email or self.end_user_email
+        user_access = self.begin_user_access or self.end_user_access
         items = [
-            f'"{descr}"',
-            f"for entry '{entry_name}'" if entry_name else None,
+            self.item_action,
+            f"{self.item_type} '{entry_name}'" if entry_name else None,
             f"path '{entry_path}'" if entry_path else None,
+            f"user '{user_name}'" if user_name else None,
+            f"email '{user_email}'" if user_email else None,
+            f"access '{user_access}'" if user_access else None,
         ]
         return " ".join([i for i in items if i])
 
@@ -343,6 +348,8 @@ class OutcomeReport(PlanReport):
     result_name: str
     """Either 'succeeded' or 'failed' or 'skipped' (past tense, the plan has been
     executed to produce the outcome)"""
+    result_description: str
+    """A longer description of the outcome of applying the plan."""
 
     @classmethod
     def report_name(cls):
@@ -350,7 +357,7 @@ class OutcomeReport(PlanReport):
 
     @classmethod
     def fields(cls):
-        result_names = ["result_name"]
+        result_names = ["result_name", "result_description"]
         field_names = [
             f.name for f in dataclasses.fields(cls) if f.name not in result_names
         ]

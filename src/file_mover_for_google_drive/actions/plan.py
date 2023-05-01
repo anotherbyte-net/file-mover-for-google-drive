@@ -90,11 +90,12 @@ class Plan(manage.BaseManage):
 
         config = self._config
 
-        top_folder_id = config.account.top_folder_id
         account = config.account
-        account_id = account.account_id
+
+        top_folder_id = account.top_folder_id
 
         entry = entry_path[-1]
+        parent = entry_path[-2] if len(entry_path) > 1 else None
         parent_path_str = entry.build_path_str(entry_path[:-1])
 
         if entry.entry_id == top_folder_id:
@@ -102,6 +103,10 @@ class Plan(manage.BaseManage):
             return None
 
         for plan_item in self._build_plan_unowned(entry, parent_path_str):
+            if plan_item:
+                yield plan_item
+
+        for plan_item in self._build_plan_move(entry, parent, parent_path_str):
             if plan_item:
                 yield plan_item
 
@@ -121,11 +126,9 @@ class Plan(manage.BaseManage):
         account_type_personal = models.GoogleDriveAccountTypeOptions.personal
         role_owner = models.GoogleDrivePermissionRoleOptions.owner
 
-        container = self._container
         config = self._config
         actions = self._actions
 
-        key_original = config.custom_prop_original_key
         key_copy = config.custom_prop_copy_key
 
         account = config.account
@@ -134,9 +137,10 @@ class Plan(manage.BaseManage):
 
         if account_type != account_type_personal:
             raise ValueError(
-                "File and folder ownership cannot be changed in a business "
-                "account by copying. copied changes are only. Use the Google Drive "
-                "website to change permissions in a business account."
+                "File and folder ownership fixes by copying files and folders "
+                "are only implemented for personal "
+                f"accounts, not '{account_type}'. Use the Google Drive website to "
+                "change ownership and access for other account types."
             )
 
         is_owned = entry.is_owned_by(account_id)
@@ -173,10 +177,13 @@ class Plan(manage.BaseManage):
                     entry.name,
                     parent_path_str,
                 )
+                return None
             else:
                 # create an owned copy of the unowned file
+                current_user_permission = entry.get_permission_by_email(account_id)
                 yield self._plan_builder.get_copy_file(
                     entry=entry,
+                    user_name=current_user_permission.display_name,
                     user_email=account_id,
                     user_access=role_owner,
                     entry_path=parent_path_str,
@@ -212,17 +219,17 @@ class Plan(manage.BaseManage):
                     entry.name,
                     parent_path_str,
                 )
+                return None
             else:
                 # create an owned copy of the unowned folder
+                current_user_permission = entry.get_permission_by_email(account_id)
                 yield self._plan_builder.get_create_folder(
                     entry=entry,
+                    user_name=current_user_permission.display_name,
                     user_email=account_id,
                     user_access=role_owner,
                     entry_path=parent_path_str,
                 )
-
-            # TODO: move the contents of the unowned folder into the owned folder
-            a = 1
 
     def _build_plan_rename(
         self, entry: models.GoogleDriveEntry, parent_path_str: str
@@ -245,8 +252,8 @@ class Plan(manage.BaseManage):
         prefix_copy_len = len(prefix_copy)
         compare_name = str(entry.name).casefold()
         rename_index = 0
+        # there might be zero, one, or more instances of the prefix
         while compare_name[rename_index:].startswith(prefix_copy):
-            # there might be more than one instance of the prefix
             rename_index += prefix_copy_len
 
         if rename_index < 1:
@@ -293,7 +300,7 @@ class Plan(manage.BaseManage):
             raise ValueError(
                 "Permission changes are only implemented for personal "
                 f"accounts, not '{account_type}'. Use the Google Drive website to "
-                "change permissions in a business account."
+                "change permissions for other account types."
             )
 
         for permission in entry.permissions_all:
@@ -338,3 +345,53 @@ class Plan(manage.BaseManage):
                 continue
 
             raise ValueError(f"Unknown permission {str(permission)}.")
+
+    def _build_plan_move(
+        self,
+        entry: models.GoogleDriveEntry,
+        parent: models.GoogleDriveEntry,
+        parent_path_str: str,
+    ) -> typing.Iterable[report.PlanReport]:
+        """Move the contents of unowned folders into the created owned folder."""
+
+        if not parent:
+            return None
+
+        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        role_owner = models.GoogleDrivePermissionRoleOptions.owner
+
+        config = self._config
+
+        account = config.account
+        account_id = account.account_id
+        account_type = account.account_type
+
+        if account_type != account_type_personal:
+            raise ValueError(
+                "File and folder ownership fixes by moving files and folders "
+                "are only implemented for personal "
+                f"accounts, not '{account_type}'. Use the Google Drive website to "
+                "change ownership and access for other account types."
+            )
+
+        is_parent_owned = parent.is_owned_by(account_id)
+        if is_parent_owned:
+            logging.debug("Will never move files and folders in an owned folder.")
+            return None
+
+        if not config.actions.create_owned_folder_and_move_contents:
+            logger.debug(
+                "Config prevented moving entry '%s' in unowned folder '%s'.",
+                entry.name,
+                parent_path_str,
+            )
+            return None
+
+        current_user_permission = entry.get_permission_by_email(account_id)
+        yield self._plan_builder.get_move_entry(
+            entry=entry,
+            user_name=current_user_permission.display_name,
+            user_email=account_id,
+            user_access=role_owner,
+            entry_path=parent_path_str,
+        )

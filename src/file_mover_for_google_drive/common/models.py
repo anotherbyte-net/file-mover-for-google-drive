@@ -50,6 +50,7 @@ class PlanReportActions(enum.Enum):
     rename_file = "rename-file"
     delete_permission = "delete-permission"
     copy_file = "copy-file"
+    move_entry = "move-entry"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -563,6 +564,14 @@ class GoogleDriveEntry(BaseModel):
             f"Found more than one owner for {str(self)} "
             f"with {self.str_permissions}."
         )
+
+    def get_permission_by_email(
+        self, email: str
+    ) -> typing.Optional[GoogleDrivePermission]:
+        for permission in self.permissions_all:
+            if permission.user_email == email:
+                return permission
+        return None
 
     @property
     def str_permissions(self) -> str:

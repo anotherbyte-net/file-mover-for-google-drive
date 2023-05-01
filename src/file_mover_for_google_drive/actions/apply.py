@@ -36,16 +36,9 @@ class Apply(manage.BaseManage):
         """
 
         config = self._config
-        container = self._container
-        actions = self._actions
-        cache = self._cache
-
-        top_folder_id = config.account.top_folder_id
         account = config.account
 
         # report dirs
-        entries_dir = config.reports.entries_dir
-        perms_dir = config.reports.permissions_dir
         plans_dir = config.reports.plans_dir
         outcomes_dir = config.reports.outcomes_dir
 
@@ -56,47 +49,21 @@ class Apply(manage.BaseManage):
         )
 
         # reports
-        rpt_entries = report.ReportCsv(entries_dir, report.EntryReport)
-        rpt_permissions = report.ReportCsv(perms_dir, report.PermissionReport)
         rpt_plans = report.ReportCsv(plans_dir, report.PlanReport)
         rpt_outcomes = report.ReportCsv(outcomes_dir, report.OutcomeReport)
 
-        plans: list[report.PlanReport] = list(rpt_plans.read(self._plan_name))
+        plans: typing.Iterable[report.PlanReport] = rpt_plans.read(self._plan_name)
 
         # read plans and execute
-        with rpt_entries, rpt_permissions, rpt_outcomes:
+        with rpt_outcomes:
             logger.info("Reading plans report '%s'.", self._plan_name)
-            logger.info("Writing entries report '%s'.", rpt_entries.path.name)
-            logger.info("Writing permissions report '%s'.", rpt_permissions.path.name)
             logger.info("Writing outcomes report '%s'.", rpt_outcomes.path.name)
 
             entry_count = 0
 
-            # top entry
-            top_entry = actions.get_entry(top_folder_id)
-            entry_count += 1
-            self._process_one(
-                rpt_entries,
-                rpt_permissions,
-                rpt_outcomes,
-                plans,
-                top_entry,
-            )
-
-            logger.info("Starting folder is '%s'.", top_entry.name)
-
-            # descendants
-            descendants = actions.get_descendants(top_folder_id)
-            for index, entry in enumerate(descendants):
+            for index, plan in enumerate(plans):
                 entry_count += 1
-
-                self._process_one(
-                    rpt_entries,
-                    rpt_permissions,
-                    rpt_outcomes,
-                    plans,
-                    entry,
-                )
+                self._process_one(rpt_outcomes, plan)
 
                 if self._iteration_check(index):
                     break
@@ -109,137 +76,103 @@ class Apply(manage.BaseManage):
 
     def _process_one(
         self,
-        rpt_entries: report.ReportCsv,
-        rpt_permissions: report.ReportCsv,
         rpt_outcomes: report.ReportCsv,
-        plans: list[report.PlanReport],
-        entry: models.GoogleDriveEntry,
+        plan: report.PlanReport,
     ) -> None:
         """Process one entry.
 
         Args:
-            rpt_entries: The entries report.
-            rpt_permissions: The permissions report.
             rpt_outcomes: The outcomes report.
-            plans: The plans to process.
-            entry: Apply the plans to this entry.
+            plan: The plan to process.
 
         Returns:
             None
         """
-        config = self._config
-        container = self._container
-        actions = self._actions
-        cache = self._cache
 
-        top_folder_id = config.account.top_folder_id
-        account = config.account
+        rpt_item = self._apply_plan(plan)
+        row = dataclasses.asdict(rpt_item)
+        rpt_outcomes.write_item(row)
 
-        cache.add(entry)
-
-        entry_path = cache.path(entry.entry_id)
-
-        for row in report.EntryReport.from_entry_path(entry_path):
-            rpt_entries.write_item(row)
-
-        for row in report.PermissionReport.from_entry_path(entry_path):
-            rpt_permissions.write_item(row)
-
-        for rpt_item in self._apply_plans(plans, entry_path):
-            row = dataclasses.asdict(rpt_item)
-            rpt_outcomes.write_item(row)
-
-    def _apply_plans(
-        self,
-        plans: list[report.PlanReport],
-        entry_path: list[models.GoogleDriveEntry],
-    ) -> typing.Iterable[report.OutcomeReport]:
-        """Apply plan items to enact planned changes."""
-
-        config = self._config
-        container = self._container
-        actions = self._actions
-        cache = self._cache
-
-        top_folder_id = config.account.top_folder_id
-        account = config.account
-
-        entry = entry_path[-1]
-        parent_path_str = entry.build_path_str(entry_path[:-1])
-
-        # action all the plans that apply to this entry
-
-        for plan in plans:
-            if plan.entry_id and plan.entry_id != entry.entry_id:
-                continue
-            if plan.begin_entry_path and plan.begin_entry_path != parent_path_str:
-                continue
-            if plan.end_entry_path and plan.end_entry_path != parent_path_str:
-                continue
-            for item in self._apply_plan(plan, entry_path):
-                yield item
-
-    def _apply_plan(
-        self,
-        plan: report.PlanReport,
-        entry_path: list[models.GoogleDriveEntry],
-    ) -> typing.Iterable[report.OutcomeReport]:
+    def _apply_plan(self, plan: report.PlanReport) -> report.OutcomeReport:
         """Execute the actions to apply the plan item."""
 
-        config = self._config
         container = self._container
         actions = self._actions
-        cache = self._cache
-
-        top_folder_id = config.account.top_folder_id
-        account = config.account
-
-        # entry = entry_path[-1]
-        # parent_path_str = entry.build_path_str(entry_path[:-1])
 
         # properties
-        item_action = plan.item_action
-        # item_type = plan.item_type
-        # entry_id = plan.entry_id
-        # permission_id = plan.permission_id
+        item_action = models.PlanReportActions(plan.item_action)
 
-        # begin_user_name = plan.begin_user_name
-        # begin_user_email = plan.begin_user_email
-        # begin_user_access = plan.begin_user_access
-        # begin_entry_name = plan.begin_entry_name
-        # begin_entry_path = plan.begin_entry_path
+        # entry
+        entry = actions.get_entry(plan.entry_id)
 
-        # end_user_name = plan.end_user_name
-        # end_user_email = plan.end_user_email
-        # end_user_access = plan.end_user_access
-        # end_entry_name = plan.end_entry_name
-        # end_entry_path = plan.end_entry_path
-
+        # outcome
+        result_name = "unknown"
+        result_description = "The result of applying the plan is not known."
         params = dataclasses.asdict(plan)
 
+        params = {
+            **params,
+            "result_name": result_name,
+            "result_description": result_description,
+        }
+
         # apply plan
-        if item_action == "create":
-            # create a file or folder or permission
-            # creating a folder involves creating all the parent folders as well
-            # ignore 'begin_*' properties
-            # full_path = end_entry_path.split("/") + [end_entry_name]
-            if per_end:
-                pass
-            elif bus_end:
-                pass
-            yield report.OutcomeReport(result_name="skipped", **params)
+        if item_action == models.PlanReportActions.create_folder:
+            # check that the action is valid
+            self._plan_builder.check_create_folder(entry)
 
-        elif item_action == "copy":
-            # copy a file
-            yield report.OutcomeReport(result_name="skipped", **params)
+            # TODO: create a folder
+            # request = container.create_folder(entry, entry.parent_id)
+            # response = container.api.execute_single(request)
 
-        elif item_action == "update":
-            # update a file or folder properties
-            yield report.OutcomeReport(result_name="skipped", **params)
+            # TODO: build the outcome
+            return report.OutcomeReport(**params)
 
-        elif item_action == "delete":
-            # delete a permission
-            yield report.OutcomeReport(result_name="skipped", **params)
+        elif item_action == models.PlanReportActions.copy_file:
+            # check that the action is valid
+            self._plan_builder.check_copy_file(entry)
+
+            # TODO: copy a file
+            # request = container.copy_file(entry, entry.parent_id)
+            # response = container.api.execute_single(request)
+
+            # TODO: build the outcome
+            return report.OutcomeReport(**params)
+
+        elif item_action == models.PlanReportActions.rename_file:
+            # check that the action is valid
+            self._plan_builder.check_rename_file(entry)
+
+            # TODO: rename a file
+            # request = container.rename_entry(entry, plan.end_entry_name)
+            # response = container.api.execute_single(request)
+
+            # TODO: build the outcome
+            return report.OutcomeReport(**params)
+
+        elif item_action == models.PlanReportActions.delete_permission:
+            # check that the action is valid
+            self._plan_builder.check_delete_permission(entry)
+
+            # TODO: delete a permission
+            # request = container.delete_permission(plan.permission_id)
+            # response = container.api.execute_single(request)
+
+            # TODO: build the outcome
+            return report.OutcomeReport(**params)
+
+        elif item_action == models.PlanReportActions.move_entry:
+            # check that the action is valid
+            self._plan_builder.check_delete_permission(entry)
+
+            # TODO: move a file or folder
+            # end_path = plan.end_entry_path
+            # end_parent_id = ""
+            # request = container.move_file(entry, end_parent_id)
+            # response = container.api.execute_single(request)
+
+            # TODO: build the outcome
+            return report.OutcomeReport(**params)
 
         else:
-            raise ValueError(f"Unknown plan '{plan}'.")
+            raise NotImplementedError(f"Plan is not implemented '{plan}'.")
