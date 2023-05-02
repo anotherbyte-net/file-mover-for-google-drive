@@ -9,7 +9,7 @@ from file_mover_for_google_drive.common import models, client
 
 def test_apply(tmp_path, caplog, capsys, build_config):
     # arrange
-    account_type = models.GoogleDriveAccountTypeOptions.personal
+    account_type = models.GoogleDriveAccountTypeOptions.PERSONAL
     config_file = tmp_path / "config.json"
     config = build_config(tmp_path, account_type)
     config.save_file(config_file)

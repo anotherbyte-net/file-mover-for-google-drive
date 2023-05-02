@@ -1,12 +1,12 @@
 """The Google Drive API interaction classes."""
 
+import datetime
 import itertools
 import json
 import logging
 import typing
-import datetime
 
-from googleapiclient import discovery, errors, http
+from googleapiclient import discovery, http
 
 from file_mover_for_google_drive.common import models, client, utils
 
@@ -357,8 +357,8 @@ class GoogleDriveContainer:
         }
 
         account_type = self._account.account_type
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
-        account_type_business = models.GoogleDriveAccountTypeOptions.business
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
+        account_type_business = models.GoogleDriveAccountTypeOptions.BUSINESS
 
         if account_type == account_type_personal:
             params["corpora"] = "user"
@@ -426,7 +426,7 @@ class GoogleDriveContainer:
         }
 
         account_type = self._account.account_type
-        account_type_business = models.GoogleDriveAccountTypeOptions.business
+        account_type_business = models.GoogleDriveAccountTypeOptions.BUSINESS
 
         if account_type == account_type_business:
             params["supportsAllDrives"] = True
@@ -461,14 +461,21 @@ class GoogleDriveContainer:
         operation = self._api.files_list(**params)
         return operation
 
+    def delete_permission(self, entry_id: str, permission_id: str) -> http.HttpRequest:
+        """Delete a permission."""
+        operation = self._api.permissions_delete(
+            fileId=entry_id, permissionId=permission_id
+        )
+        return operation
+
     def delete_permissions(
         self, entry: models.GoogleDriveEntry
     ) -> list[http.HttpRequest]:
         """Delete permissions for entry that are not the owner or current user."""
 
-        permission_user = models.GoogleDrivePermissionTypeOptions.user
-        permission_anyone = models.GoogleDrivePermissionTypeOptions.anyone
-        role_owner = models.GoogleDrivePermissionRoleOptions.owner.value
+        permission_user = models.GoogleDrivePermissionTypeOptions.USER
+        permission_anyone = models.GoogleDrivePermissionTypeOptions.ANYONE
+        role_owner = models.GoogleDrivePermissionRoleOptions.OWNER.value
 
         operations = []
         for permission in entry.permissions_all:
@@ -481,9 +488,7 @@ class GoogleDriveContainer:
                 logger.debug('Keep permission: "%s".', str(permission))
 
             elif is_anyone or (is_user and not is_current_user):
-                operation = self._api.permissions_delete(
-                    fileId=entry.entry_id, permissionId=permission.entry_id
-                )
+                operation = self.delete_permission(entry.entry_id, permission.entry_id)
                 operations.append(operation)
 
             else:
@@ -531,7 +536,7 @@ class GoogleDriveContainer:
         operation = self._api.files_copy(fileId=entry_id, body=body, fields=fields)
         return operation
 
-    def move_file(
+    def move_entry(
         self, entry: models.GoogleDriveEntry, parent_id: str
     ) -> http.HttpRequest:
         """
@@ -567,7 +572,7 @@ class GoogleDriveContainer:
             "useDomainAdminAccess": False,
         }
 
-        account_type_business = models.GoogleDriveAccountTypeOptions.business
+        account_type_business = models.GoogleDriveAccountTypeOptions.BUSINESS
         if self._account.account_type == account_type_business:
             params["supportsAllDrives"] = True
 
@@ -638,7 +643,7 @@ class GoogleDriveActions:
         config = api.config
         account = config.account
 
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
         if account.account_type != account_type_personal:
             raise ValueError(
                 f"Entry pairs only work in '{account_type_personal}' accounts, "
@@ -675,10 +680,92 @@ class GoogleDriveActions:
             raise ValueError(
                 f"More than one match for property '{prop_key}={prop_value}'."
             )
-        elif entry_count == 1:
+
+        if entry_count == 1:
             return entries[0]
-        else:
-            return None
+
+        return None
+
+    def create_folder(self, entry: models.GoogleDriveEntry) -> models.GoogleDriveEntry:
+        """Create a new folder that is a copy of an existing folder,
+        without the original folder's contents.
+
+        Args:
+            entry: The entry to use as the basis for creating a new folder.
+
+        Returns:
+            The new folder object.
+        """
+        container = self._container
+        request = container.create_folder(entry, entry.parent_id)
+        response = container.api.execute_single(request)
+        entry = self._get_entry(response)
+        return entry
+
+    def copy_file(self, entry: models.GoogleDriveEntry) -> models.GoogleDriveEntry:
+        """Copy a file that is not owned to create a copy
+        that is owned by the current user.
+        Must be copied within a personal account (i.e. My Drive).
+
+        Args:
+            entry: The entry to copy.
+
+        Returns:
+            The new file object.
+        """
+        container = self._container
+        request = container.copy_file(entry, entry.parent_id)
+        response = container.api.execute_single(request)
+        entry = self._get_entry(response)
+        return entry
+
+    def rename_entry(
+        self, entry: models.GoogleDriveEntry, name: str
+    ) -> models.GoogleDriveEntry:
+        """Rename the file or folder.
+
+        Args:
+            entry: The entry to rename.
+            name: The new name.
+
+        Returns:
+            The updated entry object.
+        """
+        container = self._container
+        request = container.rename_entry(entry, name)
+        response = container.api.execute_single(request)
+        entry = self._get_entry(response)
+        return entry
+
+    def delete_permission(self, entry_id: str, permission_id: str) -> None:
+        """
+
+        Args:
+            entry_id:
+            permission_id:
+
+        Returns:
+
+        """
+        container = self._container
+        request = container.delete_permission(entry_id, permission_id)
+        container.api.execute_single(request)
+
+    def move_entry(self, entry: models.GoogleDriveEntry, new_parent_id: str):
+        """Move a file from one folder to another folder.
+
+        Args:
+            entry: The file to move.
+            new_parent_id: move the file into this folder id.
+
+        Returns:
+            The update file object.
+        """
+        container = self._container
+        request = container.move_entry(entry, new_parent_id)
+        response = container.api.execute_single(request)
+        entry = self._get_entry(response)
+        return entry
 
     def _get_entry(self, entry_data: typing.Mapping):
         container = self._container
@@ -687,6 +774,8 @@ class GoogleDriveActions:
         account = config.account
 
         entry_id = entry_data.get("id")
+        if not entry_id:
+            raise ValueError("Require an entry id to get the entry details.")
 
         # get the full permissions list for the entry
         request = container.get_permissions(entry_id)

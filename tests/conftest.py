@@ -53,14 +53,14 @@ def build_config():
             create_owned_folder_and_move_contents=True,
         )
 
-        if account_type == models.GoogleDriveAccountTypeOptions.personal:
+        if account_type == models.GoogleDriveAccountTypeOptions.PERSONAL:
             account = models.ConfigAccount(
                 account_type=account_type,
                 drive_id="My Drive",
                 account_id="personal-user@example.com",
                 top_folder_id="personal-top-folder",
             )
-        elif account_type == models.GoogleDriveAccountTypeOptions.business:
+        elif account_type == models.GoogleDriveAccountTypeOptions.BUSINESS:
             account = models.ConfigAccount(
                 account_type=account_type,
                 drive_id="example-shared-drive-1-id",

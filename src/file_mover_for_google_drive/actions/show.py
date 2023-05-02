@@ -39,13 +39,13 @@ class Show(manage.BaseManage):
             logger.info("Writing permissions report '%s'.", rpt_permissions.path.name)
 
             result = self._iterate_entries(
-                self._process_one,
+                self.process_one,
                 rpt_entries=rpt_entries,
                 rpt_permissions=rpt_permissions,
             )
             return result
 
-    def _process_one(
+    def process_one(
         self,
         entry: models.GoogleDriveEntry,
         rpt_entries: report.ReportCsv,

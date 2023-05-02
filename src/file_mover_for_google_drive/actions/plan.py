@@ -4,7 +4,7 @@ import dataclasses
 import logging
 import typing
 
-from file_mover_for_google_drive.common import manage, models, report, client
+from file_mover_for_google_drive.common import manage, models, report
 
 logger = logging.getLogger(__name__)
 
@@ -14,13 +14,6 @@ class Plan(manage.BaseManage):
     Build a plan for making changes to two Google Drive accounts,
     one personal and one business.
     """
-
-    def __init__(
-        self, config: models.ConfigProgram, gd_client: client.GoogleApiClient = None
-    ) -> None:
-        """Create a new Plan instance."""
-
-        super().__init__(config, gd_client)
 
     def run(self) -> bool:
         """Run the 'apply' action."""
@@ -50,14 +43,14 @@ class Plan(manage.BaseManage):
             logger.info("Writing plans report '%s'.", rpt_plans.path.name)
 
             result = self._iterate_entries(
-                self._process_one,
+                self.process_one,
                 rpt_entries=rpt_entries,
                 rpt_permissions=rpt_permissions,
                 rpt_plans=rpt_plans,
             )
             return result
 
-    def _process_one(
+    def process_one(
         self,
         entry: models.GoogleDriveEntry,
         rpt_entries: report.ReportCsv,
@@ -100,7 +93,7 @@ class Plan(manage.BaseManage):
 
         if entry.entry_id == top_folder_id:
             logger.debug("Will not change the top-level folder '%s'.", entry.name)
-            return None
+            return
 
         for plan_item in self._build_plan_unowned(entry, parent_path_str):
             if plan_item:
@@ -123,8 +116,8 @@ class Plan(manage.BaseManage):
     ) -> typing.Iterable[report.PlanReport]:
         """Create owned copies of files and folders."""
 
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
-        role_owner = models.GoogleDrivePermissionRoleOptions.owner
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
+        role_owner = models.GoogleDrivePermissionRoleOptions.OWNER
 
         config = self._config
         actions = self._actions
@@ -146,7 +139,7 @@ class Plan(manage.BaseManage):
         is_owned = entry.is_owned_by(account_id)
         if is_owned:
             logging.debug("Will never copy an owned file or folder.")
-            return None
+            return
 
         # only assess unowned entries - files
         if not entry.is_dir:
@@ -156,12 +149,13 @@ class Plan(manage.BaseManage):
                     entry.name,
                     parent_path_str,
                 )
-                return None
+                return
 
             # check if there is already a copy of the file
 
             # does this file have the property that indicates there is a copy?
             prop_copy_entry_id = entry.properties_shared.get(key_copy)
+            other_entry: typing.Optional[models.GoogleDriveEntry]
             if prop_copy_entry_id:
                 other_entry = actions.get_entry(prop_copy_entry_id)
             else:
@@ -177,17 +171,19 @@ class Plan(manage.BaseManage):
                     entry.name,
                     parent_path_str,
                 )
-                return None
-            else:
-                # create an owned copy of the unowned file
-                current_user_permission = entry.get_permission_by_email(account_id)
-                yield self._plan_builder.get_copy_file(
-                    entry=entry,
-                    user_name=current_user_permission.display_name,
-                    user_email=account_id,
-                    user_access=role_owner,
-                    entry_path=parent_path_str,
-                )
+                return
+
+            # create an owned copy of the unowned file
+            current_user_permission = entry.get_permission_by_email(account_id)
+            yield self._plan_builder.get_copy_file(
+                entry=entry,
+                user_name=models.GoogleDrivePermission.get_display_name(
+                    current_user_permission
+                ),
+                user_email=account_id,
+                user_access=role_owner,
+                entry_path=parent_path_str,
+            )
 
         # only assess unowned entries - folders
         if entry.is_dir:
@@ -198,7 +194,7 @@ class Plan(manage.BaseManage):
                     entry.name,
                     parent_path_str,
                 )
-                return None
+                return
             # check if there is already another folder with the same parent and same
             # name
 
@@ -219,17 +215,19 @@ class Plan(manage.BaseManage):
                     entry.name,
                     parent_path_str,
                 )
-                return None
-            else:
-                # create an owned copy of the unowned folder
-                current_user_permission = entry.get_permission_by_email(account_id)
-                yield self._plan_builder.get_create_folder(
-                    entry=entry,
-                    user_name=current_user_permission.display_name,
-                    user_email=account_id,
-                    user_access=role_owner,
-                    entry_path=parent_path_str,
-                )
+                return
+
+            # create an owned copy of the unowned folder
+            current_user_permission = entry.get_permission_by_email(account_id)
+            yield self._plan_builder.get_create_folder(
+                entry=entry,
+                user_name=models.GoogleDrivePermission.get_display_name(
+                    current_user_permission
+                ),
+                user_email=account_id,
+                user_access=role_owner,
+                entry_path=parent_path_str,
+            )
 
     def _build_plan_rename(
         self, entry: models.GoogleDriveEntry, parent_path_str: str
@@ -242,11 +240,11 @@ class Plan(manage.BaseManage):
 
         if not entry_owner:
             logger.debug("Will never rename unowned entries.")
-            return None
+            return
 
         if entry.is_dir:
             logger.debug("Will never rename folders.")
-            return None
+            return
 
         prefix_copy = "Copy of ".casefold()
         prefix_copy_len = len(prefix_copy)
@@ -258,7 +256,7 @@ class Plan(manage.BaseManage):
 
         if rename_index < 1:
             logger.debug("No change to file name.")
-            return None
+            return
 
         new_name = entry.name[rename_index:]
 
@@ -266,7 +264,7 @@ class Plan(manage.BaseManage):
             logger.debug(
                 "Config prevented renaming '%s' to '%s'.", entry.name, new_name
             )
-            return None
+            return
 
         logger.debug("Rename '%s' to '%s'.", entry.name, new_name)
         yield self._plan_builder.get_rename_file(
@@ -282,10 +280,10 @@ class Plan(manage.BaseManage):
         """Remove permissions for an entry (owned and unowned), except current user
         and owner."""
 
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
-        role_owner = models.GoogleDrivePermissionRoleOptions.owner
-        permission_user = models.GoogleDrivePermissionTypeOptions.user
-        permission_anyone = models.GoogleDrivePermissionTypeOptions.anyone
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
+        role_owner = models.GoogleDrivePermissionRoleOptions.OWNER
+        permission_user = models.GoogleDrivePermissionTypeOptions.USER
+        permission_anyone = models.GoogleDrivePermissionTypeOptions.ANYONE
 
         account = self._config.account
         actions = self._config.actions
@@ -314,7 +312,7 @@ class Plan(manage.BaseManage):
                 logger.debug("Keep permission %s.", str(permission))
                 continue
 
-            elif is_anyone and is_delete_link:
+            if is_anyone and is_delete_link:
                 logger.debug("Delete permission %s.", str(permission))
                 yield self._plan_builder.get_delete_permission(
                     entry=entry,
@@ -323,13 +321,13 @@ class Plan(manage.BaseManage):
                 )
                 continue
 
-            elif is_anyone and not is_delete_link:
+            if is_anyone and not is_delete_link:
                 logger.debug(
                     "Config prevented deleting permission %s.", str(permission)
                 )
                 continue
 
-            elif is_user_not_current and is_delete_others:
+            if is_user_not_current and is_delete_others:
                 logger.debug("Delete permission %s.", str(permission))
                 yield self._plan_builder.get_delete_permission(
                     entry=entry,
@@ -338,7 +336,7 @@ class Plan(manage.BaseManage):
                 )
                 continue
 
-            elif is_user_not_current and not is_delete_others:
+            if is_user_not_current and not is_delete_others:
                 logger.debug(
                     "Config prevented deleting permission %s.", str(permission)
                 )
@@ -349,16 +347,16 @@ class Plan(manage.BaseManage):
     def _build_plan_move(
         self,
         entry: models.GoogleDriveEntry,
-        parent: models.GoogleDriveEntry,
+        parent: typing.Optional[models.GoogleDriveEntry],
         parent_path_str: str,
     ) -> typing.Iterable[report.PlanReport]:
         """Move the contents of unowned folders into the created owned folder."""
 
         if not parent:
-            return None
+            return
 
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
-        role_owner = models.GoogleDrivePermissionRoleOptions.owner
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
+        role_owner = models.GoogleDrivePermissionRoleOptions.OWNER
 
         config = self._config
 
@@ -377,7 +375,7 @@ class Plan(manage.BaseManage):
         is_parent_owned = parent.is_owned_by(account_id)
         if is_parent_owned:
             logging.debug("Will never move files and folders in an owned folder.")
-            return None
+            return
 
         if not config.actions.create_owned_folder_and_move_contents:
             logger.debug(
@@ -385,12 +383,14 @@ class Plan(manage.BaseManage):
                 entry.name,
                 parent_path_str,
             )
-            return None
+            return
 
         current_user_permission = entry.get_permission_by_email(account_id)
         yield self._plan_builder.get_move_entry(
             entry=entry,
-            user_name=current_user_permission.display_name,
+            user_name=models.GoogleDrivePermission.get_display_name(
+                current_user_permission
+            ),
             user_email=account_id,
             user_access=role_owner,
             entry_path=parent_path_str,

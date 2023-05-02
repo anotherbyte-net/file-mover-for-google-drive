@@ -1,3 +1,4 @@
+"""Common functionality for commands."""
 import abc
 import logging
 import typing
@@ -15,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseManage(abc.ABC):
+    """A common base for command classes."""
+
     _log_batch_size = 10
 
     def __init__(

@@ -29,21 +29,21 @@ class BaseReport(abc.ABC):
     @classmethod
     @abc.abstractmethod
     def fields(cls) -> list[str]:
-        """Get the report fields.
+        """Get the list of report fields.
 
         Returns:
-            The report fields.
+            The field list.
         """
         raise NotImplementedError()
 
 
-TypeReport = typing.TypeVar("TypeReport", bound="BaseReport", covariant=True)
+TypeReport_co = typing.TypeVar("TypeReport_co", bound="BaseReport", covariant=True)
 
 
 class ReportCsv:
     """A CSV file report."""
 
-    def __init__(self, top_dir: pathlib.Path, report: type[TypeReport]):
+    def __init__(self, top_dir: pathlib.Path, report: type[TypeReport_co]):
         """Create a new csv Report instance.
 
         Args:
@@ -87,7 +87,12 @@ class ReportCsv:
         report_file.parent.mkdir(exist_ok=True, parents=True)
 
         self._file_path = report_file
-        self._file_handle = open(report_file, "wt", newline="", encoding="utf-8")
+        self._file_handle = open(
+            report_file,
+            "wt",
+            newline="",
+            encoding="utf-8",
+        )  # noqa: R1732
         self._writer = csv.DictWriter(self._file_handle, fields)
         self._writer.writeheader()
 
@@ -105,7 +110,7 @@ class ReportCsv:
         else:
             raise ValueError("Csv writer is not ready.")
 
-    def read(self, name: str) -> typing.Iterable[TypeReport]:
+    def read(self, name: str) -> typing.Iterable[TypeReport_co]:
         """Read the report file.
 
         Args:
@@ -117,8 +122,8 @@ class ReportCsv:
         report_file = (self._top_dir / name).with_suffix(".csv")
         if not report_file.exists():
             raise ValueError(f"Plan file does not exist '{report_file}'.")
-        with open(report_file, "rt", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
+        with open(report_file, "rt", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle)
             for row in reader:
                 yield self._report(**row)
 
@@ -201,14 +206,25 @@ class EntryReport(BaseReport, BaseEntryReport):
 
     @classmethod
     def report_name(cls):
+        """Get the report name.
+
+        Returns:
+            The report name.
+        """
         return "entries"
 
     @classmethod
-    def fields(cls):
+    def fields(cls) -> list[str]:
+        """Get the list of report fields.
+
+        Returns:
+            The field list.
+        """
         return [f.name for f in dataclasses.fields(cls)]
 
     @classmethod
     def from_entry_path(cls, entry_path: list[models.GoogleDriveEntry]):
+        """Create an entry report item from an entry path list."""
         entry = entry_path[-1]
         parent_path_str = entry.build_path_str(entry_path[:-1])
         yield {
@@ -242,14 +258,34 @@ class PermissionReport(BaseReport, BaseEntryReport):
 
     @classmethod
     def report_name(cls):
+        """Get the report name.
+
+        Returns:
+            The report name.
+        """
         return "permissions"
 
     @classmethod
-    def fields(cls):
+    def fields(cls) -> list[str]:
+        """Get the list of report fields.
+
+        Returns:
+            The field list.
+        """
         return [f.name for f in dataclasses.fields(cls)]
 
     @classmethod
-    def from_entry_path(cls, entry_path: list[models.GoogleDriveEntry]):
+    def from_entry_path(
+        cls, entry_path: list[models.GoogleDriveEntry]
+    ) -> typing.Iterable[typing.Mapping]:
+        """Create a permission report item from an entry path list.
+
+        Args:
+            entry_path: The list of entries.
+
+        Returns:
+            An iterable of dictionaries.
+        """
         entry = entry_path[-1]
         parent_path_str = entry.build_path_str(entry_path[:-1])
 
@@ -320,10 +356,20 @@ class PlanReport(BaseReport):
 
     @classmethod
     def report_name(cls):
+        """Get the report name.
+
+        Returns:
+            The report name.
+        """
         return "plans"
 
     @classmethod
-    def fields(cls):
+    def fields(cls) -> list[str]:
+        """Get the list of report fields.
+
+        Returns:
+            The field list.
+        """
         return [f.name for f in dataclasses.fields(cls)]
 
     def __str__(self):
@@ -345,7 +391,7 @@ class PlanReport(BaseReport):
 
 @dataclasses.dataclass
 class OutcomeReport(PlanReport):
-    result_name: str
+    result_name: models.PlanReportOutcomes
     """Either 'succeeded' or 'failed' or 'skipped' (past tense, the plan has been
     executed to produce the outcome)"""
     result_description: str
@@ -353,10 +399,20 @@ class OutcomeReport(PlanReport):
 
     @classmethod
     def report_name(cls):
+        """Get the report name.
+
+        Returns:
+            The report name.
+        """
         return "outcomes"
 
     @classmethod
-    def fields(cls):
+    def fields(cls) -> list[str]:
+        """Get the list of report fields.
+
+        Returns:
+            The field list.
+        """
         result_names = ["result_name", "result_description"]
         field_names = [
             f.name for f in dataclasses.fields(cls) if f.name not in result_names

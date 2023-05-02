@@ -48,6 +48,7 @@ def get_version() -> typing.Optional[str]:
 
 
 def get_test_resources() -> pathlib.Path:
+    """Get resources for tests."""
     package = get_name_under()
     sub_path = "../../tests/resources"
     full_path = resources.files(package).joinpath(sub_path)
@@ -68,7 +69,7 @@ class GracefulExit:
         signal.signal(signal.SIGINT, self.change_state)
 
     def change_state(
-        self, signum: int, frame: typing.Optional[types.FrameType]
+        self, signum: int, frame: typing.Optional[types.FrameType]  # noqa: W0613
     ) -> None:
         """When a SIGINT occurs, indicate that the program should exit.
 

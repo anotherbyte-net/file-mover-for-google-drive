@@ -18,7 +18,9 @@ logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.INFO)
 logging.getLogger("googleapiclient.discovery").setLevel(logging.INFO)
 
 
-def run_cli(args: argparse.Namespace, gd_client: client.GoogleApiClient = None) -> int:
+def run_cli(
+    args: argparse.Namespace, gd_client: typing.Optional[client.GoogleApiClient] = None
+) -> int:
     """Run the cli.
 
     Args:
@@ -88,7 +90,7 @@ def run_cli(args: argparse.Namespace, gd_client: client.GoogleApiClient = None) 
 
 def main(
     args: typing.Optional[list[str]] = None,
-    gd_client: client.GoogleApiClient = None,
+    gd_client: typing.Optional[client.GoogleApiClient] = None,
 ) -> int:
     """The program entry point.
 

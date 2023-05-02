@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 class GoogleDriveAccountTypeOptions(enum.Enum):
     """The Google Drive account type. Dictates the features available."""
 
-    personal = "personal"
+    PERSONAL = "personal"
     """A personal account that does not contain shared drives.
     May have access to shared drives."""
-    business = "business"
+    BUSINESS = "business"
     """A business account that does contain shared drives."""
 
 
@@ -27,40 +27,70 @@ class GoogleDrivePermissionRoleOptions(enum.Enum):
     Ref: https://developers.google.com/drive/api/guides/ref-roles
     """
 
-    owner = "owner"
-    editor = "writer"
-    commenter = "commenter"
-    viewer = "reader"
-    organizer = "organizer"
-    file_organizer = "fileOrganizer"
+    OWNER = "owner"
+    EDITOR = "writer"
+    COMMENTER = "commenter"
+    VIEWER = "reader"
+    ORGANIZER = "organizer"
+    FILE_ORGANIZER = "fileOrganizer"
 
 
 class GoogleDrivePermissionTypeOptions(enum.Enum):
-    user = "user"
+    """Google Drive permission type options."""
+
+    USER = "user"
     """requires prop 'emailAddress' to be set"""
-    group = "group"
+    GROUP = "group"
     """requires prop 'emailAddress' to be set"""
-    domain = "domain"
+    DOMAIN = "domain"
     """requires prop 'domain' to be set"""
-    anyone = "anyone"
+    ANYONE = "anyone"
 
 
 class PlanReportActions(enum.Enum):
-    create_folder = "create-folder"
-    rename_file = "rename-file"
-    delete_permission = "delete-permission"
-    copy_file = "copy-file"
-    move_entry = "move-entry"
+    """Plan report item action options."""
+
+    CREATE_FOLDER = "create-folder"
+    RENAME_FILE = "rename-file"
+    DELETE_PERMISSION = "delete-permission"
+    COPY_FILE = "copy-file"
+    MOVE_ENTRY = "move-entry"
+
+
+class PlanReportOutcomes(enum.Enum):
+    """Plan report item outcome options."""
+
+    SUCCESS = "success"
+    SKIPPED = "skipped"
+    FAILED = "failed"
 
 
 @dataclasses.dataclass(frozen=True)
 class BaseModel(abc.ABC):
+    """Base model abstract class."""
+
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "BaseModel":
+        """Load model data from a mapping.
+
+        Args:
+            data: The raw dictionary.
+
+        Returns:
+            A new instance of this config class.
+        """
         raise NotImplementedError()
 
     def save_data(self) -> typing.Mapping:
+        """Save model data to a mapping.
+
+        Returns:
+            The data from this config class as a dictionary.
+        """
         raise NotImplementedError()
+
+
+TypeBaseModel_co = typing.TypeVar("TypeBaseModel_co", bound="BaseModel", covariant=True)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -74,12 +104,19 @@ class ConfigAuth(BaseModel):
 
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "ConfigAuth":
+        credentials_file = data.get("credentials_file")
+        if not credentials_file:
+            raise ValueError("Must provide credentials file path.")
+
+        token_file = data.get("token_file")
+        if not token_file:
+            raise ValueError("Must provide token file path.")
+
         result = ConfigAuth(
-            credentials_file=pathlib.Path(data.get("credentials_file")),
-            token_file=pathlib.Path(data.get("token_file")),
+            credentials_file=pathlib.Path(credentials_file),
+            token_file=pathlib.Path(token_file),
         )
-        if not result.credentials_file:
-            raise ValueError("Must provide credentials file.")
+
         if not result.credentials_file.exists():
             raise ValueError(
                 f"The credentials file '{result.credentials_file}' "
@@ -109,24 +146,19 @@ class ConfigReports(BaseModel):
 
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "ConfigReports":
-        result = ConfigReports(
-            entries_dir=pathlib.Path(data.get("entries_dir")),
-            permissions_dir=pathlib.Path(data.get("permissions_dir")),
-            plans_dir=pathlib.Path(data.get("plans_dir")),
-            outcomes_dir=pathlib.Path(data.get("outcomes_dir")),
-        )
+        items = ["entries_dir", "permissions_dir", "plans_dir", "outcomes_dir"]
 
-        items = {
-            "entries": result.entries_dir,
-            "permissions": result.permissions_dir,
-            "plans": result.plans_dir,
-            "outcomes": result.outcomes_dir,
-        }
-        for k, v in items.items():
-            if not v:
-                raise ValueError(f"Must provide {k} dir.")
-            if not v.exists():
-                v.mkdir(exist_ok=True, parents=True)
+        params = {}
+        for item in items:
+            value = data.get(item)
+            if not value:
+                raise ValueError(f"Must provide {item}.")
+            path = pathlib.Path(value)
+            if not path.exists():
+                path.mkdir(exist_ok=True, parents=True)
+            params[item] = path
+
+        result = ConfigReports(**params)
 
         return result
 
@@ -207,16 +239,23 @@ class ConfigAccount(BaseModel):
 
     @classmethod
     def drive_name_my_drive(cls):
+        """The name of the only available drive for personal accounts.
+
+        Returns:
+            The drive name for personal accounts 'My Drive'.
+        """
         return "My Drive"
 
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "ConfigAccount":
-        params = {
+        params: typing.Mapping[
+            str, typing.Union[str, GoogleDriveAccountTypeOptions]
+        ] = {
             **data,
             "account_type": GoogleDriveAccountTypeOptions(data.get("account_type")),
         }
 
-        if params.get("account_type") == GoogleDriveAccountTypeOptions.personal:
+        if params.get("account_type") == GoogleDriveAccountTypeOptions.PERSONAL:
             expected_name = cls.drive_name_my_drive()
             if params.get("drive_id") != expected_name:
                 raise ValueError(
@@ -284,7 +323,7 @@ class ConfigProgram(BaseModel):
 
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "ConfigProgram":
-        items = {
+        items: typing.Mapping[str, TypeBaseModel_co] = {
             "auth": ConfigAuth,
             "reports": ConfigReports,
             "actions": ConfigActions,
@@ -308,13 +347,29 @@ class ConfigProgram(BaseModel):
 
     @classmethod
     def load_file(cls, path: pathlib.Path) -> "ConfigProgram":
+        """Load the config data from a file.
+
+        Args:
+            path: The file path.
+
+        Returns:
+            The program config data.
+        """
         with open(path, "rt", encoding="utf-8") as handle:
             raw = json.load(handle)
             return cls.load_data(raw)
 
     def save_file(self, path: pathlib.Path) -> None:
-        with open(path, "wt") as f:
-            json.dump(self.save_data(), f)
+        """Save the config data to a file.
+
+        Args:
+            path: The file path.
+
+        Returns:
+            None
+        """
+        with open(path, "wt", encoding="utf-8") as file_handle:
+            json.dump(self.save_data(), file_handle)
 
 
 @dataclasses.dataclass(frozen=True, order=True)
@@ -328,6 +383,7 @@ class GoogleDrivePermission(BaseModel):
     For anyone, there are no extra requirements.
     """
     role: GoogleDrivePermissionRoleOptions
+    """The role option."""
     entry_id: str
     """The identifier for the permission. 
     e.g. '11823143700967846661', 'anyoneWithLink'
@@ -374,8 +430,8 @@ class GoogleDrivePermission(BaseModel):
         params["role"] = GoogleDrivePermissionRoleOptions(role)
 
         if entry_type in [
-            GoogleDrivePermissionTypeOptions.user,
-            GoogleDrivePermissionTypeOptions.group,
+            GoogleDrivePermissionTypeOptions.USER,
+            GoogleDrivePermissionTypeOptions.GROUP,
         ]:
             params["user_email"] = data.get("emailAddress")
 
@@ -383,7 +439,7 @@ class GoogleDrivePermission(BaseModel):
         if display_name:
             params["display_name"] = str(display_name)
 
-        if entry_type == GoogleDrivePermissionTypeOptions.domain:
+        if entry_type == GoogleDrivePermissionTypeOptions.DOMAIN:
             params["domain"] = data.get("domain")
 
         return GoogleDrivePermission(**params)
@@ -391,21 +447,29 @@ class GoogleDrivePermission(BaseModel):
     def save_data(self) -> typing.Mapping:
         raise NotImplementedError("Cannot save permission data.")
 
+    @classmethod
+    def get_display_name(
+        cls, permission: typing.Optional["GoogleDrivePermission"]
+    ) -> str:
+        if permission and permission.display_name:
+            return permission.display_name
+        return "Unknown user name"
+
     def __str__(self) -> str:
         entry_type = self.entry_type
         role = self.role
         name = self.display_name
         email = self.user_email
-        if entry_type == GoogleDrivePermissionTypeOptions.user:
+        if entry_type == GoogleDrivePermissionTypeOptions.USER:
             return f"{name} <{email}> ({role.name})"
 
-        if entry_type == GoogleDrivePermissionTypeOptions.group:
+        if entry_type == GoogleDrivePermissionTypeOptions.GROUP:
             return f"{name} <{email}> ({role.name})"
 
-        if entry_type == GoogleDrivePermissionTypeOptions.domain:
+        if entry_type == GoogleDrivePermissionTypeOptions.DOMAIN:
             return f"{name} ({role.name})"
 
-        if entry_type == GoogleDrivePermissionTypeOptions.anyone:
+        if entry_type == GoogleDrivePermissionTypeOptions.ANYONE:
             return f"anyone with link ({role.name})"
 
         raise ValueError(f"Unknown type '{entry_type}'.")
@@ -464,10 +528,20 @@ class GoogleDriveEntry(BaseModel):
 
     @property
     def is_dir(self) -> bool:
+        """Whether this entry is a folder or not.
+
+        Returns:
+            True if this entry is a folder.
+        """
         return self.mime_type == GoogleDriveEntry.mime_type_dir()
 
     @property
     def entry_type(self) -> str:
+        """The type of entry: either 'file' or 'folder'.
+
+        Returns:
+            The type of entry.
+        """
         return "folder" if self.is_dir else "file"
 
     @classmethod
@@ -515,14 +589,17 @@ class GoogleDriveEntry(BaseModel):
         params["properties_shared"] = data.get("properties", {})
         params["properties_app"] = data.get("appProperties", {})
 
-        drive_id = data.get("driveId")
-        """ID of the shared drive the file resides in.
-        Only populated for items in shared drives."""
+        # drive_id = data.get("driveId")
+        # """ID of the shared drive the file resides in.
+        # Only populated for items in shared drives."""
+
         permission_ids = data.get("permissionIds")
-        """List of permission IDs for users with access to this file."""
+        # """List of permission IDs for users with access to this file."""
+
         has_augmented_permissions = data.get("hasAugmentedPermissions")
-        """Whether there are permissions directly on this file.
-        This field is only populated for items in shared drives."""
+        # """Whether there are permissions directly on this file.
+        # This field is only populated for items in shared drives."""
+
         permissions_list = data["fileMoverExtraPermissions"]
 
         if included_permissions != permissions_list:
@@ -542,8 +619,13 @@ class GoogleDriveEntry(BaseModel):
 
     @property
     def permission_owner_user(self) -> GoogleDrivePermission:
-        role_owner = GoogleDrivePermissionRoleOptions.owner
-        perm_type_user = GoogleDrivePermissionTypeOptions.user
+        """Get the permission for the owner of this entry.
+
+        Returns:
+            The owner permission, if available.
+        """
+        role_owner = GoogleDrivePermissionRoleOptions.OWNER
+        perm_type_user = GoogleDrivePermissionTypeOptions.USER
         owners = []
         for permission in self.permissions_all:
             if permission.role != role_owner:
@@ -568,6 +650,14 @@ class GoogleDriveEntry(BaseModel):
     def get_permission_by_email(
         self, email: str
     ) -> typing.Optional[GoogleDrivePermission]:
+        """Get the permission for the given email address.
+
+        Args:
+            email: The email address to search for.
+
+        Returns:
+            The matching permission, if available.
+        """
         for permission in self.permissions_all:
             if permission.user_email == email:
                 return permission
@@ -575,16 +665,32 @@ class GoogleDriveEntry(BaseModel):
 
     @property
     def str_permissions(self) -> str:
+        """Get a string representation of this entry's permissions.
+
+        Returns:
+            A string representation of this entry's permissions.
+        """
         count = len(self.permissions_all)
         display = "; ".join(sorted(str(p) for p in self.permissions_all))
         return f"{count} permissions [{display}]"
 
     @classmethod
     def mime_type_dir(cls) -> str:
+        """Get the Google Drive mime type for a folder.
+
+        Returns:
+            Folder mime type.
+        """
         return "application/vnd.google-apps.folder"
 
     @classmethod
     def required_properties(cls) -> str:
+        """Get the properties required from the API to correctly populate an entry
+        instance.
+
+        Returns:
+            A list of API fields.
+        """
         return ",".join(
             [
                 "id",
@@ -608,6 +714,14 @@ class GoogleDriveEntry(BaseModel):
 
     @classmethod
     def build_path_str(cls, entry_path: list["GoogleDriveEntry"]) -> str:
+        """Build the folder path hierarchy as a path string.
+
+        Args:
+            entry_path: The list of ancestor entries.
+
+        Returns:
+            The folder path string.
+        """
         return "/".join([entry.name for entry in entry_path if entry.name])
 
     def custom_property(self, key: str) -> typing.Optional[typing.Any]:

@@ -1,3 +1,4 @@
+"""Google API client helper."""
 import logging
 import typing
 
@@ -84,6 +85,18 @@ class GoogleApiClient:
         client_args_additional: typing.Optional[typing.Mapping] = None,
         existing_client: typing.Optional[discovery.Resource] = None,
     ) -> "GoogleApiClient":
+        """Get a Google Drive client.
+
+        Args:
+            config: The program configuration.
+            scopes_additional: Scopes added to the default scopes.
+            client_args_additional: Client settings merged with the defaults (use to
+            override defaults).
+            existing_client: An existing client to use instead of building a new client.
+
+        Returns:
+            A Google API client for Google Drive.
+        """
         scopes = [
             *(scopes_additional or []),
             # for listing file metadata

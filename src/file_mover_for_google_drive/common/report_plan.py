@@ -1,17 +1,28 @@
 """Build reports for different types of plans."""
+import typing
 
 from file_mover_for_google_drive.common import report, models
 
 
 class PlanReportBuilder:
+    """A class that helps build plan report items."""
+
     def __init__(self, account: models.ConfigAccount):
         self._account = account
 
     def check_create_folder(self, entry: models.GoogleDriveEntry) -> None:
+        """Check that the requirements for creating a folder are fulfilled.
+
+        Args:
+            entry: The folder instance.
+
+        Returns:
+            None
+        """
         if not entry.is_dir:
             raise ValueError(f"Entry is not a folder '{entry.name}'.")
 
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
         if self._account.account_type != account_type_personal:
             raise ValueError(
                 f"Not a personal account '{self._account.account_type.name}'."
@@ -25,9 +36,21 @@ class PlanReportBuilder:
         user_access: models.GoogleDrivePermissionRoleOptions,
         entry_path: str,
     ) -> report.PlanReport:
+        """Build a plan report item that creates a folder.
+
+        Args:
+            entry: The folder instance.
+            user_name: The username for the permission.
+            user_email: The email for the permission.
+            user_access: The role for the permission.
+            entry_path: The path to this folder.
+
+        Returns:
+            A plan report item for creating a folder.
+        """
         self.check_create_folder(entry)
         return report.PlanReport(
-            item_action=models.PlanReportActions.create_folder.value,
+            item_action=models.PlanReportActions.CREATE_FOLDER.value,
             item_type=entry.entry_type,
             entry_id=entry.entry_id,
             permission_id=None,
@@ -51,7 +74,7 @@ class PlanReportBuilder:
         if entry.is_dir:
             raise ValueError(f"Entry is not a file '{entry.name}'.")
 
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
         if self._account.account_type != account_type_personal:
             raise ValueError(
                 f"Not a personal account '{self._account.account_type.name}'."
@@ -68,7 +91,7 @@ class PlanReportBuilder:
         self.check_copy_file(entry)
         current_owner = entry.permission_owner_user
         return report.PlanReport(
-            item_action=models.PlanReportActions.copy_file.value,
+            item_action=models.PlanReportActions.COPY_FILE.value,
             item_type=entry.entry_type,
             entry_id=entry.entry_id,
             permission_id=None,
@@ -88,6 +111,21 @@ class PlanReportBuilder:
             end_entry_path=entry_path,
         )
 
+    def check_rename_file(
+        self, entry: typing.Optional[models.GoogleDriveEntry]
+    ) -> None:
+        if not entry:
+            raise ValueError("Must provide entry.")
+
+        if entry.is_dir:
+            raise ValueError(f"Entry is not a file '{entry.name}'.")
+
+        account_type_business = models.GoogleDriveAccountTypeOptions.BUSINESS
+        if self._account.account_type != account_type_business:
+            raise ValueError(
+                f"Not a business account '{self._account.account_type.name}'."
+            )
+
     def get_rename_file(
         self,
         new_name: str,
@@ -95,17 +133,9 @@ class PlanReportBuilder:
         permission: models.GoogleDrivePermission,
         entry_path: str,
     ) -> report.PlanReport:
-        if entry.is_dir:
-            raise ValueError(f"Entry is not a file '{entry.name}'.")
-
-        account_type_business = models.GoogleDriveAccountTypeOptions.business
-        if self._account.account_type != account_type_business:
-            raise ValueError(
-                f"Not a business account '{self._account.account_type.name}'."
-            )
-
+        self.check_rename_file(entry)
         return report.PlanReport(
-            item_action=models.PlanReportActions.rename_file.value,
+            item_action=models.PlanReportActions.RENAME_FILE.value,
             item_type=entry.entry_type,
             entry_id=entry.entry_id,
             permission_id=None,
@@ -125,24 +155,31 @@ class PlanReportBuilder:
             end_entry_path=entry_path,
         )
 
+    def check_delete_permission(
+        self, permission: typing.Optional[models.GoogleDrivePermission]
+    ) -> None:
+        if not permission:
+            raise ValueError("Must provide permission.")
+
+        perm_role_owner = models.GoogleDrivePermissionRoleOptions.OWNER.value
+        if permission.role == perm_role_owner:
+            raise ValueError("Cannot delete 'owner' role.")
+
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
+        if self._account.account_type != account_type_personal:
+            raise ValueError(
+                f"Not a personal account '{self._account.account_type.name}'."
+            )
+
     def get_delete_permission(
         self,
         entry: models.GoogleDriveEntry,
         permission: models.GoogleDrivePermission,
         entry_path: str,
     ) -> report.PlanReport:
-        perm_role_owner = models.GoogleDrivePermissionRoleOptions.owner.value
-        if permission.role == perm_role_owner:
-            raise ValueError("Cannot delete 'owner' role.")
-
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
-        if self._account.account_type != account_type_personal:
-            raise ValueError(
-                f"Not a personal account '{self._account.account_type.name}'."
-            )
-
+        self.check_delete_permission(permission)
         return report.PlanReport(
-            item_action=models.PlanReportActions.delete_permission.value,
+            item_action=models.PlanReportActions.DELETE_PERMISSION.value,
             item_type=entry.entry_type,
             entry_id=entry.entry_id,
             permission_id=permission.entry_id,
@@ -162,6 +199,13 @@ class PlanReportBuilder:
             end_entry_path=None,
         )
 
+    def check_move_entry(self) -> None:
+        account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
+        if self._account.account_type != account_type_personal:
+            raise ValueError(
+                f"Not a personal account '{self._account.account_type.name}'."
+            )
+
     def get_move_entry(
         self,
         entry: models.GoogleDriveEntry,
@@ -170,14 +214,9 @@ class PlanReportBuilder:
         user_access: models.GoogleDrivePermissionRoleOptions,
         entry_path: str,
     ) -> report.PlanReport:
-        account_type_personal = models.GoogleDriveAccountTypeOptions.personal
-        if self._account.account_type != account_type_personal:
-            raise ValueError(
-                f"Not a personal account '{self._account.account_type.name}'."
-            )
-
+        self.check_move_entry()
         return report.PlanReport(
-            item_action=models.PlanReportActions.move_entry.value,
+            item_action=models.PlanReportActions.MOVE_ENTRY.value,
             item_type=entry.entry_type,
             entry_id=entry.entry_id,
             permission_id=None,
