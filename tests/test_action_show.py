@@ -86,6 +86,7 @@ def test_show(tmp_path, caplog, capsys, build_config):
         "personal-permission-current-user",
         "personal-permission-other-user-1",
         "personal-permission-current-user",
+        "personal-permission-anyone",
         "personal-permission-current-user",
         "personal-permission-other-user-1",
         "personal-permission-other-user-1",
@@ -169,7 +170,7 @@ def test_show(tmp_path, caplog, capsys, build_config):
         ),
         (
             10,
-            "Processing page 1 with 2 items from '[HttpRequest] GET: "
+            "Processing page 1 with 3 items from '[HttpRequest] GET: "
             "drive.permissions.list'.",
         ),
         (

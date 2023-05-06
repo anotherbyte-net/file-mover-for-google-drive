@@ -122,7 +122,7 @@ class Plan(manage.BaseManage):
         config = self._config
         actions = self._actions
 
-        key_copy = config.custom_prop_copy_key
+        key_copy = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
 
         account = config.account
         account_id = account.account_id
@@ -206,6 +206,12 @@ class Plan(manage.BaseManage):
                 # is there another file that has a property that indicates that this
                 # file is it's original?
                 other_entry = actions.get_pair_copy_entry(entry)
+
+            if other_entry and other_entry.is_dir:
+                raise ValueError(
+                    f"Searched for copy of {str(entry)}. "
+                    f"Match was not a file: {str(other_entry)}."
+                )
 
             # if there is not a copy of the file, then copy it
             # otherwise, just log the existence of the copy.

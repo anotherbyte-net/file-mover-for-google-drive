@@ -96,7 +96,7 @@ class ReportCsv:
         self._writer = csv.DictWriter(self._file_handle, fields)
         self._writer.writeheader()
 
-    def write_item(self, item: dict) -> None:
+    def write_item(self, item: typing.Mapping) -> None:
         """Write an item to the report file.
 
         Args:
@@ -223,7 +223,9 @@ class EntryReport(BaseReport, BaseEntryReport):
         return [f.name for f in dataclasses.fields(cls)]
 
     @classmethod
-    def from_entry_path(cls, entry_path: list[models.GoogleDriveEntry]):
+    def from_entry_path(
+        cls, entry_path: list[models.GoogleDriveEntry]
+    ) -> typing.Iterable[typing.Mapping]:
         """Create an entry report item from an entry path list."""
         entry = entry_path[-1]
         parent_path_str = entry.build_path_str(entry_path[:-1])
@@ -418,3 +420,10 @@ class OutcomeReport(PlanReport):
             f.name for f in dataclasses.fields(cls) if f.name not in result_names
         ]
         return result_names + field_names
+
+    def __str__(self):
+        name = self.result_name.name
+        descr = self.result_description
+        result = super().__str__()
+        result = f'{name}: "{descr}" {result}'
+        return result

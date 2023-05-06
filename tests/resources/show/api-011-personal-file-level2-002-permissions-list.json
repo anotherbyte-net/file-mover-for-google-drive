@@ -20,6 +20,12 @@
         "type": "user",
         "emailAddress": "personal-current-user@example.com",
         "role": "owner"
+      },
+      {
+        "id": "personal-permission-anyone",
+        "displayName": "personal-anyone",
+        "type": "anyone",
+        "role": "reader"
       }
     ]
   }

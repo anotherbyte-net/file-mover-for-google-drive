@@ -11,6 +11,28 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 
+class GoogleDrivePropertyKeyOptions(enum.Enum):
+    CUSTOM_COPY_FILE_ID = "CustomFileMoverCopyFileId"
+    """Applied to an unowned entry to track the copy.
+
+    Used to keep track of which files and folders were copied to create owned
+    copies within the same account.
+
+    The key name for a custom property put on an original (not owned) entry,
+    which contains the file id of the copied entry.
+    """
+
+    CUSTOM_ORIGINAL_FILE_ID = "CustomFileMoverOriginalFileId"
+    """Applied to an owned entry to track the original.
+
+    Used to keep track of which files and folders were copied to create owned
+    copies within the same account.
+
+    The key name for a custom property put on a copied (owned) entry,
+    which contains the file id of the original entry.
+    """
+
+
 class GoogleDriveAccountTypeOptions(enum.Enum):
     """The Google Drive account type. Dictates the features available."""
 
@@ -60,6 +82,7 @@ class PlanReportActions(enum.Enum):
 class PlanReportOutcomes(enum.Enum):
     """Plan report item outcome options."""
 
+    UNKNOWN = "unknown"
     SUCCESS = "success"
     SKIPPED = "skipped"
     FAILED = "failed"
@@ -295,32 +318,6 @@ class ConfigProgram(BaseModel):
         """
         return 3
 
-    @property
-    def custom_prop_original_key(self) -> str:
-        """Applied to an owned entry to track the original.
-
-        Used to keep track of which files and folders were copied to create owned
-        copies within the same account.
-
-        Returns:
-            The key name for a custom property put on a copied (owned) entry,
-            which contains the file id of the original entry.
-        """
-        return "CustomFileMoverOriginalFileId"
-
-    @property
-    def custom_prop_copy_key(self) -> str:
-        """Applied to an unowned entry to track the copy.
-
-        Used to keep track of which files and folders were copied to create owned
-        copies within the same account.
-
-        Returns:
-            The key name for a custom property put on an original (not owned) entry,
-            which contains the file id of the copied entry.
-        """
-        return "CustomFileMoverCopyFileId"
-
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "ConfigProgram":
         items: typing.Mapping[str, TypeBaseModel_co] = {
@@ -442,7 +439,30 @@ class GoogleDrivePermission(BaseModel):
         if entry_type == GoogleDrivePermissionTypeOptions.DOMAIN:
             params["domain"] = data.get("domain")
 
-        return GoogleDrivePermission(**params)
+        result = GoogleDrivePermission(**params)
+
+        if not result.entry_type:
+            raise ValueError("Entry type is not set.")
+        if not result.role:
+            raise ValueError("Role is not set.")
+        if not result.entry_id:
+            raise ValueError("Entry id is not set.")
+        if (
+            not result.display_name
+            and result.entry_type != GoogleDrivePermissionTypeOptions.ANYONE
+        ):
+            raise ValueError("Display name is not set.")
+        if not result.user_email and result.entry_type in [
+            GoogleDrivePermissionTypeOptions.USER,
+            GoogleDrivePermissionTypeOptions.GROUP,
+        ]:
+            raise ValueError("User email must be set for type 'user' or 'group'.")
+        if not result.domain and result.entry_type in [
+            GoogleDrivePermissionTypeOptions.DOMAIN,
+        ]:
+            raise ValueError("Domain must be set for type 'domain'.")
+
+        return result
 
     def save_data(self) -> typing.Mapping:
         raise NotImplementedError("Cannot save permission data.")
@@ -534,6 +554,18 @@ class GoogleDriveEntry(BaseModel):
             True if this entry is a folder.
         """
         return self.mime_type == GoogleDriveEntry.mime_type_dir()
+
+    @property
+    def is_copy(self) -> bool:
+        prop_key = GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value
+        prop_value = self.custom_property(prop_key)
+        return prop_value and len(prop_value) > 0
+
+    @property
+    def is_original(self) -> bool:
+        prop_key = GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
+        prop_value = self.custom_property(prop_key)
+        return prop_value and len(prop_value) > 0
 
     @property
     def entry_type(self) -> str:

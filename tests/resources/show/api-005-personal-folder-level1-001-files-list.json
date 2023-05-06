@@ -107,6 +107,15 @@
             "role": "owner",
             "deleted": false,
             "pendingOwner": false
+          },
+          {
+            "id": "personal-permission-anyone",
+            "displayName": "personal-anyone",
+            "kind": "drive#permission",
+            "type": "anyone",
+            "role": "reader",
+            "deleted": false,
+            "pendingOwner": false
           }
         ],
         "id": "personal-file-level2-002",
@@ -117,7 +126,8 @@
         "originalFilename": "Copy of Entry Level 2 - File 1.docx",
         "permissionIds": [
           "personal-permission-other-user-1",
-          "personal-permission-current-user"
+          "personal-permission-current-user",
+          "personal-permission-anyone"
         ],
         "sha256Checksum": "0c8fd2182f52df40abc4c92a407a54bfe9b3dfed2ab1244b69a2aa181519e4ce"
       },

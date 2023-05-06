@@ -18,7 +18,7 @@ entries:
     permissions:
       - "personal-permission-current-user": "owner"
 
-  - name: "Entry Level 1 - File 1"
+  - name: "Entry Level 1 - File 1.pdf"
     id: "personal-file-level1-001"
     parent_id: "personal-folder-level0"
     permissions:
@@ -28,9 +28,10 @@ entries:
     id: "personal-folder-level2-001"
     parent_id: "personal-folder-level1-001"
     permissions:
-      - "personal-permission-current-user": "owner"
+      - "personal-permission-current-user": "writer"
+      - "personal-other-user-1": "owner"
 
-  - name: "Entry Level 2 - File 1"
+  - name: "Entry Level 2 - File 1.docx"
     id: "personal-file-level2-001"
     parent_id: "personal-folder-level1-001"
     permissions:
@@ -73,9 +74,9 @@ entries:
     id: "personal-file-level3-002"
     parent_id: "personal-folder-level2-001"
     permissions:
-      - "business-permission-other-user-1": "writer"
-      - "personal-permission-other-user-1": "writer"
-        "personal-permission-current-user": "owner"
+      - "personal-permission-other-user-1": "owner"
+      - "personal-permission-other-user-2": "writer"
+        "personal-permission-current-user": "writer"
 
 permissions:
   - id: "personal-permission-current-user"

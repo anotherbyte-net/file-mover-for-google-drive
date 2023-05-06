@@ -90,6 +90,7 @@ def test_plan(tmp_path, caplog, capsys, build_config):
         "personal-permission-current-user",
         "personal-permission-other-user-1",
         "personal-permission-current-user",
+        "personal-permission-anyone",
         "personal-permission-current-user",
         "personal-permission-other-user-1",
         "personal-permission-other-user-1",
@@ -242,6 +243,20 @@ def test_plan(tmp_path, caplog, capsys, build_config):
             "item_action": "delete-permission",
             "item_type": "file",
             "permission_id": "personal-permission-other-user-1",
+        },
+        {
+            "account_id": "personal-current-user@example.com",
+            "account_type": "personal",
+            "begin_entry_name": "Copy of Entry Level 2 - File 1.docx",
+            "begin_entry_path": "Folder Top/Entry Level 1 - Folder 1",
+            "begin_user_access": "reader",
+            "begin_user_name": "personal-anyone",
+            "description": "delete permission for non-owner and not current user",
+            "drive_id": "My Drive",
+            "entry_id": "personal-file-level2-002",
+            "item_action": "delete-permission",
+            "item_type": "file",
+            "permission_id": "personal-permission-anyone",
         },
         {
             "account_id": "personal-current-user@example.com",
@@ -456,7 +471,7 @@ def test_plan(tmp_path, caplog, capsys, build_config):
         ),
         (
             10,
-            "Processing page 1 with 2 items from '[HttpRequest] GET: "
+            "Processing page 1 with 3 items from '[HttpRequest] GET: "
             "drive.permissions.list'.",
         ),
         (
@@ -486,6 +501,13 @@ def test_plan(tmp_path, caplog, capsys, build_config):
             10,
             "Keep permission personal-current-user <personal-current-user@example.com> "
             "(OWNER).",
+        ),
+        (10, "Delete permission anyone with link (VIEWER)."),
+        (
+            20,
+            "Added plan delete-permission file 'Copy of Entry Level 2 - File 1.docx' "
+            "path 'Folder Top/Entry Level 1 - Folder 1' user 'personal-anyone' access "
+            "'reader'.",
         ),
         (
             10,

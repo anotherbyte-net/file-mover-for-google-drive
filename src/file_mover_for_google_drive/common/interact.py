@@ -258,11 +258,11 @@ class GoogleDriveApi:
             The response.
         """
         response = request.execute(num_retries=self._config.num_retries)
-        self._write_response(request, response)
+        self._write_request_response(request, response)
 
         return response
 
-    def _write_response(self, request, response) -> None:
+    def _write_request_response(self, request, response) -> None:
         file_date_str = datetime.datetime.now().isoformat(
             sep="-", timespec="microseconds"
         )
@@ -270,7 +270,8 @@ class GoogleDriveApi:
 
         dir_path = utils.get_test_resources()
 
-        write_path = dir_path / f"{file_date_str}-response.json"
+        write_path = dir_path / "raw-req-res" / f"{file_date_str}-response.json"
+        write_path.parent.mkdir(exist_ok=True, parents=True)
 
         data = {
             "request": {
@@ -384,9 +385,8 @@ class GoogleDriveContainer:
         """Add a property to the original entry to record the id of the new entry."""
 
         entry_id = original_entry.entry_id
-        body = {
-            "properties": {self._api.config.custom_prop_copy_key: new_entry.entry_id}
-        }
+        key = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
+        body = {"properties": {key: new_entry.entry_id}}
         fields = self._entry_fields
         operation = self._api.files_update(fileId=entry_id, body=body, fields=fields)
         return operation
@@ -405,12 +405,14 @@ class GoogleDriveContainer:
             raise ValueError("Must provide new parent.")
 
         body = {
-            "createdTime": entry.date_created,
-            "modifiedTime": entry.date_modified,
+            "createdTime": entry.date_created.isoformat(timespec="microseconds"),
+            "modifiedTime": entry.date_modified.isoformat(timespec="microseconds"),
             "name": entry.name,
             "parents": [new_parent_id],
             "mimeType": models.GoogleDriveEntry.mime_type_dir(),
-            "properties": {self._api.config.custom_prop_original_key: entry.entry_id},
+            "properties": {
+                models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value: entry.entry_id
+            },
         }
         fields = self._entry_fields
 
@@ -524,12 +526,14 @@ class GoogleDriveContainer:
 
         entry_id = entry.entry_id
         body = {
-            "createdTime": entry.date_created,
-            "modifiedTime": entry.date_modified,
+            "createdTime": entry.date_created.isoformat(timespec="microseconds"),
+            "modifiedTime": entry.date_modified.isoformat(timespec="microseconds"),
             "description": entry.description,
             "name": entry.name,
             "parents": [parent_id],
-            "properties": {self._api.config.custom_prop_original_key: entry.entry_id},
+            "properties": {
+                models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value: entry.entry_id
+            },
             "mimeType": entry.mime_type,
         }
         fields = self._entry_fields
@@ -656,12 +660,14 @@ class GoogleDriveActions:
         if entry_is_owned:
             # if the entry is owned (might be a copy),
             # see if there is an original that is not owned
-            prop_key = config.custom_prop_copy_key
+            prop_key = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
 
         else:
             # if the entry is not owned (the original),
             # see if there is a copy that is owned
-            prop_key = config.custom_prop_original_key
+            prop_key = (
+                models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value
+            )
 
         if not prop_key:
             return None
@@ -686,7 +692,9 @@ class GoogleDriveActions:
 
         return None
 
-    def create_folder(self, entry: models.GoogleDriveEntry) -> models.GoogleDriveEntry:
+    def create_folder(
+        self, entry: models.GoogleDriveEntry
+    ) -> tuple[models.GoogleDriveEntry, models.GoogleDriveEntry]:
         """Create a new folder that is a copy of an existing folder,
         without the original folder's contents.
 
@@ -697,12 +705,20 @@ class GoogleDriveActions:
             The new folder object.
         """
         container = self._container
-        request = container.create_folder(entry, entry.parent_id)
-        response = container.api.execute_single(request)
-        entry = self._get_entry(response)
-        return entry
+        request_new = container.create_folder(entry, entry.parent_id)
+        response_new = container.api.execute_single(request_new)
+        new_entry = self._get_entry(response_new)
 
-    def copy_file(self, entry: models.GoogleDriveEntry) -> models.GoogleDriveEntry:
+        # update the entry to add the property
+        request_exist = container.record_copy(entry, new_entry)
+        response_exist = container.api.execute_single(request_exist)
+        entry = self._get_entry(response_exist)
+
+        return new_entry, entry
+
+    def copy_file(
+        self, entry: models.GoogleDriveEntry
+    ) -> tuple[models.GoogleDriveEntry, models.GoogleDriveEntry]:
         """Copy a file that is not owned to create a copy
         that is owned by the current user.
         Must be copied within a personal account (i.e. My Drive).
@@ -714,10 +730,16 @@ class GoogleDriveActions:
             The new file object.
         """
         container = self._container
-        request = container.copy_file(entry, entry.parent_id)
-        response = container.api.execute_single(request)
-        entry = self._get_entry(response)
-        return entry
+        request_new = container.copy_file(entry, entry.parent_id)
+        response_new = container.api.execute_single(request_new)
+        new_entry = self._get_entry(response_new)
+
+        # update the entry to add the property
+        request_exist = container.record_copy(entry, new_entry)
+        response_exist = container.api.execute_single(request_exist)
+        entry = self._get_entry(response_exist)
+
+        return new_entry, entry
 
     def rename_entry(
         self, entry: models.GoogleDriveEntry, name: str
