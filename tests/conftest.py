@@ -5,6 +5,9 @@ import pytest
 from file_mover_for_google_drive.common import models
 
 
+pytest.register_assert_rewrite("helpers")
+
+
 @pytest.fixture()
 def equal_ignore_whitespace():
     def _equal_ignore_whitespace(value1: str, value2: str, ignore_case=False):
@@ -65,7 +68,7 @@ def build_config():
                 account_type=account_type,
                 drive_id="example-shared-drive-1-id",
                 account_id="example.com.au",
-                top_folder_id="business-top-folder",
+                top_folder_id="business-folder-level0",
             )
         else:
             raise ValueError(f"Unknown account type '{account_type}',")

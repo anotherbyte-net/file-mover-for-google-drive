@@ -204,7 +204,7 @@ def test_show(tmp_path, caplog, capsys, build_config):
         ),
         (
             20,
-            "Processing file 'Entry Level 1 - File 1' (id personal-file-level1-001) "
+            "Processing file 'Entry Level 1 - File 1.pdf' (id personal-file-level1-001) "
             "props ''.",
         ),
         (20, "Processed total of 10 entries."),

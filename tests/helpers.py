@@ -60,11 +60,34 @@ class FileMoverHttpMock(http.HttpMock):
     def response_str(self) -> str:
         return json.dumps(self.response_data) if self.response_data else b""
 
+    def __str__(self):
+        req_data = self.request_data
+        req_method_id = req_data.get("methodId")
+        req_method = req_data.get("method")
+        req_uri = req_data.get("uri")
+        req = f"{req_method_id}: {req_method} {req_uri}"
+
+        res_data = self.response_data
+        res_files = res_data.get("files", [])
+        res_perms = res_data.get("permissions", [])
+        if res_files:
+            res = f"{len(res_data)} files"
+        elif res_perms:
+            res = f"{len(res_data)} permissions"
+        else:
+            res = "dict"
+        return f"Response: {res}; Request: {req};"
+
+    def __repr__(self):
+        return str(self)
+
 
 class FileMoverHttpMockSequence(http.HttpMockSequence):
     def __init__(self, iterable):
         # Ensure iterable is a list, so the items can be seen more than once.
-        super().__init__(list(iterable))
+        items = list(iterable)
+        super().__init__(items)
+        self._provided_items = list(iterable)
 
     def request(
         self,
@@ -89,6 +112,11 @@ class FileMoverHttpMockSequence(http.HttpMockSequence):
         result_headers, result_data = super().request(
             uri, method, body, headers, redirections, connection_type
         )
+
+        provided = self._provided_items.pop(0)
+        expected_uri = provided.request_data.get("uri")
+        if uri != expected_uri:
+            assert uri == expected_uri
 
         if not result_headers:
             raise ValueError("Must provide response headers.")
