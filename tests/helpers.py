@@ -109,14 +109,14 @@ class FileMoverHttpMockSequence(http.HttpMockSequence):
             }
             raise ValueError(f"No mock available: " f"{json.dumps(params, indent=2)}'.")
 
-        result_headers, result_data = super().request(
-            uri, method, body, headers, redirections, connection_type
-        )
-
         provided = self._provided_items.pop(0)
         expected_uri = provided.request_data.get("uri")
         if uri != expected_uri:
             assert uri == expected_uri
+
+        result_headers, result_data = super().request(
+            uri, method, body, headers, redirections, connection_type
+        )
 
         if not result_headers:
             raise ValueError("Must provide response headers.")

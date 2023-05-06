@@ -51,7 +51,7 @@ def build_config():
         actions = models.ConfigActions(
             permissions_delete_other_users=True,
             permissions_delete_link=True,
-            entry_name_delete_prefix_copy_of=True,
+            entry_name_delete_prefix_copy_of=False,
             create_owned_file_copy=True,
             create_owned_folder_and_move_contents=True,
         )
@@ -60,7 +60,7 @@ def build_config():
             account = models.ConfigAccount(
                 account_type=account_type,
                 drive_id=models.ConfigAccount.drive_name_my_drive(),
-                account_id="personal-user@example.com",
+                account_id="personal-current-user@example.com",
                 top_folder_id="personal-folder-level0",
             )
         elif account_type == models.GoogleDriveAccountTypeOptions.BUSINESS:

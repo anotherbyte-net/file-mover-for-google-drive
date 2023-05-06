@@ -141,50 +141,6 @@ class Plan(manage.BaseManage):
             logging.debug("Will never copy an owned file or folder.")
             return
 
-        # only assess unowned entries - files
-        if not entry.is_dir:
-            if not config.actions.create_owned_file_copy:
-                logger.debug(
-                    "Config prevented creating an owned copy of file '%s' at '%s'.",
-                    entry.name,
-                    parent_path_str,
-                )
-                return
-
-            # check if there is already a copy of the file
-
-            # does this file have the property that indicates there is a copy?
-            prop_copy_entry_id = entry.properties_shared.get(key_copy)
-            other_entry: typing.Optional[models.GoogleDriveEntry]
-            if prop_copy_entry_id:
-                other_entry = actions.get_entry(prop_copy_entry_id)
-            else:
-                # is there another file that has a property that indicates that this
-                # file is it's original?
-                other_entry = actions.get_pair_copy_entry(entry)
-
-            # if there is not a copy of the file, then copy it
-            # otherwise, just log the existence of the copy.
-            if other_entry:
-                logging.debug(
-                    "Found existing copy of file '%s' at '%s'.",
-                    entry.name,
-                    parent_path_str,
-                )
-                return
-
-            # create an owned copy of the unowned file
-            current_user_permission = entry.get_permission_by_email(account_id)
-            yield self._plan_builder.get_copy_file(
-                entry=entry,
-                user_name=models.GoogleDrivePermission.get_display_name(
-                    current_user_permission
-                ),
-                user_email=account_id,
-                user_access=role_owner,
-                entry_path=parent_path_str,
-            )
-
         # only assess unowned entries - folders
         if entry.is_dir:
             if not config.actions.create_owned_folder_and_move_contents:
@@ -220,6 +176,50 @@ class Plan(manage.BaseManage):
             # create an owned copy of the unowned folder
             current_user_permission = entry.get_permission_by_email(account_id)
             yield self._plan_builder.get_create_folder(
+                entry=entry,
+                user_name=models.GoogleDrivePermission.get_display_name(
+                    current_user_permission
+                ),
+                user_email=account_id,
+                user_access=role_owner,
+                entry_path=parent_path_str,
+            )
+
+        # only assess unowned entries - files
+        if not entry.is_dir:
+            if not config.actions.create_owned_file_copy:
+                logger.debug(
+                    "Config prevented creating an owned copy of file '%s' at '%s'.",
+                    entry.name,
+                    parent_path_str,
+                )
+                return
+
+            # check if there is already a copy of the file
+
+            # does this file have the property that indicates there is a copy?
+            prop_copy_entry_id = entry.properties_shared.get(key_copy)
+            other_entry: typing.Optional[models.GoogleDriveEntry]
+            if prop_copy_entry_id:
+                other_entry = actions.get_entry(prop_copy_entry_id)
+            else:
+                # is there another file that has a property that indicates that this
+                # file is it's original?
+                other_entry = actions.get_pair_copy_entry(entry)
+
+            # if there is not a copy of the file, then copy it
+            # otherwise, just log the existence of the copy.
+            if other_entry:
+                logging.debug(
+                    "Found existing copy of file '%s' at '%s'.",
+                    entry.name,
+                    parent_path_str,
+                )
+                return
+
+            # create an owned copy of the unowned file
+            current_user_permission = entry.get_permission_by_email(account_id)
+            yield self._plan_builder.get_copy_file(
                 entry=entry,
                 user_name=models.GoogleDrivePermission.get_display_name(
                     current_user_permission

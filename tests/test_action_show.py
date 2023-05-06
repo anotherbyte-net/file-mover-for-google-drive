@@ -95,7 +95,7 @@ def test_show(tmp_path, caplog, capsys, build_config):
 
     assert [(lvl, msg) for lg, lvl, msg in caplog.record_tuples] == [
         (20, "file_cache is only supported with oauth2client<4.0.0"),
-        (20, "Show entries for PERSONAL account 'personal-user@example.com'."),
+        (20, "Show entries for PERSONAL account 'personal-current-user@example.com'."),
         (20, f"Writing entries report '{report_entries_file.name}'."),
         (20, f"Writing permissions report '{report_permissions_file.name}'."),
         (

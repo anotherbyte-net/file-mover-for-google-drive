@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "GET",
+    "body": null,
+    "methodId": "drive.files.list",
+    "uri": "https://www.googleapis.com/drive/v3/files?spaces=drive&q=properties+has+%7B+key%3D%27CustomFileMoverOriginalFileId%27+and+value%3D%27personal-folder-level2-001%27+%7D+and+trashed%3Dfalse&fields=nextPageToken%2Cfiles%28id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%29&pageSize=1000&orderBy=folder%2Cname&corpora=user&includeItemsFromAllDrives=false&supportsAllDrives=false&alt=json"
+  },
+  "response": {
+    "files": []
+  }
+}
