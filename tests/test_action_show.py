@@ -17,13 +17,26 @@ def test_show(tmp_path, caplog, capsys, build_config):
 
     caplog.set_level(logging.DEBUG)
 
+    api_data = [
+        "api-001-personal-folder-level0-files-get.json",
+        "api-002-personal-folder-level0-permissions-list.json",
+        "api-003-personal-folder-level0-files-list.json",
+        "api-004-personal-folder-level1-001-permissions-list.json",
+        "api-005-personal-folder-level1-001-files-list.json",
+        "api-006-personal-folder-level2-001-permissions-list.json",
+        "api-007-personal-folder-level2-001-files-list.json",
+        "api-008-personal-file-level3-001-permissions-list.json",
+        "api-009-personal-file-level3-002-permissions-list.json",
+        "api-010-personal-file-level2-001-permissions-list.json",
+        "api-011-personal-file-level2-002-permissions-list.json",
+        "api-012-personal-file-level2-003-permissions-list.json",
+        "api-013-personal-file-level2-004-permissions-list.json",
+        "api-014-personal-file-level1-001-permissions-list.json",
+    ]
     http_mocks = helpers.FileMoverHttpMockSequence(
-        [
-            helpers.FileMoverHttpMock(
-                headers=helpers.FileMoverHttpMock.get_status_bad_request()
-            ),
-        ]
+        [helpers.FileMoverHttpMock(f"show/{name}") for name in api_data]
     )
+
     gd_client = client.GoogleApiClient.get_drive_client(
         config, existing_client=build("drive", "v3", http=http_mocks)
     )
@@ -38,83 +51,162 @@ def test_show(tmp_path, caplog, capsys, build_config):
     assert stdout == ""
     assert stderr == ""
 
-    report_entries_file = next(config.report_entries_dir.iterdir())
+    report_entries_file = next(config.reports.entries_dir.iterdir())
     report_entries_csv = csv.DictReader(report_entries_file.read_text().splitlines())
     assert [report.EntryReport(**row).entry_id for row in report_entries_csv] == [
-        "personal-top-folder",
-        "folder_1_a",
-        "file_1_a",
-        "folder_2_a",
-        "file_2_a",
-        "file_2_b",
-        "file_2_c",
-        "folder_3_a",
-        "file_3_a_a",
-        "file_2_a_b",
-        "folder_3_b",
-        "file_3_b_a",
-        "file_3_b_b",
+        "personal-folder-level0",
+        "personal-folder-level1-001",
+        "personal-folder-level2-001",
+        "personal-file-level3-001",
+        "personal-file-level3-002",
+        "personal-file-level2-001",
+        "personal-file-level2-002",
+        "personal-file-level2-003",
+        "personal-file-level2-004",
+        "personal-file-level1-001",
     ]
 
-    report_permissions_file = next(config.report_permissions_dir.iterdir())
+    report_permissions_file = next(config.reports.permissions_dir.iterdir())
     report_permissions_csv = csv.DictReader(
         report_permissions_file.read_text().splitlines()
     )
     assert [
         report.PermissionReport(**row).permission_id for row in report_permissions_csv
     ] == [
-        "personal-top-folder-owner",
-        "personal-top-folder-other1",
-        "folder_1_a-writer",
-        "folder_1_a-other-user1-owner",
-        "folder_1_a-other-user2-reader",
-        "file_1_a-owner",
-        "folder_2_a-owner",
-        "file_2_a-owner",
-        "file_2_b-owner",
-        "file_2_c-owner",
-        "folder_3_a-owner",
-        "file_3_a_a-owner",
-        "file_2_a_b-owner",
-        "folder_3_b-owner",
-        "file_3_b_a-owner",
-        "file_3_b_b-reader",
-        "file_3_b_b-owner",
+        "personal-permission-current-user",
+        "personal-permission-current-user",
+        "personal-permission-current-user",
+        "personal-permission-other-user-1",
+        "business-permission-other-user-1",
+        "personal-permission-other-user-1",
+        "personal-permission-current-user",
+        "personal-permission-other-user-2",
+        "personal-permission-current-user",
+        "personal-permission-other-user-1",
+        "personal-permission-current-user",
+        "personal-permission-other-user-1",
+        "personal-permission-current-user",
+        "personal-permission-current-user",
+        "personal-permission-other-user-1",
+        "personal-permission-other-user-1",
+        "personal-permission-current-user",
+        "personal-permission-current-user",
     ]
 
     assert [(lvl, msg) for lg, lvl, msg in caplog.record_tuples] == [
-        (20, "Show entries for 'My Drive' in user 'personal-user@example.com'."),
-        (20, "Starting with folder 'personal-top-folder'."),
+        (20, "file_cache is only supported with oauth2client<4.0.0"),
+        (20, "Show entries for PERSONAL account 'personal-user@example.com'."),
         (20, f"Writing entries report '{report_entries_file.name}'."),
         (20, f"Writing permissions report '{report_permissions_file.name}'."),
-        (20, "Starting."),
-        (20, "Starting folder is 'Name for personal-top-folder'."),
         (
             10,
-            "Getting page 1 of results using '[LocalInMemoryOperationStore] _list: "
-            "corpora,fields,includeItemsFromAllDrives,orderBy,pageSize,q,spaces,supportsAllDrives'.",
+            "Processing page 1 with 1 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (20, "Processing folder 'Folder Top' (id personal-folder-level0) props ''."),
+        (20, "Starting folder is 'Folder Top'."),
+        (
+            10,
+            "Processing page 1 with 2 items from '[HttpRequest] GET: drive.files.list'.",
         ),
         (
             10,
-            "Getting page 1 of results using '[LocalInMemoryOperationStore] _list: "
-            "corpora,fields,includeItemsFromAllDrives,orderBy,pageSize,q,spaces,supportsAllDrives'.",
+            "Processing page 1 with 1 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing folder 'Entry Level 1 - Folder 1' (id "
+            "personal-folder-level1-001) props ''.",
         ),
         (
             10,
-            "Getting page 1 of results using '[LocalInMemoryOperationStore] _list: "
-            "corpora,fields,includeItemsFromAllDrives,orderBy,pageSize,q,spaces,supportsAllDrives'.",
+            "Processing page 1 with 5 items from '[HttpRequest] GET: drive.files.list'.",
         ),
         (
             10,
-            "Getting page 1 of results using '[LocalInMemoryOperationStore] _list: "
-            "corpora,fields,includeItemsFromAllDrives,orderBy,pageSize,q,spaces,supportsAllDrives'.",
+            "Processing page 1 with 2 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
         ),
-        (20, "Processed 10 entries."),
+        (
+            20,
+            "Processing folder 'Entry Level 2 - Folder 1' (id "
+            "personal-folder-level2-001) props ''.",
+        ),
         (
             10,
-            "Getting page 1 of results using '[LocalInMemoryOperationStore] _list: "
-            "corpora,fields,includeItemsFromAllDrives,orderBy,pageSize,q,spaces,supportsAllDrives'.",
+            "Processing page 1 with 2 items from '[HttpRequest] GET: drive.files.list'.",
         ),
-        (20, "Processed total of 13 entries."),
+        (
+            10,
+            "Processing page 1 with 3 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Entry Level 3 - File 1' (id personal-file-level3-001) "
+            "props ''.",
+        ),
+        (
+            10,
+            "Processing page 1 with 3 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Entry Level 3 - File 2' (id personal-file-level3-002) "
+            "props ''.",
+        ),
+        (
+            10,
+            "Processing page 1 with 1 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Entry Level 2 - File 1.docx' (id personal-file-level2-001) "
+            "props ''.",
+        ),
+        (
+            10,
+            "Processing page 1 with 2 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Copy of Entry Level 2 - File 1.docx' (id "
+            "personal-file-level2-002) props ''.",
+        ),
+        (
+            10,
+            "Processing page 1 with 2 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Entry Level 2 - File 3' (id personal-file-level2-003) "
+            "props 'CustomFileMoverCopyFileId=personal-file-level2-004'.",
+        ),
+        (
+            10,
+            "Processing page 1 with 2 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Entry Level 2 - File 4' (id personal-file-level2-004) "
+            "props 'CustomFileMoverOriginalFileId=personal-file-level2-003'.",
+        ),
+        (
+            10,
+            "Processing page 1 with 1 items from '[HttpRequest] GET: "
+            "drive.permissions.list'.",
+        ),
+        (
+            20,
+            "Processing file 'Entry Level 1 - File 1' (id personal-file-level1-001) "
+            "props ''.",
+        ),
+        (20, "Processed total of 10 entries."),
         (20, "Finished."),
     ]

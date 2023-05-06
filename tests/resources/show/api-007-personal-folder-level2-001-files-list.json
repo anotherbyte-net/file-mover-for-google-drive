@@ -1,0 +1,118 @@
+{
+  "request": {
+    "method": "GET",
+    "body": null,
+    "methodId": "drive.files.list",
+    "uri": "https://www.googleapis.com/drive/v3/files?spaces=drive&q=%27personal-folder-level2-001%27+in+parents+and+trashed%3Dfalse&fields=nextPageToken%2Cfiles%28id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%29&pageSize=1000&orderBy=folder%2Cname&corpora=user&includeItemsFromAllDrives=false&supportsAllDrives=false&alt=json"
+  },
+  "response": {
+    "files": [
+      {
+        "mimeType": "application/vnd.google-apps.document",
+        "parents": [
+          "personal-folder-level2-001"
+        ],
+        "webViewLink": "https://docs.google.com/document/d/personal-file-level3-001/edit?usp=drivesdk",
+        "size": "1024",
+        "permissions": [
+          {
+            "id": "business-permission-other-user-1",
+            "displayName": "business-other-user-1",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a-/business-other-user-1=s64",
+            "emailAddress": "business-other-user-1@example.com",
+            "role": "writer",
+            "deleted": false,
+            "pendingOwner": false
+          },
+          {
+            "id": "personal-permission-other-user-1",
+            "displayName": "personal-other-user-1",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a-/personal-permission-other-user-1=s64",
+            "emailAddress": "personal-other-user-1@example.com",
+            "role": "writer",
+            "deleted": false,
+            "pendingOwner": false
+          },
+          {
+            "id": "personal-permission-current-user",
+            "displayName": "personal-current-user",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+            "emailAddress": "personal-current-user@example.com",
+            "role": "owner",
+            "deleted": false,
+            "pendingOwner": false
+          }
+        ],
+        "id": "personal-file-level3-001",
+        "name": "Entry Level 3 - File 1",
+        "createdTime": "2023-04-22T09:30:53.055Z",
+        "modifiedTime": "2023-04-24T21:23:15.823Z",
+        "quotaBytesUsed": "1024",
+        "permissionIds": [
+          "business-permission-other-user-1",
+          "personal-permission-other-user-1",
+          "personal-permission-current-user"
+        ]
+      },
+      {
+        "mimeType": "application/vnd.google-apps.document",
+        "parents": [
+          "personal-folder-level2-001"
+        ],
+        "webViewLink": "https://docs.google.com/document/d/personal-file-level3-002/edit?usp=drivesdk",
+        "size": "1024",
+        "permissions": [
+          {
+            "id": "personal-permission-other-user-2",
+            "displayName": "personal-other-user-2",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a-/personal-permission-other-user-2=s64",
+            "emailAddress": "personal-other-user-2@example.com",
+            "role": "writer",
+            "deleted": false,
+            "pendingOwner": false
+          },
+          {
+            "id": "personal-permission-current-user",
+            "displayName": "personal-current-user",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+            "emailAddress": "personal-current-user@example.com",
+            "role": "writer",
+            "deleted": false,
+            "pendingOwner": false
+          },
+          {
+            "id": "personal-permission-other-user-1",
+            "displayName": "personal-other-user-1",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a-/personal-permission-other-user-1=s64",
+            "emailAddress": "personal-other-user-1@example.com",
+            "role": "owner",
+            "deleted": false,
+            "pendingOwner": false
+          }
+        ],
+        "id": "personal-file-level3-002",
+        "name": "Entry Level 3 - File 2",
+        "createdTime": "2023-03-25T10:39:58.942Z",
+        "modifiedTime": "2023-04-30T05:02:09.681Z",
+        "quotaBytesUsed": "1024",
+        "permissionIds": [
+          "personal-permission-other-user-2",
+          "personal-permission-current-user",
+          "personal-permission-other-user-1"
+        ]
+      }
+    ]
+  }
+}

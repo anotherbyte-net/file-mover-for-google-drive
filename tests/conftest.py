@@ -56,9 +56,9 @@ def build_config():
         if account_type == models.GoogleDriveAccountTypeOptions.PERSONAL:
             account = models.ConfigAccount(
                 account_type=account_type,
-                drive_id="My Drive",
+                drive_id=models.ConfigAccount.drive_name_my_drive(),
                 account_id="personal-user@example.com",
-                top_folder_id="personal-top-folder",
+                top_folder_id="personal-folder-level0",
             )
         elif account_type == models.GoogleDriveAccountTypeOptions.BUSINESS:
             account = models.ConfigAccount(

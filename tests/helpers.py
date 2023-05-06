@@ -1,4 +1,6 @@
 import json
+import pathlib
+import typing
 from importlib import resources
 from urllib import parse
 
@@ -9,7 +11,11 @@ from googleapiclient import http
 
 
 class FileMoverHttpMock(http.HttpMock):
-    def __init__(self, filename=None, headers=None):
+    def __init__(
+        self,
+        filename: typing.Optional[typing.Union[str, pathlib.Path]] = None,
+        headers: typing.Optional[typing.Mapping[str, str]] = None,
+    ):
         if filename:
             with resources.as_file(
                 resources.files("resources").joinpath(filename)
@@ -22,10 +28,7 @@ class FileMoverHttpMock(http.HttpMock):
         super().__init__(filename, headers)
 
     def __iter__(self):
-        items = [
-            self.response_headers or {},
-            self.data or "",
-        ]
+        items = [self.response_headers or {}, self.response_str]
         for item in items:
             yield item
 
@@ -40,6 +43,22 @@ class FileMoverHttpMock(http.HttpMock):
     @classmethod
     def get_status_not_found(cls):
         return {"status": "404"}
+
+    @property
+    def request_data(self) -> typing.Mapping:
+        return json.loads(self.data).get("request", {}) if self.data else {}
+
+    @property
+    def request_str(self) -> str:
+        return json.dumps(self.request_data) if self.request_data else b""
+
+    @property
+    def response_data(self) -> typing.Mapping:
+        return json.loads(self.data).get("response", {}) if self.data else {}
+
+    @property
+    def response_str(self) -> str:
+        return json.dumps(self.response_data) if self.response_data else b""
 
 
 class FileMoverHttpMockSequence(http.HttpMockSequence):
