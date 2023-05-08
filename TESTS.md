@@ -31,13 +31,21 @@ entries:
       - "personal-permission-current-user": "writer"
       - "personal-other-user-1": "owner"
 
+  - name: "Entry Level 2 - Folder 2"
+    id: "personal-folder-level2-002"
+    parent_id: "personal-folder-level1-001"
+    permissions:
+      - "personal-permission-current-user": "owner"
+    notes:
+      - "This is the pair for personal-folder-level2-001, created by apply step."
+
   - name: "Entry Level 2 - File 1.docx"
     id: "personal-file-level2-001"
     parent_id: "personal-folder-level1-001"
     permissions:
       - "personal-permission-current-user": "owner"
 
-  - name: "Copy of Entry Level 2 - File 1"
+  - name: "Copy of Entry Level 2 - File 1.docx"
     id: "personal-file-level2-002"
     parent_id: "personal-folder-level1-001"
     permissions:
@@ -59,8 +67,14 @@ entries:
     permissions:
       - "personal-permission-current-user": "owner"
       - "personal-permission-other-user-1": "writer"
+
+  - name: "Entry Level 2 - File 3"
+    id: "personal-file-level2-005"
+    parent_id: "personal-folder-level1-001"
+    permissions:
+      - "personal-permission-current-user": "owner"
     notes:
-      - "This is a copy of 'Entry Level 2 - File 3'."
+      - "This is a copy of personal-file-level2-003, created by apply."
 
   - name: "Entry Level 3 - File 1"
     id: "personal-file-level3-001"
@@ -78,6 +92,14 @@ entries:
       - "personal-permission-other-user-2": "writer"
         "personal-permission-current-user": "writer"
 
+  - name: "Entry Level 3 - File 3"
+    id: "personal-file-level3-003"
+    parent_id: "personal-folder-level2-002"
+    permissions:
+      - "personal-permission-current-user": "owner"
+    notes:
+      - "This is the pair for personal-file-level3-002, created by apply."
+
 permissions:
   - id: "personal-permission-current-user"
     type: "user"
@@ -93,7 +115,7 @@ permissions:
     type: "user"
     email: "personal-other-user-2@example.com"
     name: "personal-other-user-2"
-    
+
   - id: "business-permission-other-user-1"
     type: "user"
     email: "business-other-user-1@example.com"

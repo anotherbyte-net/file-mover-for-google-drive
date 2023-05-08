@@ -1,0 +1,40 @@
+{
+  "request": {
+    "method": "GET",
+    "body": null,
+    "methodId": "drive.files.get",
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level3-003?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions&alt=json"
+  },
+  "response": {
+    "id": "personal-file-level3-003",
+    "name": "Entry Level 3 - File 2",
+    "mimeType": "application/vnd.google-apps.document",
+    "parents": [
+      "personal-folder-level2-002"
+    ],
+    "properties": {
+      "CustomFileMoverOriginalFileId": "personal-file-level3-002"
+    },
+    "webViewLink": "https://docs.google.com/document/d/personal-file-level3-003/edit?usp=drivesdk",
+    "createdTime": "2023-03-25T10:39:58.942Z",
+    "modifiedTime": "2023-05-06T12:04:47.583Z",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "personal-permission-current-user",
+        "type": "user",
+        "emailAddress": "personal-current-user@example.com",
+        "role": "owner",
+        "displayName": "personal-current-user",
+        "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+        "deleted": false,
+        "pendingOwner": false
+      }
+    ],
+    "permissionIds": [
+      "personal-permission-current-user"
+    ],
+    "size": "1024",
+    "quotaBytesUsed": "1024"
+  }
+}

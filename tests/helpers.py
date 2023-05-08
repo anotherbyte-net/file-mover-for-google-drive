@@ -1,5 +1,8 @@
+import csv
 import json
 import pathlib
+import re
+import shutil
 import typing
 from importlib import resources
 from urllib import parse
@@ -10,18 +13,91 @@ from googleapiclient import http
 # https://github.com/googleapis/google-api-python-client/blob/main/docs/mocks.md
 
 
+def get_resource_path(end_path: str):
+    full_path = resources.files("resources").joinpath(end_path)
+    with resources.as_file(full_path) as file_path:
+        result = file_path.absolute()
+    return result
+
+
+def rename_resources():
+    resources_path = resources.files("resources")
+    with resources.as_file(resources_path) as file_path:
+        resources_dir = file_path.absolute()
+
+    pattern = re.compile(r"^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.\d{6}-response.json$")
+    for res_dir in resources_dir.iterdir():
+        if not res_dir.is_dir():
+            continue
+        if res_dir.name == "raw-req-res":
+            continue
+        res_files = sorted([i for i in res_dir.iterdir() if i.is_file()])
+        for index, res_file in enumerate(res_files):
+            if not res_file.is_file():
+                continue
+            match = pattern.match(res_file.name)
+            if not match:
+                continue
+            new_file = res_file.with_stem(f"api-{index + 1:03}")
+            shutil.move(res_file, new_file)
+
+
+def check_reports(output_items: list[dict]):
+    actual_report_paths = []
+    for output_item in output_items:
+        report_class = output_item["report_class"]
+        actual_path = output_item["actual_path"]
+        expected_path = output_item["expected_path"]
+
+        actual_file = next(actual_path.iterdir())
+        actual_report_paths.append(actual_file)
+
+        actual_csv = csv.DictReader(actual_file.read_text().splitlines())
+        actual_reports = [report_class(**row) for row in actual_csv]
+
+        expected_file = get_resource_path(expected_path)
+        expected_csv = csv.DictReader(expected_file.read_text().splitlines())
+        expected_reports = [report_class(**row) for row in expected_csv]
+
+        assert actual_reports == expected_reports
+    return actual_report_paths
+
+
+def api_json_files(dir_name: str):
+    files = sorted(
+        [
+            i
+            for i in get_resource_path(dir_name).iterdir()
+            if i.is_file() and i.name.startswith("api-") and i.suffix == ".json"
+        ]
+    )
+    return files
+
+
+def compare_logs(actual_logs_raw, name: str, reports_paths: list[pathlib.Path]) -> None:
+    actual_logs = [(lvl, msg) for lg, lvl, msg in actual_logs_raw]
+    expected_logs_file = get_resource_path(f"{name}/expected_logs.csv")
+
+    expected_logs = list(csv.DictReader(expected_logs_file.read_text().splitlines()))
+    for index, i in enumerate(expected_logs):
+        for reports_path in reports_paths:
+            report_type = reports_path.stem.split("-")[-1]
+            prefix = f"Writing {report_type} report"
+            msg = i.get("message")
+            if msg and msg.startswith(prefix):
+                i["message"] = f"Writing {report_type} report '{reports_path.name}'."
+        expected_logs[index] = (int(i.get("level")), i.get("message"))
+
+    assert expected_logs == actual_logs
+
+
 class FileMoverHttpMock(http.HttpMock):
     def __init__(
         self,
         filename: typing.Optional[typing.Union[str, pathlib.Path]] = None,
         headers: typing.Optional[typing.Mapping[str, str]] = None,
     ):
-        if filename:
-            with resources.as_file(
-                resources.files("resources").joinpath(filename)
-            ) as file_path:
-                filename = file_path.absolute()
-
+        self._filename = filename
         if headers is None:
             headers = self.get_status_ok()
 

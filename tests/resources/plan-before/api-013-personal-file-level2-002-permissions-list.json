@@ -23,7 +23,6 @@
       },
       {
         "id": "personal-permission-anyone",
-        "displayName": "personal-anyone",
         "type": "anyone",
         "role": "reader"
       }

@@ -12,6 +12,37 @@
         "parents": [
           "personal-folder-level1-001"
         ],
+        "webViewLink": "https://drive.google.com/drive/folders/personal-folder-level2-002",
+        "permissions": [
+          {
+            "id": "personal-permission-current-user",
+            "displayName": "personal-current-user",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+            "emailAddress": "personal-current-user@example.com",
+            "role": "owner",
+            "deleted": false,
+            "pendingOwner": false
+          }
+        ],
+        "id": "personal-folder-level2-002",
+        "name": "Entry Level 2 - Folder 1",
+        "createdTime": "2023-03-25T09:39:51.770Z",
+        "modifiedTime": "2023-05-06T11:40:30.103Z",
+        "quotaBytesUsed": "0",
+        "properties": {
+          "CustomFileMoverOriginalFileId": "personal-folder-level2-001"
+        },
+        "permissionIds": [
+          "personal-permission-current-user"
+        ]
+      },
+      {
+        "mimeType": "application/vnd.google-apps.folder",
+        "parents": [
+          "personal-folder-level1-001"
+        ],
         "webViewLink": "https://drive.google.com/drive/folders/personal-folder-level2-001",
         "permissions": [
           {
@@ -30,7 +61,7 @@
             "displayName": "personal-other-user-1",
             "type": "user",
             "kind": "drive#permission",
-            "photoLink": "https://lh3.googleusercontent.com/a-/personal-other-user-1=s64",
+            "photoLink": "https://lh3.googleusercontent.com/a-/ACB-R5TrXkvEC5oO-MpZPtdA-ePPyxp59euQOcX_Vs4wUw=s64",
             "emailAddress": "personal-other-user-1@example.com",
             "role": "owner",
             "deleted": false,
@@ -40,8 +71,11 @@
         "id": "personal-folder-level2-001",
         "name": "Entry Level 2 - Folder 1",
         "createdTime": "2023-03-25T09:39:51.770Z",
-        "modifiedTime": "2023-03-27T14:26:28.776Z",
+        "modifiedTime": "2023-05-06T11:48:09.840Z",
         "quotaBytesUsed": "0",
+        "properties": {
+          "CustomFileMoverCopyFileId": "personal-folder-level2-002"
+        },
         "permissionIds": [
           "personal-permission-current-user",
           "personal-permission-other-user-1"
@@ -72,7 +106,7 @@
         "createdTime": "2023-04-30T06:05:02.113Z",
         "modifiedTime": "2023-04-30T06:05:12.417Z",
         "quotaBytesUsed": "838650",
-        "originalFilename": "Entry Level 2 - File 1.docx",
+        "originalFilename": "Copy of Copy of Entry Level 2 - File 1.docx",
         "permissionIds": [
           "personal-permission-current-user"
         ],
@@ -87,16 +121,36 @@
         "size": "838650",
         "permissions": [
           {
-            "id": "personal-permission-other-user-1",
-            "displayName": "personal-other-user-1",
+            "id": "personal-permission-current-user",
+            "displayName": "personal-current-user",
             "type": "user",
             "kind": "drive#permission",
-            "photoLink": "https://lh3.googleusercontent.com/a-/personal-other-user-1=s64",
-            "emailAddress": "personal-other-user-1@example.com",
-            "role": "writer",
+            "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+            "emailAddress": "personal-current-user@example.com",
+            "role": "owner",
             "deleted": false,
             "pendingOwner": false
-          },
+          }
+        ],
+        "id": "personal-file-level2-002",
+        "name": "Copy of Entry Level 2 - File 1.docx",
+        "createdTime": "2023-03-24T12:12:56.930Z",
+        "modifiedTime": "2023-05-06T12:06:07.918Z",
+        "quotaBytesUsed": "838650",
+        "originalFilename": "Entry Level 2 - File 1.docx",
+        "permissionIds": [
+          "personal-permission-current-user"
+        ],
+        "sha256Checksum": "0c8fd2182f52df40abc4c92a407a54bfe9b3dfed2ab1244b69a2aa181519e4ce"
+      },
+      {
+        "mimeType": "application/vnd.google-apps.document",
+        "parents": [
+          "personal-folder-level1-001"
+        ],
+        "webViewLink": "https://docs.google.com/document/d/personal-file-level2-005/edit?usp=drivesdk",
+        "size": "1024",
+        "permissions": [
           {
             "id": "personal-permission-current-user",
             "displayName": "personal-current-user",
@@ -107,29 +161,19 @@
             "role": "owner",
             "deleted": false,
             "pendingOwner": false
-          },
-          {
-            "id": "personal-permission-anyone",
-            "displayName": "personal-anyone",
-            "kind": "drive#permission",
-            "type": "anyone",
-            "role": "reader",
-            "deleted": false,
-            "pendingOwner": false
           }
         ],
-        "id": "personal-file-level2-002",
-        "name": "Copy of Entry Level 2 - File 1.docx",
-        "createdTime": "2023-03-24T12:12:56.930Z",
-        "modifiedTime": "2023-04-30T05:02:42.822Z",
-        "quotaBytesUsed": "838650",
-        "originalFilename": "Copy of Entry Level 2 - File 1.docx",
+        "id": "personal-file-level2-005",
+        "name": "Entry Level 2 - File 3",
+        "createdTime": "2023-03-23T12:01:29.044Z",
+        "modifiedTime": "2023-05-06T12:06:12.728Z",
+        "quotaBytesUsed": "1024",
+        "properties": {
+          "CustomFileMoverOriginalFileId": "personal-file-level2-003"
+        },
         "permissionIds": [
-          "personal-permission-other-user-1",
-          "personal-permission-current-user",
-          "personal-permission-anyone"
-        ],
-        "sha256Checksum": "0c8fd2182f52df40abc4c92a407a54bfe9b3dfed2ab1244b69a2aa181519e4ce"
+          "personal-permission-current-user"
+        ]
       },
       {
         "mimeType": "application/vnd.google-apps.document",
@@ -155,7 +199,7 @@
             "displayName": "personal-other-user-1",
             "type": "user",
             "kind": "drive#permission",
-            "photoLink": "https://lh3.googleusercontent.com/a-/personal-other-user-1=s64",
+            "photoLink": "https://lh3.googleusercontent.com/a-/ACB-R5TrXkvEC5oO-MpZPtdA-ePPyxp59euQOcX_Vs4wUw=s64",
             "emailAddress": "personal-other-user-1@example.com",
             "role": "owner",
             "deleted": false,
@@ -165,10 +209,10 @@
         "id": "personal-file-level2-003",
         "name": "Entry Level 2 - File 3",
         "createdTime": "2023-03-23T12:01:29.044Z",
-        "modifiedTime": "2023-03-27T14:24:42.116Z",
+        "modifiedTime": "2023-05-06T12:06:14.001Z",
         "quotaBytesUsed": "1024",
         "properties": {
-          "CustomFileMoverCopyFileId": "personal-file-level2-004"
+          "CustomFileMoverCopyFileId": "personal-file-level2-005"
         },
         "permissionIds": [
           "personal-permission-current-user",
@@ -184,17 +228,6 @@
         "size": "1024",
         "permissions": [
           {
-            "id": "personal-permission-other-user-1",
-            "displayName": "personal-other-user-1",
-            "type": "user",
-            "kind": "drive#permission",
-            "photoLink": "https://lh3.googleusercontent.com/a-/personal-other-user-1=s64",
-            "emailAddress": "personal-other-user-1@example.com",
-            "role": "writer",
-            "deleted": false,
-            "pendingOwner": false
-          },
-          {
             "id": "personal-permission-current-user",
             "displayName": "personal-current-user",
             "type": "user",
@@ -209,13 +242,9 @@
         "id": "personal-file-level2-004",
         "name": "Entry Level 2 - File 4",
         "createdTime": "2023-03-23T12:01:15.595Z",
-        "modifiedTime": "2023-04-30T05:02:54.179Z",
+        "modifiedTime": "2023-05-06T12:06:15.950Z",
         "quotaBytesUsed": "1024",
-        "properties": {
-          "CustomFileMoverOriginalFileId": "personal-file-level2-003"
-        },
         "permissionIds": [
-          "personal-permission-other-user-1",
           "personal-permission-current-user"
         ]
       }
