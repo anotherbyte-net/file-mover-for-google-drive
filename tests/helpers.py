@@ -88,7 +88,7 @@ def compare_logs(actual_logs_raw, name: str, reports_paths: list[pathlib.Path]) 
                 i["message"] = f"Writing {report_type} report '{reports_path.name}'."
         expected_logs[index] = (int(i.get("level")), i.get("message"))
 
-    assert expected_logs == actual_logs
+    assert actual_logs == expected_logs
 
 
 class FileMoverHttpMock(http.HttpMock):

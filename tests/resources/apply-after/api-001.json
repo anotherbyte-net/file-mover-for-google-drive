@@ -1,0 +1,51 @@
+{
+  "request": {
+    "method": "GET",
+    "body": null,
+    "methodId": "drive.files.get",
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-folder-level2-001?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions&alt=json"
+  },
+  "response": {
+    "id": "personal-folder-level2-001",
+    "name": "Entry Level 2 - Folder 1",
+    "mimeType": "application/vnd.google-apps.folder",
+    "parents": [
+      "personal-folder-level1-001"
+    ],
+    "properties": {
+      "CustomFileMoverCopyFileId": "personal-folder-level2-002"
+    },
+    "webViewLink": "https://drive.google.com/drive/folders/personal-folder-level2-001",
+    "createdTime": "2023-03-25T09:39:51.770Z",
+    "modifiedTime": "2023-05-06T11:48:09.840Z",
+    "permissions": [
+      {
+        "kind": "drive#permission",
+        "id": "personal-permission-current-user",
+        "type": "user",
+        "emailAddress": "personal-current-user@example.com",
+        "role": "writer",
+        "displayName": "personal-current-user",
+        "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+        "deleted": false,
+        "pendingOwner": false
+      },
+      {
+        "kind": "drive#permission",
+        "id": "personal-permission-other-user-1",
+        "type": "user",
+        "emailAddress": "personal-other-user-1@example.com",
+        "role": "owner",
+        "displayName": "personal-other-user-1",
+        "photoLink": "https://lh3.googleusercontent.com/a-/personal-other-user-1=s64",
+        "deleted": false,
+        "pendingOwner": false
+      }
+    ],
+    "permissionIds": [
+      "personal-permission-current-user",
+      "personal-permission-other-user-1"
+    ],
+    "quotaBytesUsed": "0"
+  }
+}

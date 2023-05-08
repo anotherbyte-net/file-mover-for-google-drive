@@ -31,7 +31,7 @@ entries:
       - "personal-permission-current-user": "writer"
       - "personal-other-user-1": "owner"
 
-  - name: "Entry Level 2 - Folder 2"
+  - name: "Entry Level 2 - Folder 1"
     id: "personal-folder-level2-002"
     parent_id: "personal-folder-level1-001"
     permissions:

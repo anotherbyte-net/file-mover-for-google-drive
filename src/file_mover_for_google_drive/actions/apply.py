@@ -91,7 +91,7 @@ class Apply(manage.BaseManage):
 
         rpt_item = self._apply_plan(plan)
 
-        logger.info(f"==> Outcome: {str(rpt_item)}")
+        logger.info(f"==> Outcome: {str(rpt_item)}.")
 
         row = dataclasses.asdict(rpt_item)
         row["result_name"] = row["result_name"].name
@@ -121,7 +121,7 @@ class Apply(manage.BaseManage):
             "result_description": result_description,
         }
 
-        logger.info(f"Applying plan '{str(plan)}'.")
+        logger.info(f"Applying plan {str(plan)}.")
 
         # apply plan
         if item_action == models.PlanReportActions.CREATE_FOLDER:
@@ -166,7 +166,7 @@ class Apply(manage.BaseManage):
                     **params,
                     "result_name": models.PlanReportOutcomes.SKIPPED,
                     "result_description": "Folder already exists: "
-                    f"{str(entry_other)}'.",
+                    f"{str(entry_other)}.",
                 }
             )
 
@@ -207,7 +207,7 @@ class Apply(manage.BaseManage):
                 **{
                     **params,
                     "result_name": models.PlanReportOutcomes.SKIPPED,
-                    "result_description": f"File already exists: {str(entry_other)}'.",
+                    "result_description": f"File already exists: {str(entry_other)}.",
                 }
             )
 
