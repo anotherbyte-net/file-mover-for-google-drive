@@ -536,6 +536,8 @@ class GoogleDriveEntry(BaseModel):
     that are private to the requesting app."""
     permissions_all: list[GoogleDrivePermission]
     """A list of permissions, normalised for both personal and business accounts."""
+    trashed: bool
+    """Whether the file has been trashed. Only the owner may trash a file."""
     account: ConfigAccount
     """The account that contains this file or folder."""
     view_link: typing.Optional[str] = None
@@ -620,6 +622,7 @@ class GoogleDriveEntry(BaseModel):
         params["name_original"] = data.get("originalFilename")
         params["properties_shared"] = data.get("properties", {})
         params["properties_app"] = data.get("appProperties", {})
+        params["trashed"] = data.get("trashed", None)
 
         # drive_id = data.get("driveId")
         # """ID of the shared drive the file resides in.
@@ -640,6 +643,10 @@ class GoogleDriveEntry(BaseModel):
             raise ValueError([included_permissions, permission_ids])
         if permission_ids != [i.entry_id for i in permissions_list]:
             raise ValueError([permissions_list, permission_ids])
+
+        is_trashed = params.get("trashed")
+        if is_trashed is not True and is_trashed is not False:
+            raise ValueError(f"Invalid value for 'trashed': {is_trashed}.")
 
         if has_augmented_permissions:
             raise ValueError(data)
@@ -741,6 +748,7 @@ class GoogleDriveEntry(BaseModel):
                 "createdTime",
                 "modifiedTime",
                 "hasAugmentedPermissions",
+                "trashed",
             ]
         )
 

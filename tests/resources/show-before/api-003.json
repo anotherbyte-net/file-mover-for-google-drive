@@ -3,7 +3,7 @@
     "method": "GET",
     "body": null,
     "methodId": "drive.files.list",
-    "uri": "https://www.googleapis.com/drive/v3/files?spaces=drive&q=%27personal-folder-level0%27+in+parents+and+trashed%3Dfalse&fields=nextPageToken%2Cfiles%28id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%29&pageSize=1000&orderBy=folder%2Cname&corpora=user&includeItemsFromAllDrives=false&supportsAllDrives=false&alt=json"
+    "uri": "https://www.googleapis.com/drive/v3/files?spaces=drive&q=%27personal-folder-level0%27+in+parents+and+trashed%3Dfalse&fields=nextPageToken%2Cfiles%28id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%2Ctrashed%29&pageSize=1000&orderBy=folder%2Cname&corpora=user&includeItemsFromAllDrives=false&supportsAllDrives=false&alt=json"
   },
   "response": {
     "files": [
@@ -33,7 +33,8 @@
         "quotaBytesUsed": "0",
         "permissionIds": [
           "personal-permission-current-user"
-        ]
+        ],
+        "trashed": false
       },
       {
         "mimeType": "application/pdf",
@@ -64,7 +65,8 @@
         "permissionIds": [
           "personal-permission-current-user"
         ],
-        "sha256Checksum": "ca86f4f1bcd8d06088837f7cf6df8467f3f4bde694642fc8f72b7239303071fa"
+        "sha256Checksum": "ca86f4f1bcd8d06088837f7cf6df8467f3f4bde694642fc8f72b7239303071fa",
+        "trashed": false
       }
     ]
   }

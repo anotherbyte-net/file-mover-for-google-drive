@@ -386,7 +386,12 @@ class GoogleDriveContainer:
 
         entry_id = original_entry.entry_id
         key = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
-        body = {"properties": {key: new_entry.entry_id}}
+        body = {
+            "properties": {
+                **original_entry.properties_shared,
+                key: new_entry.entry_id,
+            }
+        }
         fields = self._entry_fields
         operation = self._api.files_update(fileId=entry_id, body=body, fields=fields)
         return operation
@@ -657,23 +662,30 @@ class GoogleDriveActions:
         account_id = account.account_id
         entry_is_owned = entry.is_owned_by(account_id)
 
+        key_copy = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
+        key_orig = models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value
+
         if entry_is_owned:
             # if the entry is owned (might be a copy),
             # see if there is an original that is not owned
-            prop_key = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
+            prop_key = key_copy
+
+            # check the found original (unowned) entry's property
+            pair_key = key_orig
 
         else:
             # if the entry is not owned (the original),
             # see if there is a copy that is owned
-            prop_key = (
-                models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value
-            )
+            prop_key = key_orig
+
+            # check the found copy (owned) entry's property
+            pair_key = key_copy
 
         if not prop_key:
             return None
 
+        # get the pair
         prop_value = entry.entry_id
-
         request = container.get_entries_by_property(prop_key, prop_value)
 
         entries = []
@@ -687,10 +699,26 @@ class GoogleDriveActions:
                 f"More than one match for property '{prop_key}={prop_value}'."
             )
 
-        if entry_count == 1:
-            return entries[0]
+        if entry_count < 1:
+            return None
 
-        return None
+        # found the pair
+        pair_entry = entries[0]
+
+        # check that the pair has the expected id stored in the entry
+        expected_pair_id = entry.properties_shared.get(pair_key)
+        actual_pair_id = pair_entry.entry_id
+
+        if expected_pair_id != actual_pair_id:
+            raise ValueError(
+                f"Found pair does not have the expected property. "
+                f"Entry {str(entry)}. "
+                f"Pair {str(pair_entry)}. "
+                f"Expected '{pair_key}={expected_pair_id}'. "
+                f"Actual '{pair_key}={actual_pair_id}'."
+            )
+
+        return pair_entry
 
     def create_folder(
         self, entry: models.GoogleDriveEntry
@@ -798,6 +826,10 @@ class GoogleDriveActions:
         entry_id = entry_data.get("id")
         if not entry_id:
             raise ValueError("Require an entry id to get the entry details.")
+
+        is_trashed = entry_data.get("trashed")
+        if is_trashed is not False:
+            raise ValueError("Cannot work with an entry that is trashed.")
 
         # get the full permissions list for the entry
         request = container.get_permissions(entry_id)

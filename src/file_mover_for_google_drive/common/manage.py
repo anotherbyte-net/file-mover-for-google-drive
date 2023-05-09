@@ -23,6 +23,7 @@ class BaseManage(abc.ABC):
     def __init__(
         self,
         config: models.ConfigProgram,
+        allow_modify: bool = False,
         gd_client: typing.Optional[client.GoogleApiClient] = None,
     ) -> None:
         """
@@ -30,10 +31,14 @@ class BaseManage(abc.ABC):
 
         Args:
             config: The configuration for this action.
+            allow_modify: True to allow modifying the Google Drive content.
+                Default false.
             gd_client: The Google Drive client. Used for testing.
         """
         if not gd_client:
-            gd_client = client.GoogleApiClient.get_drive_client(config)
+            gd_client = client.GoogleApiClient.get_drive_client(
+                config=config, allow_modify=allow_modify
+            )
 
         self._config = config
         self._client = gd_client

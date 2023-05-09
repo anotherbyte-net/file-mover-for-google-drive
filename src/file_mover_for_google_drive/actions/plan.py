@@ -4,7 +4,7 @@ import dataclasses
 import logging
 import typing
 
-from file_mover_for_google_drive.common import manage, models, report
+from file_mover_for_google_drive.common import manage, models, report, client
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +14,14 @@ class Plan(manage.BaseManage):
     Build a plan for making changes to two Google Drive accounts,
     one personal and one business.
     """
+
+    def __init__(
+        self,
+        config: models.ConfigProgram,
+        gd_client: typing.Optional[client.GoogleApiClient] = None,
+    ) -> None:
+        """Create a new Apply instance."""
+        super().__init__(config=config, allow_modify=False, gd_client=gd_client)
 
     def run(self) -> bool:
         """Run the 'apply' action."""
@@ -121,9 +129,6 @@ class Plan(manage.BaseManage):
 
         config = self._config
         actions = self._actions
-        cache = self._cache
-
-        key_copy = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
 
         account = config.account
         account_id = account.account_id
@@ -139,7 +144,7 @@ class Plan(manage.BaseManage):
 
         is_owned = entry.is_owned_by(account_id)
         if is_owned:
-            logging.debug("Will never copy an owned file or folder.")
+            logger.debug("Will never copy an owned file or folder.")
             return
 
         # only assess unowned entries - folders
@@ -155,12 +160,15 @@ class Plan(manage.BaseManage):
 
             # check if there is already another folder
             # with the same parent and same name
-            other_entry = self._get_owned_entry(entry)
+
+            # is there another entry that has a property that indicates that this
+            # entry is it's original?
+            owned_entry = actions.get_pair_copy_entry(entry)
 
             # if there is not another of the folder, then create one
             # otherwise, just log the existence of the copy.
-            if other_entry:
-                logging.debug(
+            if owned_entry:
+                logger.info(
                     "Found existing copy of folder '%s' at '%s'.",
                     entry.name,
                     parent_path_str,
@@ -190,18 +198,21 @@ class Plan(manage.BaseManage):
                 return
 
             # check if there is already a copy of the file
-            other_entry = self._get_owned_entry(entry)
 
-            if other_entry and other_entry.is_dir:
+            # is there another entry that has a property that indicates that this
+            # entry is it's original?
+            owned_entry = actions.get_pair_copy_entry(entry)
+
+            if owned_entry and owned_entry.is_dir:
                 raise ValueError(
                     f"Searched for copy of {str(entry)}. "
-                    f"Match was not a file: {str(other_entry)}."
+                    f"Match was not a file: {str(owned_entry)}."
                 )
 
             # if there is not a copy of the file, then copy it
             # otherwise, just log the existence of the copy.
-            if other_entry:
-                logging.debug(
+            if owned_entry:
+                logger.info(
                     "Found existing copy of file '%s' at '%s'.",
                     entry.name,
                     parent_path_str,
@@ -351,7 +362,6 @@ class Plan(manage.BaseManage):
 
         account_type_personal = models.GoogleDriveAccountTypeOptions.PERSONAL
         role_owner = models.GoogleDrivePermissionRoleOptions.OWNER
-        key_copy = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
 
         config = self._config
         actions = self._actions
@@ -370,21 +380,24 @@ class Plan(manage.BaseManage):
 
         is_parent_owned = parent.is_owned_by(account_id)
         if is_parent_owned:
-            logging.debug("Will never move files and folders in an owned folder.")
+            logger.debug("Will never move files and folders in an owned folder.")
             return
 
         is_entry_owned = entry.is_owned_by(account_id)
         if not is_entry_owned:
             # check for an owned copy of the entry
-            other_entry = self._get_owned_entry(entry)
+
+            # is there another entry that has a property that indicates that this
+            # entry is it's original?
+            owned_entry = actions.get_pair_copy_entry(entry)
 
             # if there is an owned copy of the entry,
             # check if the owned copy needs to be moved
-            if other_entry:
-                other_parent = actions.get_entry(other_entry.parent_id)
+            if owned_entry:
+                other_parent = actions.get_entry(owned_entry.parent_id)
                 is_other_parent_owned = other_parent.is_owned_by(account_id)
                 if is_other_parent_owned:
-                    logging.debug(
+                    logger.debug(
                         "Unowned file or folder has an owned copy "
                         "and the copy has already been moved."
                     )
@@ -408,25 +421,3 @@ class Plan(manage.BaseManage):
             user_access=role_owner,
             entry_path=parent_path_str,
         )
-
-    def _get_owned_entry(
-        self, unowned_entry: models.GoogleDriveEntry
-    ) -> typing.Optional[models.GoogleDriveEntry]:
-        key_copy = models.GoogleDrivePropertyKeyOptions.CUSTOM_COPY_FILE_ID.value
-
-        cache = self._cache
-        actions = self._actions
-
-        # does this entry have the property that indicates there is a copy?
-        prop_copy_entry_id = unowned_entry.properties_shared.get(key_copy)
-        if prop_copy_entry_id:
-            owned_entry = cache.get(prop_copy_entry_id)
-            if not owned_entry:
-                owned_entry = actions.get_entry(prop_copy_entry_id)
-
-        else:
-            # is there another entry that has a property that indicates that this
-            # entry is it's original?
-            owned_entry = actions.get_pair_copy_entry(unowned_entry)
-
-        return owned_entry

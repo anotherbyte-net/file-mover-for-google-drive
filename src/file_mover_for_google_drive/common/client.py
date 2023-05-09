@@ -81,6 +81,7 @@ class GoogleApiClient:
     def get_drive_client(
         cls,
         config: models.ConfigProgram,
+        allow_modify: bool = False,
         scopes_additional: typing.Optional[list[str]] = None,
         client_args_additional: typing.Optional[typing.Mapping] = None,
         existing_client: typing.Optional[discovery.Resource] = None,
@@ -89,6 +90,8 @@ class GoogleApiClient:
 
         Args:
             config: The program configuration.
+            allow_modify: True to allow modifying the Google Drive content.
+                Default false.
             scopes_additional: Scopes added to the default scopes.
             client_args_additional: Client settings merged with the defaults (use to
             override defaults).
@@ -97,13 +100,15 @@ class GoogleApiClient:
         Returns:
             A Google API client for Google Drive.
         """
-        scopes = [
-            *(scopes_additional or []),
-            # for listing file metadata
-            "https://www.googleapis.com/auth/drive.metadata.readonly",
+        scopes = [*(scopes_additional or [])]
+
+        if allow_modify:
             # for permission delete, file copy, file update, file create
-            # "https://www.googleapis.com/auth/drive",
-        ]
+            scopes.append("https://www.googleapis.com/auth/drive")
+        else:
+            # for listing file metadata only
+            scopes.append("https://www.googleapis.com/auth/drive.metadata.readonly")
+
         client_args = {
             **(client_args_additional or {}),
             "serviceName": "drive",

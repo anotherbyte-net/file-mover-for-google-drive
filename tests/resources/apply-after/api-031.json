@@ -3,12 +3,12 @@
     "method": "GET",
     "body": null,
     "methodId": "drive.files.get",
-    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-002?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions&alt=json"
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-002?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%2Ctrashed&alt=json"
   },
   "response": {
     "id": "personal-file-level2-002",
     "name": "Copy of Entry Level 2 - File 1.docx",
-    "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+     "trashed": false,"mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "parents": [
       "personal-folder-level1-001"
     ],
@@ -32,7 +32,7 @@
       "personal-permission-current-user"
     ],
     "originalFilename": "Copy of Entry Level 2 - File 1.docx",
-    "sha256Checksum": "a7fa0ee39d3b79d8ca2eb2d0c1326638e38143309bbd23b43523a4a06abedab6",
+    "sha256Checksum": "0c8fd2182f52df40abc4c92a407a54bfe9b3dfed2ab1244b69a2aa181519e4ce",
     "size": "838650",
     "quotaBytesUsed": "838650"
   }

@@ -20,7 +20,7 @@ class Apply(manage.BaseManage):
     ) -> None:
         """Create a new Apply instance."""
 
-        super().__init__(config, gd_client)
+        super().__init__(config=config, allow_modify=True, gd_client=gd_client)
 
         if not plan_name:
             raise ValueError("Must provide plan path.")

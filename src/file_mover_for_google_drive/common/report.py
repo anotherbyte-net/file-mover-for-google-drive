@@ -372,7 +372,26 @@ class PlanReport(BaseReport):
         Returns:
             The field list.
         """
-        return [f.name for f in dataclasses.fields(cls)]
+        return [
+            "item_action",
+            "description",
+            "item_type",
+            "begin_entry_name",
+            "begin_entry_path",
+            "begin_user_name",
+            "begin_user_email",
+            "begin_user_access",
+            "end_entry_name",
+            "end_entry_path",
+            "end_user_name",
+            "end_user_email",
+            "end_user_access",
+            "entry_id",
+            "permission_id",
+            "account_type",
+            "drive_id",
+            "account_id",
+        ]
 
     def __str__(self):
         entry_name = self.begin_entry_name or self.end_entry_name
@@ -415,11 +434,28 @@ class OutcomeReport(PlanReport):
         Returns:
             The field list.
         """
-        result_names = ["result_name", "result_description"]
-        field_names = [
-            f.name for f in dataclasses.fields(cls) if f.name not in result_names
+        return [
+            "result_name",
+            "result_description",
+            "item_action",
+            "description",
+            "item_type",
+            "begin_entry_name",
+            "begin_entry_path",
+            "begin_user_name",
+            "begin_user_email",
+            "begin_user_access",
+            "end_entry_name",
+            "end_entry_path",
+            "end_user_name",
+            "end_user_email",
+            "end_user_access",
+            "entry_id",
+            "permission_id",
+            "account_type",
+            "drive_id",
+            "account_id",
         ]
-        return result_names + field_names
 
     def __str__(self):
         name = self.result_name.name

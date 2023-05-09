@@ -3,12 +3,12 @@
     "method": "GET",
     "body": null,
     "methodId": "drive.files.get",
-    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-004?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions&alt=json"
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-004?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%2Ctrashed&alt=json"
   },
   "response": {
     "id": "personal-file-level2-004",
     "name": "Entry Level 2 - File 4",
-    "mimeType": "application/vnd.google-apps.document",
+     "trashed": false,"mimeType": "application/vnd.google-apps.document",
     "parents": [
       "personal-folder-level1-001"
     ],

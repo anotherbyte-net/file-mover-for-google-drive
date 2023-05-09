@@ -1,8 +1,9 @@
 """The show action."""
 
 import logging
+import typing
 
-from file_mover_for_google_drive.common import manage, report, models
+from file_mover_for_google_drive.common import manage, report, models, client
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +13,14 @@ class Show(manage.BaseManage):
     Show all the folder, files, and permissions in a Google Drive,
     starting at a given personal or business account folder.
     """
+
+    def __init__(
+        self,
+        config: models.ConfigProgram,
+        gd_client: typing.Optional[client.GoogleApiClient] = None,
+    ) -> None:
+        """Create a new Apply instance."""
+        super().__init__(config=config, allow_modify=False, gd_client=gd_client)
 
     def run(self) -> bool:
         """Run the 'show' action."""
