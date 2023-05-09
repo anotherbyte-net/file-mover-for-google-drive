@@ -2,38 +2,55 @@
   "request": {
     "method": "GET",
     "body": null,
-    "methodId": "drive.files.get",
-    "uri": "https://www.googleapis.com/drive/v3/files/personal-folder-level2-002?fields=id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions&alt=json"
+    "methodId": "drive.files.list",
+    "uri": "https://www.googleapis.com/drive/v3/files?spaces=drive&q=%27personal-folder-level2-001%27+in+parents+and+trashed%3Dfalse&fields=nextPageToken%2Cfiles%28id%2Cname%2CoriginalFilename%2CmimeType%2Cparents%2Cpermissions%2CpermissionIds%2CwebViewLink%2Csha256Checksum%2Csize%2CquotaBytesUsed%2Cproperties%2Cdescription%2CcreatedTime%2CmodifiedTime%2ChasAugmentedPermissions%29&pageSize=1000&orderBy=folder%2Cname&corpora=user&includeItemsFromAllDrives=false&supportsAllDrives=false&alt=json"
   },
   "response": {
-    "id": "personal-folder-level2-002",
-    "name": "Entry Level 2 - Folder 1",
-    "mimeType": "application/vnd.google-apps.folder",
-    "parents": [
-      "personal-folder-level1-001"
-    ],
-    "properties": {
-      "CustomFileMoverOriginalFileId": "personal-folder-level2-001"
-    },
-    "webViewLink": "https://drive.google.com/drive/folders/personal-folder-level2-002",
-    "createdTime": "2023-03-25T09:39:51.770Z",
-    "modifiedTime": "2023-05-06T11:40:30.103Z",
-    "permissions": [
+    "files": [
       {
-        "kind": "drive#permission",
-        "id": "personal-permission-current-user",
-        "type": "user",
-        "emailAddress": "personal-current-user@example.com",
-        "role": "owner",
-        "displayName": "personal-current-user",
-        "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
-        "deleted": false,
-        "pendingOwner": false
+        "mimeType": "application/vnd.google-apps.document",
+        "parents": [
+          "personal-folder-level2-001"
+        ],
+        "webViewLink": "https://docs.google.com/document/d/personal-file-level3-002/edit?usp=drivesdk",
+        "size": "1024",
+        "permissions": [
+          {
+            "id": "personal-permission-current-user",
+            "displayName": "personal-current-user",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a/personal-current-user=s64",
+            "emailAddress": "personal-current-user@example.com",
+            "role": "writer",
+            "deleted": false,
+            "pendingOwner": false
+          },
+          {
+            "id": "personal-permission-other-user-1",
+            "displayName": "personal-other-user-1",
+            "type": "user",
+            "kind": "drive#permission",
+            "photoLink": "https://lh3.googleusercontent.com/a-/ACB-R5TrXkvEC5oO-MpZPtdA-ePPyxp59euQOcX_Vs4wUw=s64",
+            "emailAddress": "personal-other-user-1@example.com",
+            "role": "owner",
+            "deleted": false,
+            "pendingOwner": false
+          }
+        ],
+        "id": "personal-file-level3-002",
+        "name": "Entry Level 3 - File 2",
+        "createdTime": "2023-03-25T10:39:58.942Z",
+        "modifiedTime": "2023-05-06T12:06:04.643Z",
+        "quotaBytesUsed": "1024",
+        "properties": {
+          "CustomFileMoverCopyFileId": "personal-file-level3-003"
+        },
+        "permissionIds": [
+          "personal-permission-current-user",
+          "personal-permission-other-user-1"
+        ]
       }
-    ],
-    "permissionIds": [
-      "personal-permission-current-user"
-    ],
-    "quotaBytesUsed": "0"
+    ]
   }
 }

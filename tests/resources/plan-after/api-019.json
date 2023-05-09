@@ -3,7 +3,7 @@
     "method": "GET",
     "body": null,
     "methodId": "drive.permissions.list",
-    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-005/permissions?fields=nextPageToken%2Cpermissions%28id%2Ctype%2CemailAddress%2Cdomain%2Crole%2CdisplayName%2CpermissionDetails%29&useDomainAdminAccess=false&alt=json"
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-004/permissions?fields=nextPageToken%2Cpermissions%28id%2Ctype%2CemailAddress%2Cdomain%2Crole%2CdisplayName%2CpermissionDetails%29&useDomainAdminAccess=false&alt=json"
   },
   "response": {
     "permissions": [

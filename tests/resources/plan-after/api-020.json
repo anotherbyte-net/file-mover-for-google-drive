@@ -3,7 +3,7 @@
     "method": "GET",
     "body": null,
     "methodId": "drive.permissions.list",
-    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-003/permissions?fields=nextPageToken%2Cpermissions%28id%2Ctype%2CemailAddress%2Cdomain%2Crole%2CdisplayName%2CpermissionDetails%29&useDomainAdminAccess=false&alt=json"
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level1-001/permissions?fields=nextPageToken%2Cpermissions%28id%2Ctype%2CemailAddress%2Cdomain%2Crole%2CdisplayName%2CpermissionDetails%29&useDomainAdminAccess=false&alt=json"
   },
   "response": {
     "permissions": [
@@ -12,13 +12,6 @@
         "displayName": "personal-current-user",
         "type": "user",
         "emailAddress": "personal-current-user@example.com",
-        "role": "writer"
-      },
-      {
-        "id": "personal-permission-other-user-1",
-        "displayName": "personal-other-user-1",
-        "type": "user",
-        "emailAddress": "personal-other-user-1@example.com",
         "role": "owner"
       }
     ]
