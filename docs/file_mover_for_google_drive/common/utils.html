@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 13.1.0"/>
+    <meta name="generator" content="pdoc 13.1.1"/>
     <title>file_mover_for_google_drive.common.utils API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -41,6 +41,9 @@
             </li>
             <li>
                     <a class="function" href="#get_version">get_version</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_test_resources">get_test_resources</a>
             </li>
             <li>
                     <a class="class" href="#GracefulExit">GracefulExit</a>
@@ -103,7 +106,7 @@
                         <label class="view-source-button" for="mod-utils-view-source"><span>View Source</span></label>
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">&quot;&quot;&quot;Utility functions.&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">import</span> <span class="nn">pathlib</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">import</span> <span class="nn">signal</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="kn">import</span> <span class="nn">logging</span>
 </span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">import</span> <span class="nn">typing</span>
@@ -151,129 +154,138 @@
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">return</span> <span class="kc">None</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="k">class</span> <span class="nc">GracefulExit</span><span class="p">:</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture Ctrl + C (default KeyboardInterrupt)</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    via SIGINT and allow graceful exit.&quot;&quot;&quot;</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="c1"># https://stackoverflow.com/a/57649638/31567</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new graceful exit instance.&quot;&quot;&quot;</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="c1"># when a SIGINT occurs, run the change_state method</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]</span>  <span class="c1"># noqa: U100</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;When a SIGINT occurs, indicate that the program should exit.</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">        Args:</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">            signum: The signal number.</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">            frame: The current stack frame.</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="k">def</span> <span class="nf">get_test_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get resources for tests.&quot;&quot;&quot;</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>    <span class="n">package</span> <span class="o">=</span> <span class="n">get_name_under</span><span class="p">()</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="n">sub_path</span> <span class="o">=</span> <span class="s2">&quot;../../tests/resources&quot;</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">full_path</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">sub_path</span><span class="p">)</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_path</span><span class="p">:</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>        <span class="k">return</span> <span class="n">file_path</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="k">class</span> <span class="nc">GracefulExit</span><span class="p">:</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture Ctrl + C (default KeyboardInterrupt)</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">    via SIGINT and allow graceful exit.&quot;&quot;&quot;</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>    <span class="c1"># https://stackoverflow.com/a/57649638/31567</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new graceful exit instance.&quot;&quot;&quot;</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>        <span class="c1"># when a SIGINT occurs, run the change_state method</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">        Returns:</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">            None</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE: Detected request to exit. Program will gracefully exit.&quot;</span><span class="p">)</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Repeat the request to exit to stop immediately. &quot;</span><span class="p">)</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="nb">print</span><span class="p">(</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>            <span class="s2">&quot;WARNING: Stopping immediately might cause files, folders, &quot;</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>            <span class="s2">&quot;or reports to end up in an inconsistent state.&quot;</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>        <span class="p">)</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]</span>  <span class="c1"># noqa: W0613</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;When a SIGINT occurs, indicate that the program should exit.</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a><span class="sd">        Args:</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="sd">            signum: The signal number.</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a><span class="sd">            frame: The current stack frame.</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="sd">        Returns:</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">            None</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="c1"># change to perform the default function for the signal</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="c1"># set the flag to indicate the program should exit</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="k">def</span> <span class="nf">should_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Should the code exit early?</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE: Detected request to exit. Program will gracefully exit.&quot;</span><span class="p">)</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Repeat the request to exit to stop immediately. &quot;</span><span class="p">)</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="nb">print</span><span class="p">(</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>            <span class="s2">&quot;WARNING: Stopping immediately might cause files, folders, &quot;</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>            <span class="s2">&quot;or reports to end up in an inconsistent state.&quot;</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>        <span class="p">)</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a><span class="sd">        Returns:</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="sd">            True to exit early.</span>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="c1"># change to perform the default function for the signal</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>        <span class="c1"># set the flag to indicate the program should exit</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
 </span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="k">class</span> <span class="nc">GoogleDriveEntryCache</span><span class="p">:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A cache for Google Drive file and folder metadata.&quot;&quot;&quot;</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>    <span class="k">def</span> <span class="nf">should_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Should the code exit early?</span>
 </span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Google Drive entry cache instance.</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">        Args:</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">            top_folder_id: The top folder id.</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span> <span class="o">=</span> <span class="n">top_folder_id</span>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        Returns:</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">            True to exit early.</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="k">class</span> <span class="nc">GoogleDriveEntryCache</span><span class="p">:</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A cache for Google Drive file and folder metadata.&quot;&quot;&quot;</span>
 </span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an entry to the cache.</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Google Drive entry cache instance.</span>
 </span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
 </span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">        Args:</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">            entry: The entry object to add to the cache.</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="sd">        Returns:</span>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">            None</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entry from the cache.</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        Args:</span>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">            entry_id: The entry id to get.</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        Returns:</span>
-</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a><span class="sd">            The entry object with the given id or None if it was not found.</span>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>            <span class="k">return</span> <span class="kc">None</span>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>        <span class="k">return</span> <span class="n">result</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an entry from the cache.</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">        Args:</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a><span class="sd">            entry_id: The entry id to delete.</span>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a><span class="sd">        Returns:</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a><span class="sd">            The deleted instance or None if the id was not found.</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">entry_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full path to the given entry id.</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="sd">        Args:</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="sd">            entry_id: Get the full path of this entry id.</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">        Returns:</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">            The full path represented by the entry objects.</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>        <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry_id</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry id &#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span><span class="p">:</span>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>                <span class="k">break</span>
-</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>
-</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>            <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parent_id</span>
-</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>
-</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>        <span class="k">return</span> <span class="n">result</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">            top_folder_id: The top folder id.</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span> <span class="o">=</span> <span class="n">top_folder_id</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an entry to the cache.</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">        Args:</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">            entry: The entry object to add to the cache.</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        Returns:</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a><span class="sd">            None</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entry from the cache.</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="sd">        Args:</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">            entry_id: The entry id to get.</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">        Returns:</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">            The entry object with the given id or None if it was not found.</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>        <span class="k">return</span> <span class="n">result</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an entry from the cache.</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="sd">        Args:</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">            entry_id: The entry id to delete.</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="sd">        Returns:</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a><span class="sd">            The deleted instance or None if the id was not found.</span>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">entry_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full path to the given entry id.</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a><span class="sd">        Args:</span>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a><span class="sd">            entry_id: Get the full path of this entry id.</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a><span class="sd">        Returns:</span>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a><span class="sd">            The full path represented by the entry objects.</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>        <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry_id</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a>            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry id &#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span><span class="p">:</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>                <span class="k">break</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>            <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parent_id</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
@@ -381,6 +393,32 @@
 
 
                 </section>
+                <section id="get_test_resources">
+                            <input id="get_test_resources-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_test_resources</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span>:</span></span>
+
+                <label class="view-source-button" for="get_test_resources-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#get_test_resources"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_test_resources-51"><a href="#get_test_resources-51"><span class="linenos">51</span></a><span class="k">def</span> <span class="nf">get_test_resources</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+</span><span id="get_test_resources-52"><a href="#get_test_resources-52"><span class="linenos">52</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get resources for tests.&quot;&quot;&quot;</span>
+</span><span id="get_test_resources-53"><a href="#get_test_resources-53"><span class="linenos">53</span></a>    <span class="n">package</span> <span class="o">=</span> <span class="n">get_name_under</span><span class="p">()</span>
+</span><span id="get_test_resources-54"><a href="#get_test_resources-54"><span class="linenos">54</span></a>    <span class="n">sub_path</span> <span class="o">=</span> <span class="s2">&quot;../../tests/resources&quot;</span>
+</span><span id="get_test_resources-55"><a href="#get_test_resources-55"><span class="linenos">55</span></a>    <span class="n">full_path</span> <span class="o">=</span> <span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">package</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">sub_path</span><span class="p">)</span>
+</span><span id="get_test_resources-56"><a href="#get_test_resources-56"><span class="linenos">56</span></a>    <span class="k">with</span> <span class="n">resources</span><span class="o">.</span><span class="n">as_file</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">file_path</span><span class="p">:</span>
+</span><span id="get_test_resources-57"><a href="#get_test_resources-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="n">file_path</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Get resources for tests.</p>
+</div>
+
+
+                </section>
                 <section id="GracefulExit">
                             <input id="GracefulExit-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr class">
@@ -392,54 +430,54 @@
 
     </div>
     <a class="headerlink" href="#GracefulExit"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit-51"><a href="#GracefulExit-51"><span class="linenos">51</span></a><span class="k">class</span> <span class="nc">GracefulExit</span><span class="p">:</span>
-</span><span id="GracefulExit-52"><a href="#GracefulExit-52"><span class="linenos">52</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture Ctrl + C (default KeyboardInterrupt)</span>
-</span><span id="GracefulExit-53"><a href="#GracefulExit-53"><span class="linenos">53</span></a><span class="sd">    via SIGINT and allow graceful exit.&quot;&quot;&quot;</span>
-</span><span id="GracefulExit-54"><a href="#GracefulExit-54"><span class="linenos">54</span></a>
-</span><span id="GracefulExit-55"><a href="#GracefulExit-55"><span class="linenos">55</span></a>    <span class="c1"># https://stackoverflow.com/a/57649638/31567</span>
-</span><span id="GracefulExit-56"><a href="#GracefulExit-56"><span class="linenos">56</span></a>
-</span><span id="GracefulExit-57"><a href="#GracefulExit-57"><span class="linenos">57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="GracefulExit-58"><a href="#GracefulExit-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new graceful exit instance.&quot;&quot;&quot;</span>
-</span><span id="GracefulExit-59"><a href="#GracefulExit-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span id="GracefulExit-60"><a href="#GracefulExit-60"><span class="linenos">60</span></a>        <span class="c1"># when a SIGINT occurs, run the change_state method</span>
-</span><span id="GracefulExit-61"><a href="#GracefulExit-61"><span class="linenos">61</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
-</span><span id="GracefulExit-62"><a href="#GracefulExit-62"><span class="linenos">62</span></a>
-</span><span id="GracefulExit-63"><a href="#GracefulExit-63"><span class="linenos">63</span></a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span>
-</span><span id="GracefulExit-64"><a href="#GracefulExit-64"><span class="linenos">64</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]</span>  <span class="c1"># noqa: U100</span>
-</span><span id="GracefulExit-65"><a href="#GracefulExit-65"><span class="linenos">65</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="GracefulExit-66"><a href="#GracefulExit-66"><span class="linenos">66</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;When a SIGINT occurs, indicate that the program should exit.</span>
-</span><span id="GracefulExit-67"><a href="#GracefulExit-67"><span class="linenos">67</span></a>
-</span><span id="GracefulExit-68"><a href="#GracefulExit-68"><span class="linenos">68</span></a><span class="sd">        Args:</span>
-</span><span id="GracefulExit-69"><a href="#GracefulExit-69"><span class="linenos">69</span></a><span class="sd">            signum: The signal number.</span>
-</span><span id="GracefulExit-70"><a href="#GracefulExit-70"><span class="linenos">70</span></a><span class="sd">            frame: The current stack frame.</span>
-</span><span id="GracefulExit-71"><a href="#GracefulExit-71"><span class="linenos">71</span></a>
-</span><span id="GracefulExit-72"><a href="#GracefulExit-72"><span class="linenos">72</span></a><span class="sd">        Returns:</span>
-</span><span id="GracefulExit-73"><a href="#GracefulExit-73"><span class="linenos">73</span></a><span class="sd">            None</span>
-</span><span id="GracefulExit-74"><a href="#GracefulExit-74"><span class="linenos">74</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GracefulExit-75"><a href="#GracefulExit-75"><span class="linenos">75</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit-76"><a href="#GracefulExit-76"><span class="linenos">76</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit-77"><a href="#GracefulExit-77"><span class="linenos">77</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE: Detected request to exit. Program will gracefully exit.&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit-78"><a href="#GracefulExit-78"><span class="linenos">78</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Repeat the request to exit to stop immediately. &quot;</span><span class="p">)</span>
-</span><span id="GracefulExit-79"><a href="#GracefulExit-79"><span class="linenos">79</span></a>        <span class="nb">print</span><span class="p">(</span>
-</span><span id="GracefulExit-80"><a href="#GracefulExit-80"><span class="linenos">80</span></a>            <span class="s2">&quot;WARNING: Stopping immediately might cause files, folders, &quot;</span>
-</span><span id="GracefulExit-81"><a href="#GracefulExit-81"><span class="linenos">81</span></a>            <span class="s2">&quot;or reports to end up in an inconsistent state.&quot;</span>
-</span><span id="GracefulExit-82"><a href="#GracefulExit-82"><span class="linenos">82</span></a>        <span class="p">)</span>
-</span><span id="GracefulExit-83"><a href="#GracefulExit-83"><span class="linenos">83</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit-84"><a href="#GracefulExit-84"><span class="linenos">84</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit-85"><a href="#GracefulExit-85"><span class="linenos">85</span></a>
-</span><span id="GracefulExit-86"><a href="#GracefulExit-86"><span class="linenos">86</span></a>        <span class="c1"># change to perform the default function for the signal</span>
-</span><span id="GracefulExit-87"><a href="#GracefulExit-87"><span class="linenos">87</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
-</span><span id="GracefulExit-88"><a href="#GracefulExit-88"><span class="linenos">88</span></a>
-</span><span id="GracefulExit-89"><a href="#GracefulExit-89"><span class="linenos">89</span></a>        <span class="c1"># set the flag to indicate the program should exit</span>
-</span><span id="GracefulExit-90"><a href="#GracefulExit-90"><span class="linenos">90</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
-</span><span id="GracefulExit-91"><a href="#GracefulExit-91"><span class="linenos">91</span></a>
-</span><span id="GracefulExit-92"><a href="#GracefulExit-92"><span class="linenos">92</span></a>    <span class="k">def</span> <span class="nf">should_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="GracefulExit-93"><a href="#GracefulExit-93"><span class="linenos">93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Should the code exit early?</span>
-</span><span id="GracefulExit-94"><a href="#GracefulExit-94"><span class="linenos">94</span></a>
-</span><span id="GracefulExit-95"><a href="#GracefulExit-95"><span class="linenos">95</span></a><span class="sd">        Returns:</span>
-</span><span id="GracefulExit-96"><a href="#GracefulExit-96"><span class="linenos">96</span></a><span class="sd">            True to exit early.</span>
-</span><span id="GracefulExit-97"><a href="#GracefulExit-97"><span class="linenos">97</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GracefulExit-98"><a href="#GracefulExit-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit-60"><a href="#GracefulExit-60"><span class="linenos"> 60</span></a><span class="k">class</span> <span class="nc">GracefulExit</span><span class="p">:</span>
+</span><span id="GracefulExit-61"><a href="#GracefulExit-61"><span class="linenos"> 61</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture Ctrl + C (default KeyboardInterrupt)</span>
+</span><span id="GracefulExit-62"><a href="#GracefulExit-62"><span class="linenos"> 62</span></a><span class="sd">    via SIGINT and allow graceful exit.&quot;&quot;&quot;</span>
+</span><span id="GracefulExit-63"><a href="#GracefulExit-63"><span class="linenos"> 63</span></a>
+</span><span id="GracefulExit-64"><a href="#GracefulExit-64"><span class="linenos"> 64</span></a>    <span class="c1"># https://stackoverflow.com/a/57649638/31567</span>
+</span><span id="GracefulExit-65"><a href="#GracefulExit-65"><span class="linenos"> 65</span></a>
+</span><span id="GracefulExit-66"><a href="#GracefulExit-66"><span class="linenos"> 66</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GracefulExit-67"><a href="#GracefulExit-67"><span class="linenos"> 67</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new graceful exit instance.&quot;&quot;&quot;</span>
+</span><span id="GracefulExit-68"><a href="#GracefulExit-68"><span class="linenos"> 68</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="GracefulExit-69"><a href="#GracefulExit-69"><span class="linenos"> 69</span></a>        <span class="c1"># when a SIGINT occurs, run the change_state method</span>
+</span><span id="GracefulExit-70"><a href="#GracefulExit-70"><span class="linenos"> 70</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
+</span><span id="GracefulExit-71"><a href="#GracefulExit-71"><span class="linenos"> 71</span></a>
+</span><span id="GracefulExit-72"><a href="#GracefulExit-72"><span class="linenos"> 72</span></a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span>
+</span><span id="GracefulExit-73"><a href="#GracefulExit-73"><span class="linenos"> 73</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]</span>  <span class="c1"># noqa: W0613</span>
+</span><span id="GracefulExit-74"><a href="#GracefulExit-74"><span class="linenos"> 74</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GracefulExit-75"><a href="#GracefulExit-75"><span class="linenos"> 75</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;When a SIGINT occurs, indicate that the program should exit.</span>
+</span><span id="GracefulExit-76"><a href="#GracefulExit-76"><span class="linenos"> 76</span></a>
+</span><span id="GracefulExit-77"><a href="#GracefulExit-77"><span class="linenos"> 77</span></a><span class="sd">        Args:</span>
+</span><span id="GracefulExit-78"><a href="#GracefulExit-78"><span class="linenos"> 78</span></a><span class="sd">            signum: The signal number.</span>
+</span><span id="GracefulExit-79"><a href="#GracefulExit-79"><span class="linenos"> 79</span></a><span class="sd">            frame: The current stack frame.</span>
+</span><span id="GracefulExit-80"><a href="#GracefulExit-80"><span class="linenos"> 80</span></a>
+</span><span id="GracefulExit-81"><a href="#GracefulExit-81"><span class="linenos"> 81</span></a><span class="sd">        Returns:</span>
+</span><span id="GracefulExit-82"><a href="#GracefulExit-82"><span class="linenos"> 82</span></a><span class="sd">            None</span>
+</span><span id="GracefulExit-83"><a href="#GracefulExit-83"><span class="linenos"> 83</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GracefulExit-84"><a href="#GracefulExit-84"><span class="linenos"> 84</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit-85"><a href="#GracefulExit-85"><span class="linenos"> 85</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit-86"><a href="#GracefulExit-86"><span class="linenos"> 86</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE: Detected request to exit. Program will gracefully exit.&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit-87"><a href="#GracefulExit-87"><span class="linenos"> 87</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Repeat the request to exit to stop immediately. &quot;</span><span class="p">)</span>
+</span><span id="GracefulExit-88"><a href="#GracefulExit-88"><span class="linenos"> 88</span></a>        <span class="nb">print</span><span class="p">(</span>
+</span><span id="GracefulExit-89"><a href="#GracefulExit-89"><span class="linenos"> 89</span></a>            <span class="s2">&quot;WARNING: Stopping immediately might cause files, folders, &quot;</span>
+</span><span id="GracefulExit-90"><a href="#GracefulExit-90"><span class="linenos"> 90</span></a>            <span class="s2">&quot;or reports to end up in an inconsistent state.&quot;</span>
+</span><span id="GracefulExit-91"><a href="#GracefulExit-91"><span class="linenos"> 91</span></a>        <span class="p">)</span>
+</span><span id="GracefulExit-92"><a href="#GracefulExit-92"><span class="linenos"> 92</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit-93"><a href="#GracefulExit-93"><span class="linenos"> 93</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit-94"><a href="#GracefulExit-94"><span class="linenos"> 94</span></a>
+</span><span id="GracefulExit-95"><a href="#GracefulExit-95"><span class="linenos"> 95</span></a>        <span class="c1"># change to perform the default function for the signal</span>
+</span><span id="GracefulExit-96"><a href="#GracefulExit-96"><span class="linenos"> 96</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
+</span><span id="GracefulExit-97"><a href="#GracefulExit-97"><span class="linenos"> 97</span></a>
+</span><span id="GracefulExit-98"><a href="#GracefulExit-98"><span class="linenos"> 98</span></a>        <span class="c1"># set the flag to indicate the program should exit</span>
+</span><span id="GracefulExit-99"><a href="#GracefulExit-99"><span class="linenos"> 99</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="GracefulExit-100"><a href="#GracefulExit-100"><span class="linenos">100</span></a>
+</span><span id="GracefulExit-101"><a href="#GracefulExit-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">should_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="GracefulExit-102"><a href="#GracefulExit-102"><span class="linenos">102</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Should the code exit early?</span>
+</span><span id="GracefulExit-103"><a href="#GracefulExit-103"><span class="linenos">103</span></a>
+</span><span id="GracefulExit-104"><a href="#GracefulExit-104"><span class="linenos">104</span></a><span class="sd">        Returns:</span>
+</span><span id="GracefulExit-105"><a href="#GracefulExit-105"><span class="linenos">105</span></a><span class="sd">            True to exit early.</span>
+</span><span id="GracefulExit-106"><a href="#GracefulExit-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GracefulExit-107"><a href="#GracefulExit-107"><span class="linenos">107</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
 </span></pre></div>
 
 
@@ -458,11 +496,11 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GracefulExit.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit.__init__-57"><a href="#GracefulExit.__init__-57"><span class="linenos">57</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="GracefulExit.__init__-58"><a href="#GracefulExit.__init__-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new graceful exit instance.&quot;&quot;&quot;</span>
-</span><span id="GracefulExit.__init__-59"><a href="#GracefulExit.__init__-59"><span class="linenos">59</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span id="GracefulExit.__init__-60"><a href="#GracefulExit.__init__-60"><span class="linenos">60</span></a>        <span class="c1"># when a SIGINT occurs, run the change_state method</span>
-</span><span id="GracefulExit.__init__-61"><a href="#GracefulExit.__init__-61"><span class="linenos">61</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit.__init__-66"><a href="#GracefulExit.__init__-66"><span class="linenos">66</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GracefulExit.__init__-67"><a href="#GracefulExit.__init__-67"><span class="linenos">67</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new graceful exit instance.&quot;&quot;&quot;</span>
+</span><span id="GracefulExit.__init__-68"><a href="#GracefulExit.__init__-68"><span class="linenos">68</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="GracefulExit.__init__-69"><a href="#GracefulExit.__init__-69"><span class="linenos">69</span></a>        <span class="c1"># when a SIGINT occurs, run the change_state method</span>
+</span><span id="GracefulExit.__init__-70"><a href="#GracefulExit.__init__-70"><span class="linenos">70</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_state</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -482,34 +520,34 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GracefulExit.change_state"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit.change_state-63"><a href="#GracefulExit.change_state-63"><span class="linenos">63</span></a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span>
-</span><span id="GracefulExit.change_state-64"><a href="#GracefulExit.change_state-64"><span class="linenos">64</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]</span>  <span class="c1"># noqa: U100</span>
-</span><span id="GracefulExit.change_state-65"><a href="#GracefulExit.change_state-65"><span class="linenos">65</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="GracefulExit.change_state-66"><a href="#GracefulExit.change_state-66"><span class="linenos">66</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;When a SIGINT occurs, indicate that the program should exit.</span>
-</span><span id="GracefulExit.change_state-67"><a href="#GracefulExit.change_state-67"><span class="linenos">67</span></a>
-</span><span id="GracefulExit.change_state-68"><a href="#GracefulExit.change_state-68"><span class="linenos">68</span></a><span class="sd">        Args:</span>
-</span><span id="GracefulExit.change_state-69"><a href="#GracefulExit.change_state-69"><span class="linenos">69</span></a><span class="sd">            signum: The signal number.</span>
-</span><span id="GracefulExit.change_state-70"><a href="#GracefulExit.change_state-70"><span class="linenos">70</span></a><span class="sd">            frame: The current stack frame.</span>
-</span><span id="GracefulExit.change_state-71"><a href="#GracefulExit.change_state-71"><span class="linenos">71</span></a>
-</span><span id="GracefulExit.change_state-72"><a href="#GracefulExit.change_state-72"><span class="linenos">72</span></a><span class="sd">        Returns:</span>
-</span><span id="GracefulExit.change_state-73"><a href="#GracefulExit.change_state-73"><span class="linenos">73</span></a><span class="sd">            None</span>
-</span><span id="GracefulExit.change_state-74"><a href="#GracefulExit.change_state-74"><span class="linenos">74</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GracefulExit.change_state-75"><a href="#GracefulExit.change_state-75"><span class="linenos">75</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit.change_state-76"><a href="#GracefulExit.change_state-76"><span class="linenos">76</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit.change_state-77"><a href="#GracefulExit.change_state-77"><span class="linenos">77</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE: Detected request to exit. Program will gracefully exit.&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit.change_state-78"><a href="#GracefulExit.change_state-78"><span class="linenos">78</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Repeat the request to exit to stop immediately. &quot;</span><span class="p">)</span>
-</span><span id="GracefulExit.change_state-79"><a href="#GracefulExit.change_state-79"><span class="linenos">79</span></a>        <span class="nb">print</span><span class="p">(</span>
-</span><span id="GracefulExit.change_state-80"><a href="#GracefulExit.change_state-80"><span class="linenos">80</span></a>            <span class="s2">&quot;WARNING: Stopping immediately might cause files, folders, &quot;</span>
-</span><span id="GracefulExit.change_state-81"><a href="#GracefulExit.change_state-81"><span class="linenos">81</span></a>            <span class="s2">&quot;or reports to end up in an inconsistent state.&quot;</span>
-</span><span id="GracefulExit.change_state-82"><a href="#GracefulExit.change_state-82"><span class="linenos">82</span></a>        <span class="p">)</span>
-</span><span id="GracefulExit.change_state-83"><a href="#GracefulExit.change_state-83"><span class="linenos">83</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit.change_state-72"><a href="#GracefulExit.change_state-72"><span class="linenos">72</span></a>    <span class="k">def</span> <span class="nf">change_state</span><span class="p">(</span>
+</span><span id="GracefulExit.change_state-73"><a href="#GracefulExit.change_state-73"><span class="linenos">73</span></a>        <span class="bp">self</span><span class="p">,</span> <span class="n">signum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">types</span><span class="o">.</span><span class="n">FrameType</span><span class="p">]</span>  <span class="c1"># noqa: W0613</span>
+</span><span id="GracefulExit.change_state-74"><a href="#GracefulExit.change_state-74"><span class="linenos">74</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GracefulExit.change_state-75"><a href="#GracefulExit.change_state-75"><span class="linenos">75</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;When a SIGINT occurs, indicate that the program should exit.</span>
+</span><span id="GracefulExit.change_state-76"><a href="#GracefulExit.change_state-76"><span class="linenos">76</span></a>
+</span><span id="GracefulExit.change_state-77"><a href="#GracefulExit.change_state-77"><span class="linenos">77</span></a><span class="sd">        Args:</span>
+</span><span id="GracefulExit.change_state-78"><a href="#GracefulExit.change_state-78"><span class="linenos">78</span></a><span class="sd">            signum: The signal number.</span>
+</span><span id="GracefulExit.change_state-79"><a href="#GracefulExit.change_state-79"><span class="linenos">79</span></a><span class="sd">            frame: The current stack frame.</span>
+</span><span id="GracefulExit.change_state-80"><a href="#GracefulExit.change_state-80"><span class="linenos">80</span></a>
+</span><span id="GracefulExit.change_state-81"><a href="#GracefulExit.change_state-81"><span class="linenos">81</span></a><span class="sd">        Returns:</span>
+</span><span id="GracefulExit.change_state-82"><a href="#GracefulExit.change_state-82"><span class="linenos">82</span></a><span class="sd">            None</span>
+</span><span id="GracefulExit.change_state-83"><a href="#GracefulExit.change_state-83"><span class="linenos">83</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="GracefulExit.change_state-84"><a href="#GracefulExit.change_state-84"><span class="linenos">84</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-</span><span id="GracefulExit.change_state-85"><a href="#GracefulExit.change_state-85"><span class="linenos">85</span></a>
-</span><span id="GracefulExit.change_state-86"><a href="#GracefulExit.change_state-86"><span class="linenos">86</span></a>        <span class="c1"># change to perform the default function for the signal</span>
-</span><span id="GracefulExit.change_state-87"><a href="#GracefulExit.change_state-87"><span class="linenos">87</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
-</span><span id="GracefulExit.change_state-88"><a href="#GracefulExit.change_state-88"><span class="linenos">88</span></a>
-</span><span id="GracefulExit.change_state-89"><a href="#GracefulExit.change_state-89"><span class="linenos">89</span></a>        <span class="c1"># set the flag to indicate the program should exit</span>
-</span><span id="GracefulExit.change_state-90"><a href="#GracefulExit.change_state-90"><span class="linenos">90</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
+</span><span id="GracefulExit.change_state-85"><a href="#GracefulExit.change_state-85"><span class="linenos">85</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit.change_state-86"><a href="#GracefulExit.change_state-86"><span class="linenos">86</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOTICE: Detected request to exit. Program will gracefully exit.&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit.change_state-87"><a href="#GracefulExit.change_state-87"><span class="linenos">87</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        Repeat the request to exit to stop immediately. &quot;</span><span class="p">)</span>
+</span><span id="GracefulExit.change_state-88"><a href="#GracefulExit.change_state-88"><span class="linenos">88</span></a>        <span class="nb">print</span><span class="p">(</span>
+</span><span id="GracefulExit.change_state-89"><a href="#GracefulExit.change_state-89"><span class="linenos">89</span></a>            <span class="s2">&quot;WARNING: Stopping immediately might cause files, folders, &quot;</span>
+</span><span id="GracefulExit.change_state-90"><a href="#GracefulExit.change_state-90"><span class="linenos">90</span></a>            <span class="s2">&quot;or reports to end up in an inconsistent state.&quot;</span>
+</span><span id="GracefulExit.change_state-91"><a href="#GracefulExit.change_state-91"><span class="linenos">91</span></a>        <span class="p">)</span>
+</span><span id="GracefulExit.change_state-92"><a href="#GracefulExit.change_state-92"><span class="linenos">92</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===============================================================&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit.change_state-93"><a href="#GracefulExit.change_state-93"><span class="linenos">93</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="GracefulExit.change_state-94"><a href="#GracefulExit.change_state-94"><span class="linenos">94</span></a>
+</span><span id="GracefulExit.change_state-95"><a href="#GracefulExit.change_state-95"><span class="linenos">95</span></a>        <span class="c1"># change to perform the default function for the signal</span>
+</span><span id="GracefulExit.change_state-96"><a href="#GracefulExit.change_state-96"><span class="linenos">96</span></a>        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIG_DFL</span><span class="p">)</span>
+</span><span id="GracefulExit.change_state-97"><a href="#GracefulExit.change_state-97"><span class="linenos">97</span></a>
+</span><span id="GracefulExit.change_state-98"><a href="#GracefulExit.change_state-98"><span class="linenos">98</span></a>        <span class="c1"># set the flag to indicate the program should exit</span>
+</span><span id="GracefulExit.change_state-99"><a href="#GracefulExit.change_state-99"><span class="linenos">99</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="kc">True</span>
 </span></pre></div>
 
 
@@ -542,13 +580,13 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GracefulExit.should_exit"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit.should_exit-92"><a href="#GracefulExit.should_exit-92"><span class="linenos">92</span></a>    <span class="k">def</span> <span class="nf">should_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="GracefulExit.should_exit-93"><a href="#GracefulExit.should_exit-93"><span class="linenos">93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Should the code exit early?</span>
-</span><span id="GracefulExit.should_exit-94"><a href="#GracefulExit.should_exit-94"><span class="linenos">94</span></a>
-</span><span id="GracefulExit.should_exit-95"><a href="#GracefulExit.should_exit-95"><span class="linenos">95</span></a><span class="sd">        Returns:</span>
-</span><span id="GracefulExit.should_exit-96"><a href="#GracefulExit.should_exit-96"><span class="linenos">96</span></a><span class="sd">            True to exit early.</span>
-</span><span id="GracefulExit.should_exit-97"><a href="#GracefulExit.should_exit-97"><span class="linenos">97</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GracefulExit.should_exit-98"><a href="#GracefulExit.should_exit-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GracefulExit.should_exit-101"><a href="#GracefulExit.should_exit-101"><span class="linenos">101</span></a>    <span class="k">def</span> <span class="nf">should_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="GracefulExit.should_exit-102"><a href="#GracefulExit.should_exit-102"><span class="linenos">102</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Should the code exit early?</span>
+</span><span id="GracefulExit.should_exit-103"><a href="#GracefulExit.should_exit-103"><span class="linenos">103</span></a>
+</span><span id="GracefulExit.should_exit-104"><a href="#GracefulExit.should_exit-104"><span class="linenos">104</span></a><span class="sd">        Returns:</span>
+</span><span id="GracefulExit.should_exit-105"><a href="#GracefulExit.should_exit-105"><span class="linenos">105</span></a><span class="sd">            True to exit early.</span>
+</span><span id="GracefulExit.should_exit-106"><a href="#GracefulExit.should_exit-106"><span class="linenos">106</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GracefulExit.should_exit-107"><a href="#GracefulExit.should_exit-107"><span class="linenos">107</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
 </span></pre></div>
 
 
@@ -575,79 +613,79 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GoogleDriveEntryCache"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache-101"><a href="#GoogleDriveEntryCache-101"><span class="linenos">101</span></a><span class="k">class</span> <span class="nc">GoogleDriveEntryCache</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache-102"><a href="#GoogleDriveEntryCache-102"><span class="linenos">102</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A cache for Google Drive file and folder metadata.&quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache-103"><a href="#GoogleDriveEntryCache-103"><span class="linenos">103</span></a>
-</span><span id="GoogleDriveEntryCache-104"><a href="#GoogleDriveEntryCache-104"><span class="linenos">104</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="GoogleDriveEntryCache-105"><a href="#GoogleDriveEntryCache-105"><span class="linenos">105</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Google Drive entry cache instance.</span>
-</span><span id="GoogleDriveEntryCache-106"><a href="#GoogleDriveEntryCache-106"><span class="linenos">106</span></a>
-</span><span id="GoogleDriveEntryCache-107"><a href="#GoogleDriveEntryCache-107"><span class="linenos">107</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache-108"><a href="#GoogleDriveEntryCache-108"><span class="linenos">108</span></a><span class="sd">            top_folder_id: The top folder id.</span>
-</span><span id="GoogleDriveEntryCache-109"><a href="#GoogleDriveEntryCache-109"><span class="linenos">109</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache-110"><a href="#GoogleDriveEntryCache-110"><span class="linenos">110</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span> <span class="o">=</span> <span class="n">top_folder_id</span>
-</span><span id="GoogleDriveEntryCache-111"><a href="#GoogleDriveEntryCache-111"><span class="linenos">111</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache-110"><a href="#GoogleDriveEntryCache-110"><span class="linenos">110</span></a><span class="k">class</span> <span class="nc">GoogleDriveEntryCache</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache-111"><a href="#GoogleDriveEntryCache-111"><span class="linenos">111</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A cache for Google Drive file and folder metadata.&quot;&quot;&quot;</span>
 </span><span id="GoogleDriveEntryCache-112"><a href="#GoogleDriveEntryCache-112"><span class="linenos">112</span></a>
-</span><span id="GoogleDriveEntryCache-113"><a href="#GoogleDriveEntryCache-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache-114"><a href="#GoogleDriveEntryCache-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an entry to the cache.</span>
+</span><span id="GoogleDriveEntryCache-113"><a href="#GoogleDriveEntryCache-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="GoogleDriveEntryCache-114"><a href="#GoogleDriveEntryCache-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Google Drive entry cache instance.</span>
 </span><span id="GoogleDriveEntryCache-115"><a href="#GoogleDriveEntryCache-115"><span class="linenos">115</span></a>
 </span><span id="GoogleDriveEntryCache-116"><a href="#GoogleDriveEntryCache-116"><span class="linenos">116</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache-117"><a href="#GoogleDriveEntryCache-117"><span class="linenos">117</span></a><span class="sd">            entry: The entry object to add to the cache.</span>
-</span><span id="GoogleDriveEntryCache-118"><a href="#GoogleDriveEntryCache-118"><span class="linenos">118</span></a>
-</span><span id="GoogleDriveEntryCache-119"><a href="#GoogleDriveEntryCache-119"><span class="linenos">119</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache-120"><a href="#GoogleDriveEntryCache-120"><span class="linenos">120</span></a><span class="sd">            None</span>
-</span><span id="GoogleDriveEntryCache-121"><a href="#GoogleDriveEntryCache-121"><span class="linenos">121</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache-122"><a href="#GoogleDriveEntryCache-122"><span class="linenos">122</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
-</span><span id="GoogleDriveEntryCache-123"><a href="#GoogleDriveEntryCache-123"><span class="linenos">123</span></a>
-</span><span id="GoogleDriveEntryCache-124"><a href="#GoogleDriveEntryCache-124"><span class="linenos">124</span></a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="GoogleDriveEntryCache-125"><a href="#GoogleDriveEntryCache-125"><span class="linenos">125</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entry from the cache.</span>
-</span><span id="GoogleDriveEntryCache-126"><a href="#GoogleDriveEntryCache-126"><span class="linenos">126</span></a>
-</span><span id="GoogleDriveEntryCache-127"><a href="#GoogleDriveEntryCache-127"><span class="linenos">127</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache-128"><a href="#GoogleDriveEntryCache-128"><span class="linenos">128</span></a><span class="sd">            entry_id: The entry id to get.</span>
-</span><span id="GoogleDriveEntryCache-129"><a href="#GoogleDriveEntryCache-129"><span class="linenos">129</span></a>
-</span><span id="GoogleDriveEntryCache-130"><a href="#GoogleDriveEntryCache-130"><span class="linenos">130</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache-131"><a href="#GoogleDriveEntryCache-131"><span class="linenos">131</span></a><span class="sd">            The entry object with the given id or None if it was not found.</span>
-</span><span id="GoogleDriveEntryCache-132"><a href="#GoogleDriveEntryCache-132"><span class="linenos">132</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache-133"><a href="#GoogleDriveEntryCache-133"><span class="linenos">133</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache-134"><a href="#GoogleDriveEntryCache-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache-135"><a href="#GoogleDriveEntryCache-135"><span class="linenos">135</span></a>            <span class="k">return</span> <span class="kc">None</span>
-</span><span id="GoogleDriveEntryCache-136"><a href="#GoogleDriveEntryCache-136"><span class="linenos">136</span></a>        <span class="k">return</span> <span class="n">result</span>
-</span><span id="GoogleDriveEntryCache-137"><a href="#GoogleDriveEntryCache-137"><span class="linenos">137</span></a>
-</span><span id="GoogleDriveEntryCache-138"><a href="#GoogleDriveEntryCache-138"><span class="linenos">138</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="GoogleDriveEntryCache-139"><a href="#GoogleDriveEntryCache-139"><span class="linenos">139</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an entry from the cache.</span>
-</span><span id="GoogleDriveEntryCache-140"><a href="#GoogleDriveEntryCache-140"><span class="linenos">140</span></a>
-</span><span id="GoogleDriveEntryCache-141"><a href="#GoogleDriveEntryCache-141"><span class="linenos">141</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache-142"><a href="#GoogleDriveEntryCache-142"><span class="linenos">142</span></a><span class="sd">            entry_id: The entry id to delete.</span>
-</span><span id="GoogleDriveEntryCache-143"><a href="#GoogleDriveEntryCache-143"><span class="linenos">143</span></a>
-</span><span id="GoogleDriveEntryCache-144"><a href="#GoogleDriveEntryCache-144"><span class="linenos">144</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache-145"><a href="#GoogleDriveEntryCache-145"><span class="linenos">145</span></a><span class="sd">            The deleted instance or None if the id was not found.</span>
-</span><span id="GoogleDriveEntryCache-146"><a href="#GoogleDriveEntryCache-146"><span class="linenos">146</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache-147"><a href="#GoogleDriveEntryCache-147"><span class="linenos">147</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">entry_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache-148"><a href="#GoogleDriveEntryCache-148"><span class="linenos">148</span></a>
-</span><span id="GoogleDriveEntryCache-149"><a href="#GoogleDriveEntryCache-149"><span class="linenos">149</span></a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="GoogleDriveEntryCache-150"><a href="#GoogleDriveEntryCache-150"><span class="linenos">150</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full path to the given entry id.</span>
-</span><span id="GoogleDriveEntryCache-151"><a href="#GoogleDriveEntryCache-151"><span class="linenos">151</span></a>
-</span><span id="GoogleDriveEntryCache-152"><a href="#GoogleDriveEntryCache-152"><span class="linenos">152</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache-153"><a href="#GoogleDriveEntryCache-153"><span class="linenos">153</span></a><span class="sd">            entry_id: Get the full path of this entry id.</span>
-</span><span id="GoogleDriveEntryCache-154"><a href="#GoogleDriveEntryCache-154"><span class="linenos">154</span></a>
-</span><span id="GoogleDriveEntryCache-155"><a href="#GoogleDriveEntryCache-155"><span class="linenos">155</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache-156"><a href="#GoogleDriveEntryCache-156"><span class="linenos">156</span></a><span class="sd">            The full path represented by the entry objects.</span>
-</span><span id="GoogleDriveEntryCache-157"><a href="#GoogleDriveEntryCache-157"><span class="linenos">157</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache-158"><a href="#GoogleDriveEntryCache-158"><span class="linenos">158</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="GoogleDriveEntryCache-159"><a href="#GoogleDriveEntryCache-159"><span class="linenos">159</span></a>        <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry_id</span>
-</span><span id="GoogleDriveEntryCache-160"><a href="#GoogleDriveEntryCache-160"><span class="linenos">160</span></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache-161"><a href="#GoogleDriveEntryCache-161"><span class="linenos">161</span></a>            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache-162"><a href="#GoogleDriveEntryCache-162"><span class="linenos">162</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache-163"><a href="#GoogleDriveEntryCache-163"><span class="linenos">163</span></a>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry id &#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache-164"><a href="#GoogleDriveEntryCache-164"><span class="linenos">164</span></a>
-</span><span id="GoogleDriveEntryCache-165"><a href="#GoogleDriveEntryCache-165"><span class="linenos">165</span></a>            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache-166"><a href="#GoogleDriveEntryCache-166"><span class="linenos">166</span></a>
-</span><span id="GoogleDriveEntryCache-167"><a href="#GoogleDriveEntryCache-167"><span class="linenos">167</span></a>            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache-168"><a href="#GoogleDriveEntryCache-168"><span class="linenos">168</span></a>                <span class="k">break</span>
-</span><span id="GoogleDriveEntryCache-169"><a href="#GoogleDriveEntryCache-169"><span class="linenos">169</span></a>
-</span><span id="GoogleDriveEntryCache-170"><a href="#GoogleDriveEntryCache-170"><span class="linenos">170</span></a>            <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parent_id</span>
-</span><span id="GoogleDriveEntryCache-171"><a href="#GoogleDriveEntryCache-171"><span class="linenos">171</span></a>
-</span><span id="GoogleDriveEntryCache-172"><a href="#GoogleDriveEntryCache-172"><span class="linenos">172</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-</span><span id="GoogleDriveEntryCache-173"><a href="#GoogleDriveEntryCache-173"><span class="linenos">173</span></a>        <span class="k">return</span> <span class="n">result</span>
+</span><span id="GoogleDriveEntryCache-117"><a href="#GoogleDriveEntryCache-117"><span class="linenos">117</span></a><span class="sd">            top_folder_id: The top folder id.</span>
+</span><span id="GoogleDriveEntryCache-118"><a href="#GoogleDriveEntryCache-118"><span class="linenos">118</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache-119"><a href="#GoogleDriveEntryCache-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span> <span class="o">=</span> <span class="n">top_folder_id</span>
+</span><span id="GoogleDriveEntryCache-120"><a href="#GoogleDriveEntryCache-120"><span class="linenos">120</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="GoogleDriveEntryCache-121"><a href="#GoogleDriveEntryCache-121"><span class="linenos">121</span></a>
+</span><span id="GoogleDriveEntryCache-122"><a href="#GoogleDriveEntryCache-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache-123"><a href="#GoogleDriveEntryCache-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an entry to the cache.</span>
+</span><span id="GoogleDriveEntryCache-124"><a href="#GoogleDriveEntryCache-124"><span class="linenos">124</span></a>
+</span><span id="GoogleDriveEntryCache-125"><a href="#GoogleDriveEntryCache-125"><span class="linenos">125</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache-126"><a href="#GoogleDriveEntryCache-126"><span class="linenos">126</span></a><span class="sd">            entry: The entry object to add to the cache.</span>
+</span><span id="GoogleDriveEntryCache-127"><a href="#GoogleDriveEntryCache-127"><span class="linenos">127</span></a>
+</span><span id="GoogleDriveEntryCache-128"><a href="#GoogleDriveEntryCache-128"><span class="linenos">128</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache-129"><a href="#GoogleDriveEntryCache-129"><span class="linenos">129</span></a><span class="sd">            None</span>
+</span><span id="GoogleDriveEntryCache-130"><a href="#GoogleDriveEntryCache-130"><span class="linenos">130</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache-131"><a href="#GoogleDriveEntryCache-131"><span class="linenos">131</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+</span><span id="GoogleDriveEntryCache-132"><a href="#GoogleDriveEntryCache-132"><span class="linenos">132</span></a>
+</span><span id="GoogleDriveEntryCache-133"><a href="#GoogleDriveEntryCache-133"><span class="linenos">133</span></a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="GoogleDriveEntryCache-134"><a href="#GoogleDriveEntryCache-134"><span class="linenos">134</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entry from the cache.</span>
+</span><span id="GoogleDriveEntryCache-135"><a href="#GoogleDriveEntryCache-135"><span class="linenos">135</span></a>
+</span><span id="GoogleDriveEntryCache-136"><a href="#GoogleDriveEntryCache-136"><span class="linenos">136</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache-137"><a href="#GoogleDriveEntryCache-137"><span class="linenos">137</span></a><span class="sd">            entry_id: The entry id to get.</span>
+</span><span id="GoogleDriveEntryCache-138"><a href="#GoogleDriveEntryCache-138"><span class="linenos">138</span></a>
+</span><span id="GoogleDriveEntryCache-139"><a href="#GoogleDriveEntryCache-139"><span class="linenos">139</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache-140"><a href="#GoogleDriveEntryCache-140"><span class="linenos">140</span></a><span class="sd">            The entry object with the given id or None if it was not found.</span>
+</span><span id="GoogleDriveEntryCache-141"><a href="#GoogleDriveEntryCache-141"><span class="linenos">141</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache-142"><a href="#GoogleDriveEntryCache-142"><span class="linenos">142</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache-143"><a href="#GoogleDriveEntryCache-143"><span class="linenos">143</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache-144"><a href="#GoogleDriveEntryCache-144"><span class="linenos">144</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="GoogleDriveEntryCache-145"><a href="#GoogleDriveEntryCache-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="n">result</span>
+</span><span id="GoogleDriveEntryCache-146"><a href="#GoogleDriveEntryCache-146"><span class="linenos">146</span></a>
+</span><span id="GoogleDriveEntryCache-147"><a href="#GoogleDriveEntryCache-147"><span class="linenos">147</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="GoogleDriveEntryCache-148"><a href="#GoogleDriveEntryCache-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an entry from the cache.</span>
+</span><span id="GoogleDriveEntryCache-149"><a href="#GoogleDriveEntryCache-149"><span class="linenos">149</span></a>
+</span><span id="GoogleDriveEntryCache-150"><a href="#GoogleDriveEntryCache-150"><span class="linenos">150</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache-151"><a href="#GoogleDriveEntryCache-151"><span class="linenos">151</span></a><span class="sd">            entry_id: The entry id to delete.</span>
+</span><span id="GoogleDriveEntryCache-152"><a href="#GoogleDriveEntryCache-152"><span class="linenos">152</span></a>
+</span><span id="GoogleDriveEntryCache-153"><a href="#GoogleDriveEntryCache-153"><span class="linenos">153</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache-154"><a href="#GoogleDriveEntryCache-154"><span class="linenos">154</span></a><span class="sd">            The deleted instance or None if the id was not found.</span>
+</span><span id="GoogleDriveEntryCache-155"><a href="#GoogleDriveEntryCache-155"><span class="linenos">155</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache-156"><a href="#GoogleDriveEntryCache-156"><span class="linenos">156</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">entry_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache-157"><a href="#GoogleDriveEntryCache-157"><span class="linenos">157</span></a>
+</span><span id="GoogleDriveEntryCache-158"><a href="#GoogleDriveEntryCache-158"><span class="linenos">158</span></a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="GoogleDriveEntryCache-159"><a href="#GoogleDriveEntryCache-159"><span class="linenos">159</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full path to the given entry id.</span>
+</span><span id="GoogleDriveEntryCache-160"><a href="#GoogleDriveEntryCache-160"><span class="linenos">160</span></a>
+</span><span id="GoogleDriveEntryCache-161"><a href="#GoogleDriveEntryCache-161"><span class="linenos">161</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache-162"><a href="#GoogleDriveEntryCache-162"><span class="linenos">162</span></a><span class="sd">            entry_id: Get the full path of this entry id.</span>
+</span><span id="GoogleDriveEntryCache-163"><a href="#GoogleDriveEntryCache-163"><span class="linenos">163</span></a>
+</span><span id="GoogleDriveEntryCache-164"><a href="#GoogleDriveEntryCache-164"><span class="linenos">164</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache-165"><a href="#GoogleDriveEntryCache-165"><span class="linenos">165</span></a><span class="sd">            The full path represented by the entry objects.</span>
+</span><span id="GoogleDriveEntryCache-166"><a href="#GoogleDriveEntryCache-166"><span class="linenos">166</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache-167"><a href="#GoogleDriveEntryCache-167"><span class="linenos">167</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="GoogleDriveEntryCache-168"><a href="#GoogleDriveEntryCache-168"><span class="linenos">168</span></a>        <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry_id</span>
+</span><span id="GoogleDriveEntryCache-169"><a href="#GoogleDriveEntryCache-169"><span class="linenos">169</span></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache-170"><a href="#GoogleDriveEntryCache-170"><span class="linenos">170</span></a>            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache-171"><a href="#GoogleDriveEntryCache-171"><span class="linenos">171</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache-172"><a href="#GoogleDriveEntryCache-172"><span class="linenos">172</span></a>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry id &#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache-173"><a href="#GoogleDriveEntryCache-173"><span class="linenos">173</span></a>
+</span><span id="GoogleDriveEntryCache-174"><a href="#GoogleDriveEntryCache-174"><span class="linenos">174</span></a>            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache-175"><a href="#GoogleDriveEntryCache-175"><span class="linenos">175</span></a>
+</span><span id="GoogleDriveEntryCache-176"><a href="#GoogleDriveEntryCache-176"><span class="linenos">176</span></a>            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache-177"><a href="#GoogleDriveEntryCache-177"><span class="linenos">177</span></a>                <span class="k">break</span>
+</span><span id="GoogleDriveEntryCache-178"><a href="#GoogleDriveEntryCache-178"><span class="linenos">178</span></a>
+</span><span id="GoogleDriveEntryCache-179"><a href="#GoogleDriveEntryCache-179"><span class="linenos">179</span></a>            <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parent_id</span>
+</span><span id="GoogleDriveEntryCache-180"><a href="#GoogleDriveEntryCache-180"><span class="linenos">180</span></a>
+</span><span id="GoogleDriveEntryCache-181"><a href="#GoogleDriveEntryCache-181"><span class="linenos">181</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+</span><span id="GoogleDriveEntryCache-182"><a href="#GoogleDriveEntryCache-182"><span class="linenos">182</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
@@ -665,14 +703,14 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GoogleDriveEntryCache.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.__init__-104"><a href="#GoogleDriveEntryCache.__init__-104"><span class="linenos">104</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="GoogleDriveEntryCache.__init__-105"><a href="#GoogleDriveEntryCache.__init__-105"><span class="linenos">105</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Google Drive entry cache instance.</span>
-</span><span id="GoogleDriveEntryCache.__init__-106"><a href="#GoogleDriveEntryCache.__init__-106"><span class="linenos">106</span></a>
-</span><span id="GoogleDriveEntryCache.__init__-107"><a href="#GoogleDriveEntryCache.__init__-107"><span class="linenos">107</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache.__init__-108"><a href="#GoogleDriveEntryCache.__init__-108"><span class="linenos">108</span></a><span class="sd">            top_folder_id: The top folder id.</span>
-</span><span id="GoogleDriveEntryCache.__init__-109"><a href="#GoogleDriveEntryCache.__init__-109"><span class="linenos">109</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache.__init__-110"><a href="#GoogleDriveEntryCache.__init__-110"><span class="linenos">110</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span> <span class="o">=</span> <span class="n">top_folder_id</span>
-</span><span id="GoogleDriveEntryCache.__init__-111"><a href="#GoogleDriveEntryCache.__init__-111"><span class="linenos">111</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.__init__-113"><a href="#GoogleDriveEntryCache.__init__-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_folder_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="GoogleDriveEntryCache.__init__-114"><a href="#GoogleDriveEntryCache.__init__-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new Google Drive entry cache instance.</span>
+</span><span id="GoogleDriveEntryCache.__init__-115"><a href="#GoogleDriveEntryCache.__init__-115"><span class="linenos">115</span></a>
+</span><span id="GoogleDriveEntryCache.__init__-116"><a href="#GoogleDriveEntryCache.__init__-116"><span class="linenos">116</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache.__init__-117"><a href="#GoogleDriveEntryCache.__init__-117"><span class="linenos">117</span></a><span class="sd">            top_folder_id: The top folder id.</span>
+</span><span id="GoogleDriveEntryCache.__init__-118"><a href="#GoogleDriveEntryCache.__init__-118"><span class="linenos">118</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache.__init__-119"><a href="#GoogleDriveEntryCache.__init__-119"><span class="linenos">119</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span> <span class="o">=</span> <span class="n">top_folder_id</span>
+</span><span id="GoogleDriveEntryCache.__init__-120"><a href="#GoogleDriveEntryCache.__init__-120"><span class="linenos">120</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 </span></pre></div>
 
 
@@ -698,16 +736,16 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GoogleDriveEntryCache.add"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.add-113"><a href="#GoogleDriveEntryCache.add-113"><span class="linenos">113</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache.add-114"><a href="#GoogleDriveEntryCache.add-114"><span class="linenos">114</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an entry to the cache.</span>
-</span><span id="GoogleDriveEntryCache.add-115"><a href="#GoogleDriveEntryCache.add-115"><span class="linenos">115</span></a>
-</span><span id="GoogleDriveEntryCache.add-116"><a href="#GoogleDriveEntryCache.add-116"><span class="linenos">116</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache.add-117"><a href="#GoogleDriveEntryCache.add-117"><span class="linenos">117</span></a><span class="sd">            entry: The entry object to add to the cache.</span>
-</span><span id="GoogleDriveEntryCache.add-118"><a href="#GoogleDriveEntryCache.add-118"><span class="linenos">118</span></a>
-</span><span id="GoogleDriveEntryCache.add-119"><a href="#GoogleDriveEntryCache.add-119"><span class="linenos">119</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache.add-120"><a href="#GoogleDriveEntryCache.add-120"><span class="linenos">120</span></a><span class="sd">            None</span>
-</span><span id="GoogleDriveEntryCache.add-121"><a href="#GoogleDriveEntryCache.add-121"><span class="linenos">121</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache.add-122"><a href="#GoogleDriveEntryCache.add-122"><span class="linenos">122</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.add-122"><a href="#GoogleDriveEntryCache.add-122"><span class="linenos">122</span></a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache.add-123"><a href="#GoogleDriveEntryCache.add-123"><span class="linenos">123</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Add an entry to the cache.</span>
+</span><span id="GoogleDriveEntryCache.add-124"><a href="#GoogleDriveEntryCache.add-124"><span class="linenos">124</span></a>
+</span><span id="GoogleDriveEntryCache.add-125"><a href="#GoogleDriveEntryCache.add-125"><span class="linenos">125</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache.add-126"><a href="#GoogleDriveEntryCache.add-126"><span class="linenos">126</span></a><span class="sd">            entry: The entry object to add to the cache.</span>
+</span><span id="GoogleDriveEntryCache.add-127"><a href="#GoogleDriveEntryCache.add-127"><span class="linenos">127</span></a>
+</span><span id="GoogleDriveEntryCache.add-128"><a href="#GoogleDriveEntryCache.add-128"><span class="linenos">128</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache.add-129"><a href="#GoogleDriveEntryCache.add-129"><span class="linenos">129</span></a><span class="sd">            None</span>
+</span><span id="GoogleDriveEntryCache.add-130"><a href="#GoogleDriveEntryCache.add-130"><span class="linenos">130</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache.add-131"><a href="#GoogleDriveEntryCache.add-131"><span class="linenos">131</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
 </span></pre></div>
 
 
@@ -739,19 +777,19 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GoogleDriveEntryCache.get"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.get-124"><a href="#GoogleDriveEntryCache.get-124"><span class="linenos">124</span></a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="GoogleDriveEntryCache.get-125"><a href="#GoogleDriveEntryCache.get-125"><span class="linenos">125</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entry from the cache.</span>
-</span><span id="GoogleDriveEntryCache.get-126"><a href="#GoogleDriveEntryCache.get-126"><span class="linenos">126</span></a>
-</span><span id="GoogleDriveEntryCache.get-127"><a href="#GoogleDriveEntryCache.get-127"><span class="linenos">127</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache.get-128"><a href="#GoogleDriveEntryCache.get-128"><span class="linenos">128</span></a><span class="sd">            entry_id: The entry id to get.</span>
-</span><span id="GoogleDriveEntryCache.get-129"><a href="#GoogleDriveEntryCache.get-129"><span class="linenos">129</span></a>
-</span><span id="GoogleDriveEntryCache.get-130"><a href="#GoogleDriveEntryCache.get-130"><span class="linenos">130</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache.get-131"><a href="#GoogleDriveEntryCache.get-131"><span class="linenos">131</span></a><span class="sd">            The entry object with the given id or None if it was not found.</span>
-</span><span id="GoogleDriveEntryCache.get-132"><a href="#GoogleDriveEntryCache.get-132"><span class="linenos">132</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache.get-133"><a href="#GoogleDriveEntryCache.get-133"><span class="linenos">133</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache.get-134"><a href="#GoogleDriveEntryCache.get-134"><span class="linenos">134</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache.get-135"><a href="#GoogleDriveEntryCache.get-135"><span class="linenos">135</span></a>            <span class="k">return</span> <span class="kc">None</span>
-</span><span id="GoogleDriveEntryCache.get-136"><a href="#GoogleDriveEntryCache.get-136"><span class="linenos">136</span></a>        <span class="k">return</span> <span class="n">result</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.get-133"><a href="#GoogleDriveEntryCache.get-133"><span class="linenos">133</span></a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="GoogleDriveEntryCache.get-134"><a href="#GoogleDriveEntryCache.get-134"><span class="linenos">134</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get an entry from the cache.</span>
+</span><span id="GoogleDriveEntryCache.get-135"><a href="#GoogleDriveEntryCache.get-135"><span class="linenos">135</span></a>
+</span><span id="GoogleDriveEntryCache.get-136"><a href="#GoogleDriveEntryCache.get-136"><span class="linenos">136</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache.get-137"><a href="#GoogleDriveEntryCache.get-137"><span class="linenos">137</span></a><span class="sd">            entry_id: The entry id to get.</span>
+</span><span id="GoogleDriveEntryCache.get-138"><a href="#GoogleDriveEntryCache.get-138"><span class="linenos">138</span></a>
+</span><span id="GoogleDriveEntryCache.get-139"><a href="#GoogleDriveEntryCache.get-139"><span class="linenos">139</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache.get-140"><a href="#GoogleDriveEntryCache.get-140"><span class="linenos">140</span></a><span class="sd">            The entry object with the given id or None if it was not found.</span>
+</span><span id="GoogleDriveEntryCache.get-141"><a href="#GoogleDriveEntryCache.get-141"><span class="linenos">141</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache.get-142"><a href="#GoogleDriveEntryCache.get-142"><span class="linenos">142</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entry_id</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache.get-143"><a href="#GoogleDriveEntryCache.get-143"><span class="linenos">143</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache.get-144"><a href="#GoogleDriveEntryCache.get-144"><span class="linenos">144</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="GoogleDriveEntryCache.get-145"><a href="#GoogleDriveEntryCache.get-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
@@ -783,16 +821,16 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GoogleDriveEntryCache.delete"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.delete-138"><a href="#GoogleDriveEntryCache.delete-138"><span class="linenos">138</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="GoogleDriveEntryCache.delete-139"><a href="#GoogleDriveEntryCache.delete-139"><span class="linenos">139</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an entry from the cache.</span>
-</span><span id="GoogleDriveEntryCache.delete-140"><a href="#GoogleDriveEntryCache.delete-140"><span class="linenos">140</span></a>
-</span><span id="GoogleDriveEntryCache.delete-141"><a href="#GoogleDriveEntryCache.delete-141"><span class="linenos">141</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache.delete-142"><a href="#GoogleDriveEntryCache.delete-142"><span class="linenos">142</span></a><span class="sd">            entry_id: The entry id to delete.</span>
-</span><span id="GoogleDriveEntryCache.delete-143"><a href="#GoogleDriveEntryCache.delete-143"><span class="linenos">143</span></a>
-</span><span id="GoogleDriveEntryCache.delete-144"><a href="#GoogleDriveEntryCache.delete-144"><span class="linenos">144</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache.delete-145"><a href="#GoogleDriveEntryCache.delete-145"><span class="linenos">145</span></a><span class="sd">            The deleted instance or None if the id was not found.</span>
-</span><span id="GoogleDriveEntryCache.delete-146"><a href="#GoogleDriveEntryCache.delete-146"><span class="linenos">146</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache.delete-147"><a href="#GoogleDriveEntryCache.delete-147"><span class="linenos">147</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">entry_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.delete-147"><a href="#GoogleDriveEntryCache.delete-147"><span class="linenos">147</span></a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="GoogleDriveEntryCache.delete-148"><a href="#GoogleDriveEntryCache.delete-148"><span class="linenos">148</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove an entry from the cache.</span>
+</span><span id="GoogleDriveEntryCache.delete-149"><a href="#GoogleDriveEntryCache.delete-149"><span class="linenos">149</span></a>
+</span><span id="GoogleDriveEntryCache.delete-150"><a href="#GoogleDriveEntryCache.delete-150"><span class="linenos">150</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache.delete-151"><a href="#GoogleDriveEntryCache.delete-151"><span class="linenos">151</span></a><span class="sd">            entry_id: The entry id to delete.</span>
+</span><span id="GoogleDriveEntryCache.delete-152"><a href="#GoogleDriveEntryCache.delete-152"><span class="linenos">152</span></a>
+</span><span id="GoogleDriveEntryCache.delete-153"><a href="#GoogleDriveEntryCache.delete-153"><span class="linenos">153</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache.delete-154"><a href="#GoogleDriveEntryCache.delete-154"><span class="linenos">154</span></a><span class="sd">            The deleted instance or None if the id was not found.</span>
+</span><span id="GoogleDriveEntryCache.delete-155"><a href="#GoogleDriveEntryCache.delete-155"><span class="linenos">155</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache.delete-156"><a href="#GoogleDriveEntryCache.delete-156"><span class="linenos">156</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">entry_id</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -824,31 +862,31 @@ via SIGINT and allow graceful exit.</p>
 
     </div>
     <a class="headerlink" href="#GoogleDriveEntryCache.path"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.path-149"><a href="#GoogleDriveEntryCache.path-149"><span class="linenos">149</span></a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
-</span><span id="GoogleDriveEntryCache.path-150"><a href="#GoogleDriveEntryCache.path-150"><span class="linenos">150</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full path to the given entry id.</span>
-</span><span id="GoogleDriveEntryCache.path-151"><a href="#GoogleDriveEntryCache.path-151"><span class="linenos">151</span></a>
-</span><span id="GoogleDriveEntryCache.path-152"><a href="#GoogleDriveEntryCache.path-152"><span class="linenos">152</span></a><span class="sd">        Args:</span>
-</span><span id="GoogleDriveEntryCache.path-153"><a href="#GoogleDriveEntryCache.path-153"><span class="linenos">153</span></a><span class="sd">            entry_id: Get the full path of this entry id.</span>
-</span><span id="GoogleDriveEntryCache.path-154"><a href="#GoogleDriveEntryCache.path-154"><span class="linenos">154</span></a>
-</span><span id="GoogleDriveEntryCache.path-155"><a href="#GoogleDriveEntryCache.path-155"><span class="linenos">155</span></a><span class="sd">        Returns:</span>
-</span><span id="GoogleDriveEntryCache.path-156"><a href="#GoogleDriveEntryCache.path-156"><span class="linenos">156</span></a><span class="sd">            The full path represented by the entry objects.</span>
-</span><span id="GoogleDriveEntryCache.path-157"><a href="#GoogleDriveEntryCache.path-157"><span class="linenos">157</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="GoogleDriveEntryCache.path-158"><a href="#GoogleDriveEntryCache.path-158"><span class="linenos">158</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="GoogleDriveEntryCache.path-159"><a href="#GoogleDriveEntryCache.path-159"><span class="linenos">159</span></a>        <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry_id</span>
-</span><span id="GoogleDriveEntryCache.path-160"><a href="#GoogleDriveEntryCache.path-160"><span class="linenos">160</span></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache.path-161"><a href="#GoogleDriveEntryCache.path-161"><span class="linenos">161</span></a>            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache.path-162"><a href="#GoogleDriveEntryCache.path-162"><span class="linenos">162</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache.path-163"><a href="#GoogleDriveEntryCache.path-163"><span class="linenos">163</span></a>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry id &#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache.path-164"><a href="#GoogleDriveEntryCache.path-164"><span class="linenos">164</span></a>
-</span><span id="GoogleDriveEntryCache.path-165"><a href="#GoogleDriveEntryCache.path-165"><span class="linenos">165</span></a>            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
-</span><span id="GoogleDriveEntryCache.path-166"><a href="#GoogleDriveEntryCache.path-166"><span class="linenos">166</span></a>
-</span><span id="GoogleDriveEntryCache.path-167"><a href="#GoogleDriveEntryCache.path-167"><span class="linenos">167</span></a>            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span><span class="p">:</span>
-</span><span id="GoogleDriveEntryCache.path-168"><a href="#GoogleDriveEntryCache.path-168"><span class="linenos">168</span></a>                <span class="k">break</span>
-</span><span id="GoogleDriveEntryCache.path-169"><a href="#GoogleDriveEntryCache.path-169"><span class="linenos">169</span></a>
-</span><span id="GoogleDriveEntryCache.path-170"><a href="#GoogleDriveEntryCache.path-170"><span class="linenos">170</span></a>            <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parent_id</span>
-</span><span id="GoogleDriveEntryCache.path-171"><a href="#GoogleDriveEntryCache.path-171"><span class="linenos">171</span></a>
-</span><span id="GoogleDriveEntryCache.path-172"><a href="#GoogleDriveEntryCache.path-172"><span class="linenos">172</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
-</span><span id="GoogleDriveEntryCache.path-173"><a href="#GoogleDriveEntryCache.path-173"><span class="linenos">173</span></a>        <span class="k">return</span> <span class="n">result</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="GoogleDriveEntryCache.path-158"><a href="#GoogleDriveEntryCache.path-158"><span class="linenos">158</span></a>    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entry_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">models</span><span class="o">.</span><span class="n">GoogleDriveEntry</span><span class="p">]:</span>
+</span><span id="GoogleDriveEntryCache.path-159"><a href="#GoogleDriveEntryCache.path-159"><span class="linenos">159</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the full path to the given entry id.</span>
+</span><span id="GoogleDriveEntryCache.path-160"><a href="#GoogleDriveEntryCache.path-160"><span class="linenos">160</span></a>
+</span><span id="GoogleDriveEntryCache.path-161"><a href="#GoogleDriveEntryCache.path-161"><span class="linenos">161</span></a><span class="sd">        Args:</span>
+</span><span id="GoogleDriveEntryCache.path-162"><a href="#GoogleDriveEntryCache.path-162"><span class="linenos">162</span></a><span class="sd">            entry_id: Get the full path of this entry id.</span>
+</span><span id="GoogleDriveEntryCache.path-163"><a href="#GoogleDriveEntryCache.path-163"><span class="linenos">163</span></a>
+</span><span id="GoogleDriveEntryCache.path-164"><a href="#GoogleDriveEntryCache.path-164"><span class="linenos">164</span></a><span class="sd">        Returns:</span>
+</span><span id="GoogleDriveEntryCache.path-165"><a href="#GoogleDriveEntryCache.path-165"><span class="linenos">165</span></a><span class="sd">            The full path represented by the entry objects.</span>
+</span><span id="GoogleDriveEntryCache.path-166"><a href="#GoogleDriveEntryCache.path-166"><span class="linenos">166</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="GoogleDriveEntryCache.path-167"><a href="#GoogleDriveEntryCache.path-167"><span class="linenos">167</span></a>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="GoogleDriveEntryCache.path-168"><a href="#GoogleDriveEntryCache.path-168"><span class="linenos">168</span></a>        <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry_id</span>
+</span><span id="GoogleDriveEntryCache.path-169"><a href="#GoogleDriveEntryCache.path-169"><span class="linenos">169</span></a>        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache.path-170"><a href="#GoogleDriveEntryCache.path-170"><span class="linenos">170</span></a>            <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_id</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache.path-171"><a href="#GoogleDriveEntryCache.path-171"><span class="linenos">171</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">entry</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache.path-172"><a href="#GoogleDriveEntryCache.path-172"><span class="linenos">172</span></a>                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry id &#39;</span><span class="si">{</span><span class="n">current_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache.path-173"><a href="#GoogleDriveEntryCache.path-173"><span class="linenos">173</span></a>
+</span><span id="GoogleDriveEntryCache.path-174"><a href="#GoogleDriveEntryCache.path-174"><span class="linenos">174</span></a>            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+</span><span id="GoogleDriveEntryCache.path-175"><a href="#GoogleDriveEntryCache.path-175"><span class="linenos">175</span></a>
+</span><span id="GoogleDriveEntryCache.path-176"><a href="#GoogleDriveEntryCache.path-176"><span class="linenos">176</span></a>            <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">entry_id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_top_folder_id</span><span class="p">:</span>
+</span><span id="GoogleDriveEntryCache.path-177"><a href="#GoogleDriveEntryCache.path-177"><span class="linenos">177</span></a>                <span class="k">break</span>
+</span><span id="GoogleDriveEntryCache.path-178"><a href="#GoogleDriveEntryCache.path-178"><span class="linenos">178</span></a>
+</span><span id="GoogleDriveEntryCache.path-179"><a href="#GoogleDriveEntryCache.path-179"><span class="linenos">179</span></a>            <span class="n">current_id</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">parent_id</span>
+</span><span id="GoogleDriveEntryCache.path-180"><a href="#GoogleDriveEntryCache.path-180"><span class="linenos">180</span></a>
+</span><span id="GoogleDriveEntryCache.path-181"><a href="#GoogleDriveEntryCache.path-181"><span class="linenos">181</span></a>        <span class="n">result</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+</span><span id="GoogleDriveEntryCache.path-182"><a href="#GoogleDriveEntryCache.path-182"><span class="linenos">182</span></a>        <span class="k">return</span> <span class="n">result</span>
 </span></pre></div>
 
 
