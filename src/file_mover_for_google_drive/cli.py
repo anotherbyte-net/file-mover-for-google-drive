@@ -6,7 +6,7 @@ import pathlib
 import sys
 import typing
 
-from file_mover_for_google_drive.actions import show, plan, apply
+from file_mover_for_google_drive.actions import show, plan, apply, tidy_properties
 from file_mover_for_google_drive.common import models, utils, manage, client
 
 
@@ -16,6 +16,9 @@ logging.basicConfig(
 )
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.INFO)
 logging.getLogger("googleapiclient.discovery").setLevel(logging.INFO)
+logging.getLogger("google_auth_oauthlib.flow").setLevel(logging.INFO)
+logging.getLogger("requests_oauthlib.oauth2_session").setLevel(logging.INFO)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
 
 
 def run_cli(
@@ -72,13 +75,18 @@ def run_cli(
     manage_item: manage.BaseManage
 
     if subparser_name == "show":
-        manage_item = show.Show(config, gd_client)
+        manage_item = show.Show(config=config, gd_client=gd_client)
 
     elif subparser_name == "plan":
-        manage_item = plan.Plan(config, gd_client)
+        manage_item = plan.Plan(config=config, gd_client=gd_client)
 
     elif subparser_name == "apply":
-        manage_item = apply.Apply(plan_name, config, gd_client)
+        manage_item = apply.Apply(
+            plan_name=plan_name, config=config, gd_client=gd_client
+        )
+
+    elif subparser_name == "tidy-properties":
+        manage_item = tidy_properties.TidyProperties(config=config, gd_client=gd_client)
 
     else:
         raise ValueError(f"Unknown activity '{subparser_name}'.")
@@ -147,6 +155,15 @@ def main(
         help="The name of the plan file to apply (without the .csv extension).",
     )
     parser_apply.set_defaults(func=run_cli)
+
+    # create the parser for the "tidy-properties" command
+    parser_plan = subparsers.add_parser(
+        "tidy-properties",
+        description="Tidy entry properties.",
+        help="Tidy entry properties.",
+    )
+    _add_config_file_arg(parser_plan)
+    parser_plan.set_defaults(func=run_cli)
 
     # parse args
     parsed_args = parser.parse_args(args)

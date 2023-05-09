@@ -1,0 +1,9 @@
+{
+  "request": {
+    "method": "DELETE",
+    "body": null,
+    "methodId": "drive.permissions.delete",
+    "uri": "https://www.googleapis.com/drive/v3/files/personal-file-level2-002/permissions/personal-permission-anyone?"
+  },
+  "response": ""
+}

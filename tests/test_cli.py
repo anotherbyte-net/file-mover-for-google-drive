@@ -13,16 +13,17 @@ def test_cli_no_args(capsys, caplog, main_args, exit_code, equal_ignore_whitespa
     with pytest.raises(SystemExit, match=str(exit_code)):
         cli.main(main_args)
 
-    prog_help = """usage: file-mover-for-google-drive [-h] [--version] {show,plan,apply} ...
+    prog_help = """usage: file-mover-for-google-drive [-h] [--version] {show,plan,apply,tidy-properties} ...
 
 Helps move files between Google Drive accounts.
 
 positional arguments:
-  {show,plan,apply}  sub-command help
-    show             Show the files, folders, and permissions in a Google
-                     Drive.
-    plan             Build a plan of the changes.
-    apply            Apply changes from a plan file.
+  {show,plan,apply,tidy-properties}  sub-command help
+    show                             Show the files, folders, and permissions in a Google
+                                     Drive.
+    plan                             Build a plan of the changes.
+    apply                            Apply changes from a plan file.
+    tidy-properties                  Tidy entry properties.
 
 options:
   -h, --help         show this help message and exit

@@ -92,7 +92,7 @@ entries:
       - "personal-permission-other-user-2": "writer"
         "personal-permission-current-user": "writer"
 
-  - name: "Entry Level 3 - File 3"
+  - name: "Entry Level 3 - File 2"
     id: "personal-file-level3-003"
     parent_id: "personal-folder-level2-002"
     permissions:

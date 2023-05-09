@@ -197,7 +197,11 @@ class FileMoverHttpMockSequence(http.HttpMockSequence):
         if not result_headers:
             raise ValueError("Must provide response headers.")
 
-        if result_headers.get("status") == "200" and not result_data:
+        if (
+            result_headers.get("status") == "200"
+            and method != "DELETE"
+            and not result_data
+        ):
             raise ValueError("Must provide response data.")
 
         return result_headers, result_data

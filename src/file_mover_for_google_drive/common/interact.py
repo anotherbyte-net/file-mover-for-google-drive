@@ -258,7 +258,7 @@ class GoogleDriveApi:
             The response.
         """
         response = request.execute(num_retries=self._config.num_retries)
-        self._write_request_response(request, response)
+        # self._write_request_response(request, response)
 
         return response
 
@@ -392,6 +392,15 @@ class GoogleDriveContainer:
                 key: new_entry.entry_id,
             }
         }
+        fields = self._entry_fields
+        operation = self._api.files_update(fileId=entry_id, body=body, fields=fields)
+        return operation
+
+    def update_properties(
+        self, entry: models.GoogleDriveEntry, all_props: typing.Mapping
+    ) -> http.HttpRequest:
+        entry_id = entry.entry_id
+        body = {"properties": {**all_props}}
         fields = self._entry_fields
         operation = self._api.files_update(fileId=entry_id, body=body, fields=fields)
         return operation
@@ -813,6 +822,15 @@ class GoogleDriveActions:
         """
         container = self._container
         request = container.move_entry(entry, new_parent_id)
+        response = container.api.execute_single(request)
+        entry = self._get_entry(response)
+        return entry
+
+    def update_properties(
+        self, entry: models.GoogleDriveEntry, all_props: typing.Mapping
+    ):
+        container = self._container
+        request = container.update_properties(entry, all_props)
         response = container.api.execute_single(request)
         entry = self._get_entry(response)
         return entry

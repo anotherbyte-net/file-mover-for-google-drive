@@ -132,4 +132,4 @@ dmypy.json
 .idea/
 
 # local resources
-tests/resources/raw-req-res/*-response.json
+tests/resources/raw-req-res/
