@@ -91,17 +91,16 @@ class Plan(manage.BaseManage):
 
         config = self._config
 
-        account = config.account
-
-        top_folder_id = account.top_folder_id
-
         entry = entry_path[-1]
         parent = entry_path[-2] if len(entry_path) > 1 else None
         parent_path_str = entry.build_path_str(entry_path[:-1])
 
-        if entry.entry_id == top_folder_id:
-            logger.debug("Will not change the top-level folder '%s'.", entry.name)
-            return
+        if not config.actions.allow_changing_top_folder:
+            account = config.account
+            top_folder_id = account.top_folder_id
+            if entry.entry_id == top_folder_id:
+                logger.debug("Will not change the top-level folder '%s'.", entry.name)
+                return
 
         for plan_item in self._build_plan_unowned(entry, parent_path_str):
             if plan_item:
@@ -295,6 +294,7 @@ class Plan(manage.BaseManage):
 
         is_delete_link = config_actions.permissions_delete_link is True
         is_delete_others = config_actions.permissions_delete_other_users is True
+        keep_emails = config_actions.permissions_user_emails_keep or []
 
         if account_type != account_type_personal:
             raise ValueError(
@@ -307,8 +307,10 @@ class Plan(manage.BaseManage):
             is_owner = permission.role == role_owner
             is_anyone = permission.entry_type == permission_anyone
             is_user = permission.entry_type == permission_user
-            is_current_user = is_user and permission.user_email == account_id
-            is_user_not_current = is_user and not permission.user_email == account_id
+
+            perm_user_email = permission.user_email
+            is_current_user = is_user and perm_user_email == account_id
+            is_user_not_current = is_user and not perm_user_email == account_id
 
             if is_owner or is_current_user:
                 logger.debug("Keep permission %s.", str(permission))
@@ -324,6 +326,12 @@ class Plan(manage.BaseManage):
                 continue
 
             if is_anyone and not is_delete_link:
+                logger.debug(
+                    "Config prevented deleting permission %s.", str(permission)
+                )
+                continue
+
+            if perm_user_email in keep_emails:
                 logger.debug(
                     "Config prevented deleting permission %s.", str(permission)
                 )

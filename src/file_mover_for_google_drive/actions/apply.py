@@ -315,6 +315,18 @@ class Apply(manage.BaseManage):
                 }
             )
 
+        if (
+            plan.begin_user_email in actions_config.permissions_user_emails_keep
+            or plan.end_user_email in actions_config.permissions_user_emails_keep
+        ):
+            return report.OutcomeReport(
+                **{
+                    **params,
+                    "result_name": models.PlanReportOutcomes.SKIPPED,
+                    "result_description": "Config prevented executing plan action",
+                }
+            )
+
         # execute the plan
         actions.delete_permission(plan.entry_id, plan.permission_id)
 

@@ -54,6 +54,8 @@ def build_config():
             entry_name_delete_prefix_copy_of=False,
             create_owned_file_copy=True,
             create_owned_folder_and_move_contents=True,
+            permissions_user_emails_keep=[],
+            allow_changing_top_folder=False,
         )
 
         if account_type == models.GoogleDriveAccountTypeOptions.PERSONAL:

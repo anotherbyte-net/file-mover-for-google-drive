@@ -202,40 +202,35 @@ class ConfigActions(BaseModel):
     """Whether to delete permissions granted to other non-owner users."""
     permissions_delete_link: bool
     """Whether to delete the 'Anyone with Link' permission."""
+    permissions_user_emails_keep: list[str]
+    """Keep the permissions for these users. 
+    Don't add permissions if they aren't already there."""
     entry_name_delete_prefix_copy_of: bool
     """Whether to remove the 'Copy of ' file name prefix."""
     create_owned_file_copy: bool
     """Whether to create a copy of files that are not owned."""
     create_owned_folder_and_move_contents: bool
     """Whether to create a folder to hold the contents of an unowned folder."""
+    allow_changing_top_folder: bool
+    """Whether to allow plans for the top-level folder."""
 
     @classmethod
     def load_data(cls, data: typing.Mapping) -> "ConfigActions":
-        items = [
-            "permissions_delete_other_users",
-            "permissions_delete_link",
-            "entry_name_delete_prefix_copy_of",
-            "create_owned_file_copy",
-            "create_owned_folder_and_move_contents",
-        ]
+        items = [field.name for field in dataclasses.fields(cls)]
         params = {}
         for item in items:
             value = data.get(item, False)
             if value is True or value == "true" or value == "True":
                 params[item] = True
-            else:
+            elif value is False or value == "false" or value == "False":
                 params[item] = False
+            else:
+                params[item] = value
 
         return ConfigActions(**params)
 
     def save_data(self) -> typing.Mapping:
-        items = [
-            "permissions_delete_other_users",
-            "permissions_delete_link",
-            "entry_name_delete_prefix_copy_of",
-            "create_owned_file_copy",
-            "create_owned_folder_and_move_contents",
-        ]
+        items = [field.name for field in dataclasses.fields(self)]
         result = {}
         for item in items:
             result[item] = getattr(self, item)
@@ -637,19 +632,38 @@ class GoogleDriveEntry(BaseModel):
 
         permissions_list = data["fileMoverExtraPermissions"]
 
-        if included_permissions != permissions_list:
-            raise ValueError([included_permissions, permissions_list])
-        if permission_ids != [i.entry_id for i in included_permissions]:
-            raise ValueError([included_permissions, permission_ids])
-        if permission_ids != [i.entry_id for i in permissions_list]:
-            raise ValueError([permissions_list, permission_ids])
+        entry_name = params["name"]
+        if set(included_permissions) != set(permissions_list):
+            logger.error(
+                f"Included permissions for '{entry_name}' ({entry_id}) "
+                "do not match permissions list "
+                f"'{set(included_permissions) - set(permissions_list)}'."
+            )
+
+        included_permissions_ids = [i.entry_id for i in included_permissions]
+        if sorted(permission_ids) != sorted(included_permissions_ids):
+            logger.error(
+                f"Included permission ids for '{entry_name}' ({entry_id}) "
+                "do not match permission ids "
+                f"'{set(permission_ids) - set(included_permissions_ids)}'."
+            )
+
+        permissions_list_ids = [i.entry_id for i in permissions_list]
+        if sorted(permission_ids) != sorted(permissions_list_ids):
+            logger.error(
+                f"Permission list ids for '{entry_name}' ({entry_id}) "
+                "do not match permission ids "
+                f"'{set(permission_ids) - set(permissions_list_ids)}'."
+            )
 
         is_trashed = params.get("trashed")
         if is_trashed is not True and is_trashed is not False:
             raise ValueError(f"Invalid value for 'trashed': {is_trashed}.")
 
         if has_augmented_permissions:
-            raise ValueError(data)
+            logger.error(
+                f"Entry '{entry_name}' ({entry_id}) has augmented permissions."
+            )
 
         return GoogleDriveEntry(**params)
 
