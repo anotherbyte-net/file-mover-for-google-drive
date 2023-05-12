@@ -2,6 +2,7 @@
 
 import dataclasses
 import logging
+import pathlib
 import typing
 
 from file_mover_for_google_drive.common import manage, models, report, client
@@ -251,15 +252,31 @@ class Plan(manage.BaseManage):
         prefix_copy_len = len(prefix_copy)
         compare_name = str(entry.name).casefold()
         rename_index = 0
+        count = 0
+
         # there might be zero, one, or more instances of the prefix
         while compare_name[rename_index:].startswith(prefix_copy):
+            count += 1
             rename_index += prefix_copy_len
 
         if rename_index < 1:
             logger.debug("No change to file name.")
             return
 
-        new_name = entry.name[rename_index:]
+        new_name = pathlib.Path(entry.name[rename_index:])
+
+        # Add the number of copies to the end of the file name.
+        # Check if the number of copies is already present.
+        # Combine the numbers if the number of copies is already present.
+        copy_count_text = " copy (x"
+        if copy_count_text in new_name.stem and new_name.stem.endswith(")"):
+            count_copy_index = new_name.stem.rindex(copy_count_text) + len(
+                copy_count_text
+            )
+            count_copy = new_name.stem[count_copy_index:-1]
+            count += int(count_copy)
+
+        new_name = f"{new_name.stem}{copy_count_text}{count}){new_name.suffix}"
 
         if not is_rename:
             logger.debug(
