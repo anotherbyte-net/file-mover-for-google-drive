@@ -248,7 +248,8 @@ class Plan(manage.BaseManage):
             logger.debug("Will never rename folders.")
             return
 
-        prefix_copy = "Copy of ".casefold()
+        prefix_copy_raw = "Copy of "
+        prefix_copy = prefix_copy_raw.casefold()
         prefix_copy_len = len(prefix_copy)
         compare_name = str(entry.name).casefold()
         rename_index = 0
@@ -265,18 +266,9 @@ class Plan(manage.BaseManage):
 
         new_name = pathlib.Path(entry.name[rename_index:])
 
-        # Add the number of copies to the end of the file name.
-        # Check if the number of copies is already present.
-        # Combine the numbers if the number of copies is already present.
-        copy_count_text = " copy (x"
-        if copy_count_text in new_name.stem and new_name.stem.endswith(")"):
-            count_copy_index = new_name.stem.rindex(copy_count_text) + len(
-                copy_count_text
-            )
-            count_copy = new_name.stem[count_copy_index:-1]
-            count += int(count_copy)
-
-        new_name = f"{new_name.stem}{copy_count_text}{count}){new_name.suffix}"
+        # Add the number of 'Copy of ' to the end of the file name.
+        new_suffix = " ".join([prefix_copy_raw.strip()] * count)
+        new_name = f"{new_name.stem} {new_suffix}{new_name.suffix}"
 
         if not is_rename:
             logger.debug(

@@ -56,7 +56,7 @@ level,message
 20,"Processing file 'Copy of Entry Level 2 - File 1.docx' (id personal-file-level2-002) props ''."
 10,"Will never copy an owned file or folder."
 10,"Will never move files and folders in an owned folder."
-10,"Config prevented renaming 'Copy of Entry Level 2 - File 1.docx' to 'Entry Level 2 - File 1 copy (x1).docx'."
+10,"Config prevented renaming 'Copy of Entry Level 2 - File 1.docx' to 'Entry Level 2 - File 1 Copy of.docx'."
 10,"Delete permission personal-other-user-1 <personal-other-user-1@example.com> (EDITOR)."
 20,"Added plan delete-permission file 'Copy of Entry Level 2 - File 1.docx' path 'Folder Top/Entry Level 1 - Folder 1' user 'personal-other-user-1' email 'personal-other-user-1@example.com' access 'writer'."
 10,"Keep permission personal-current-user <personal-current-user@example.com> (OWNER)."
