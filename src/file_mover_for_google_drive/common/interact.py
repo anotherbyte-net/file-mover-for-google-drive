@@ -331,6 +331,8 @@ class GoogleDriveContainer:
     Builds requests that can be executed using a Google Drive Actions instance.
     """
 
+    _new_stem_end = " api_copy"
+
     def __init__(self, google_drive_api: GoogleDriveApi, account: models.ConfigAccount):
         """Create a new Google Drive container instance.
 
@@ -421,7 +423,7 @@ class GoogleDriveContainer:
         body = {
             "createdTime": entry.date_created.isoformat(timespec="microseconds"),
             "modifiedTime": entry.date_modified.isoformat(timespec="microseconds"),
-            "name": entry.name,
+            "name": entry.name + self._new_stem_end,
             "parents": [new_parent_id],
             "mimeType": models.GoogleDriveEntry.mime_type_dir(),
             "properties": {
@@ -543,7 +545,7 @@ class GoogleDriveContainer:
             "createdTime": entry.date_created.isoformat(timespec="microseconds"),
             "modifiedTime": entry.date_modified.isoformat(timespec="microseconds"),
             "description": entry.description,
-            "name": entry.name,
+            "name": entry.name + self._new_stem_end,
             "parents": [parent_id],
             "properties": {
                 models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value: entry.entry_id
