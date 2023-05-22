@@ -581,7 +581,7 @@ class GoogleDriveEntry(BaseModel):
             raise ValueError("Must include the response from permissions.list.")
 
         included_permissions = [
-            GoogleDrivePermission.load_data(i) for i in data.get("permissions", [])
+            GoogleDrivePermission.load_data(i) for i in (data.get("permissions") or [])
         ]
 
         params = {
@@ -623,7 +623,7 @@ class GoogleDriveEntry(BaseModel):
         # """ID of the shared drive the file resides in.
         # Only populated for items in shared drives."""
 
-        permission_ids = data.get("permissionIds")
+        permission_ids = data.get("permissionIds") or []
         # """List of permission IDs for users with access to this file."""
 
         has_augmented_permissions = data.get("hasAugmentedPermissions")
@@ -634,26 +634,35 @@ class GoogleDriveEntry(BaseModel):
 
         entry_name = params["name"]
         if set(included_permissions) != set(permissions_list):
+            set1 = set(included_permissions)
+            set2 = set(permissions_list)
+            set_diff = set1.symmetric_difference(set2)
             logger.error(
                 f"Included permissions for '{entry_name}' ({entry_id}) "
-                "do not match permissions list "
-                f"'{set(included_permissions) - set(permissions_list)}'."
+                "do not match permissions list. Difference: "
+                f"'{set_diff}'."
             )
 
         included_permissions_ids = [i.entry_id for i in included_permissions]
         if sorted(permission_ids) != sorted(included_permissions_ids):
+            set1 = set(permission_ids)
+            set2 = set(included_permissions_ids)
+            set_diff = set1.symmetric_difference(set2)
             logger.error(
                 f"Included permission ids for '{entry_name}' ({entry_id}) "
-                "do not match permission ids "
-                f"'{set(permission_ids) - set(included_permissions_ids)}'."
+                "do not match permission ids. Difference: "
+                f"'{set_diff}'."
             )
 
         permissions_list_ids = [i.entry_id for i in permissions_list]
         if sorted(permission_ids) != sorted(permissions_list_ids):
+            set1 = set(permission_ids)
+            set2 = set(permissions_list_ids)
+            set_diff = set1.symmetric_difference(set2)
             logger.error(
                 f"Permission list ids for '{entry_name}' ({entry_id}) "
-                "do not match permission ids "
-                f"'{set(permission_ids) - set(permissions_list_ids)}'."
+                "do not match permission ids Difference: "
+                f"'{set_diff}'."
             )
 
         is_trashed = params.get("trashed")

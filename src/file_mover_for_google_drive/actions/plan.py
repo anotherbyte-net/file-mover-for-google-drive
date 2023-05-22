@@ -361,7 +361,7 @@ class Plan(manage.BaseManage):
                 )
                 continue
 
-            raise ValueError(f"Unknown permission {str(permission)}.")
+            logger.debug(f"No change to {str(permission)}.")
 
     def _build_plan_move(
         self,
