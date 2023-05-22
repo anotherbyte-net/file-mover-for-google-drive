@@ -4,6 +4,7 @@ import datetime
 import itertools
 import json
 import logging
+import pathlib
 import typing
 
 from googleapiclient import discovery, http
@@ -539,13 +540,15 @@ class GoogleDriveContainer:
         create a copy that is owned by the current user.
         Must be copied within a personal account (i.e. My Drive).
         """
+        entry_filename = pathlib.Path(entry.name)
+        new_name = f"{entry_filename.stem}{self._new_stem_end}{entry_filename.suffix}"
 
         entry_id = entry.entry_id
         body = {
             "createdTime": entry.date_created.isoformat(timespec="microseconds"),
             "modifiedTime": entry.date_modified.isoformat(timespec="microseconds"),
             "description": entry.description,
-            "name": entry.name + self._new_stem_end,
+            "name": new_name,
             "parents": [parent_id],
             "properties": {
                 models.GoogleDrivePropertyKeyOptions.CUSTOM_ORIGINAL_FILE_ID.value: entry.entry_id
