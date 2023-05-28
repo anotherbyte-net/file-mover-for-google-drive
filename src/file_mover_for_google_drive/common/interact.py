@@ -8,6 +8,7 @@ import pathlib
 import typing
 
 from googleapiclient import discovery, http
+from googleapiclient.errors import HttpError
 
 from file_mover_for_google_drive.common import models, client, utils
 
@@ -258,10 +259,14 @@ class GoogleDriveApi:
         Returns:
             The response.
         """
-        response = request.execute(num_retries=self._config.num_retries)
-        # self._write_request_response(request, response)
+        try:
+            response = request.execute(num_retries=self._config.num_retries)
+            # self._write_request_response(request, response)
+            return response
+        except HttpError as e:
+            logger.debug(f"Request failed: {request}", e)
 
-        return response
+        return {}
 
     def _write_request_response(self, request, response) -> None:
         file_date_str = datetime.datetime.now().isoformat(
