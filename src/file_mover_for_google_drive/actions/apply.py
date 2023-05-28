@@ -281,7 +281,7 @@ class Apply(manage.BaseManage):
                 **{
                     **params,
                     "result_name": models.PlanReportOutcomes.SKIPPED,
-                    "result_description": f"The permission does not exist.",
+                    "result_description": "The permission does not exist.",
                 }
             )
 
